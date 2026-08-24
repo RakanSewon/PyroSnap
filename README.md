@@ -1,4 +1,5 @@
-#NAMA APLIKASI
+# PyroSnap
+
 Personalized dashboard for air quality and wildifire risk
 Kelompokduasatu
 Ketua Kelompok: RIAN PRASETYA MUNAJI (Software Architect)
