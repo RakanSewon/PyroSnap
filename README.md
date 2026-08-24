@@ -4,7 +4,7 @@ Personalized dashboard for air quality and wildifire risk
 
 Kelompokduasatu
 
-Ketua Kelompok: RIAN PRASETYA MUNAJI (Software Architect)
+Ketua Kelompok: 545573 RIAN PRASETYA MUNAJI (Software Architect)
 
 Anggota 1: 540158 RAKAN HENDIAN RAMADHAN (Backend Developer)
 
