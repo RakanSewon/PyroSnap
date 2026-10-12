@@ -13,6 +13,8 @@ namespace PyroSnap.Services
         public string EndpointUrl { get; private set; }
         public DateTime WaktuSinkronisasi { get; private set; }
 
+        public List<Hotspot> Hotspots { get; private set; } = new List<Hotspot>();
+
         private static readonly HttpClient _client = new HttpClient();
 
         public HotspotDataSource(string nama, string url)
@@ -92,7 +94,7 @@ namespace PyroSnap.Services
         {
             List<Hotspot> data = await FetchDataAsync();
             if (data.Count == 0) return false;
-
+            Hotspots = data;
             WaktuSinkronisasi = DateTime.Now;
             return true;
         }

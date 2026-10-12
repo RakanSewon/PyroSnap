@@ -12,6 +12,11 @@ public class HotspotReport
     public DateTime TanggalDibuat { get; private set; }
     public List<Hotspot> DaftarHotspot { get; private set; }
 
+    public void MuatData(List<Hotspot> data) 
+    {
+        DaftarHotspot = data;   
+    }
+
     public HotspotReport(string format)
     {
         Format = format;

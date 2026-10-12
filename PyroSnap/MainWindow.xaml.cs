@@ -33,6 +33,31 @@ namespace PyroSnap
             if (isSuccess)
             {
                 Debug.WriteLine($"Sinkronisasi berhasil! Data terupdate pada: {nasaSource.WaktuSinkronisasi}");
+
+                // Mengakses total data
+                Debug.WriteLine($"Jumlah total hotspot di Jawa hari ini: {nasaSource.Hotspots.Count} titik.");
+
+                // Mengakses detail data satu per satu
+                if (nasaSource.Hotspots.Count > 0)
+                {
+                    var hotspotPertama = nasaSource.Hotspots[0]; // Ambil data index ke-0
+                    Debug.WriteLine($"Titik panas pertama terdeteksi di Koordinat: {hotspotPertama.Latitude}, {hotspotPertama.Longitude}");
+                }
+                // --- UJI COBA FITUR REPORT ---
+                var laporan = new HotspotReport("TXT");
+
+                // 1. Masukkan data dari NASA ke dalam laporan
+                laporan.MuatData(nasaSource.Hotspots);
+
+                // 2. Generate string laporannya
+                if (laporan.Generate())
+                {
+                    // 3. Ekspor ke file (akan tersimpan di folder bin/Debug/net8.0-windows/)
+                    string pathFile = "Laporan_Hotspot_Jawa.txt";
+                    laporan.ExportToFile(pathFile);
+
+                    Debug.WriteLine($"Laporan berhasil diekspor menjadi file: {pathFile}");
+                }
             }
         }
     }
