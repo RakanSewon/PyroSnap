@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- Ubah OutputType menjadi WinExe agar tidak memunculkan layar hitam Terminal/CMD -->
+    <OutputType>WinExe</OutputType> 
+
+    <!-- Tambahkan akhiran -windows pada TargetFramework (angka net8.0 bisa menyesuaikan versimu, misal net6.0 atau net7.0) -->
+    <TargetFramework>net8.0-windows</TargetFramework> 
+
+    <!-- Tambahkan baris ini untuk mengaktifkan WPF -->
+    <UseWPF>true</UseWPF> 
+
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>

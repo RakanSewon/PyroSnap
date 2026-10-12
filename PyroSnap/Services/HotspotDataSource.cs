@@ -1,71 +1,100 @@
-namespace PyroSnap;
-
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks; // Wajib untuk async/Task
-using System.Diagnostics;     // Untuk Debug.WriteLine
+using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Globalization; // Untuk parsing angka desimal (titik/koma)
 
-// Diagram: Hotspot --berasal dari--> HotspotDataSource
-public class HotspotDataSource
+namespace PyroSnap.Services
 {
-    public string NamaSumber { get; private set; }
-    public string EndpointUrl { get; private set; }
-    public DateTime WaktuSinkronisasi { get; private set; }
-
-    // Tambahkan HttpClient sebagai static agar efisien mengatur koneksi (seperti axios instance)
-    private static readonly HttpClient _client = new HttpClient();
-
-    public HotspotDataSource(string nama, string url)
+    public class HotspotDataSource
     {
-        NamaSumber = nama;
-        EndpointUrl = url;
-    }
+        public string NamaSumber { get; private set; }
+        public string EndpointUrl { get; private set; }
+        public DateTime WaktuSinkronisasi { get; private set; }
 
-    // Ubah nama menjadi FetchDataAsync dan kembalikan Task (mirip Promise di JS)
-    public async Task<List<Hotspot>> FetchDataAsync()
-    {
-        try
+        private static readonly HttpClient _client = new HttpClient();
+
+        public HotspotDataSource(string nama, string url)
         {
-            // Coba ambil data dari API NASA sesungguhnya
-            HttpResponseMessage response = await _client.GetAsync(EndpointUrl);
-            response.EnsureSuccessStatusCode();
-
-            string jsonResponse = await response.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            List<Hotspot> hotspots = JsonSerializer.Deserialize<List<Hotspot>>(jsonResponse, options);
-
-            return hotspots ?? new List<Hotspot>();
+            NamaSumber = nama;
+            EndpointUrl = url;
         }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Gagal fetch API {NamaSumber}: {ex.Message}");
 
-            // SMART FALLBACK: Jika API error atau belum di-setup, 
-            // kembalikan data contoh (dummy) buatanmu agar aplikasi tetap jalan
-            Debug.WriteLine("Menggunakan data dummy (mock) sebagai fallback...");
-            return new List<Hotspot>
+        public async Task<List<Hotspot>> FetchDataAsync()
+        {
+            try
             {
-                new Hotspot(0.5071, 101.4478, 85, 332.4, 41.2, new DateTime(2026, 9, 12, 3, 0, 0)),
-                new Hotspot(0.4433, 101.7621, 62, 318.9, 12.7, new DateTime(2026, 9, 12, 3, 42, 0)),
-                new Hotspot(-0.9492, 102.1350, 95, 351.0, 128.6, new DateTime(2026, 9, 12, 5, 0, 0))
-            };
+                // 1. Fetch data seperti requests.get() di Python
+                HttpResponseMessage response = await _client.GetAsync(EndpointUrl);
+                response.EnsureSuccessStatusCode();
+
+                // 2. Baca respons sebagai teks mentah (format CSV)
+                string csvData = await response.Content.ReadAsStringAsync();
+
+                return ParseCsvToHotspots(csvData);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Gagal fetch API {NamaSumber}: {ex.Message}");
+                Debug.WriteLine("Menggunakan data dummy sebagai fallback...");
+                return new List<Hotspot>
+                {
+                    new Hotspot(0.5071, 101.4478, 85, 332.4, 41.2, new DateTime(2026, 9, 12, 3, 0, 0))
+                };
+            }
         }
-    }
 
-    // Karena FetchData sekarang async, Sync juga harus menjadi async
-    public async Task<bool> SyncAsync()
-    {
-        // Tunggu proses fetch selesai
-        List<Hotspot> data = await FetchDataAsync();
-
-        if (data.Count == 0)
+        // Fungsi manual pengganti pandas.read_csv() untuk MVP
+        // Fungsi manual pengganti pandas.read_csv() untuk MVP
+        private List<Hotspot> ParseCsvToHotspots(string csvData)
         {
-            return false;
+            var hotspots = new List<Hotspot>();
+
+            // Pecah teks menjadi array baris berdasarkan enter (\n)
+            string[] baris = csvData.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+            // Perulangan dimulai dari indeks 1 untuk melewati baris header kolom
+            for (int i = 1; i < baris.Length; i++)
+            {
+                string[] kolom = baris[i].Split(',');
+
+                // Pastikan jumlah kolom mencukupi sebelum memproses (mencegah error)
+                if (kolom.Length >= 14)
+                {
+                    // Di C#, parsing angka butuh CultureInfo.InvariantCulture agar 
+                    // tanda titik (.) pada latitude/longitude NASA dibaca sebagai desimal.
+                    double lat = double.Parse(kolom[0], CultureInfo.InvariantCulture);
+                    double lon = double.Parse(kolom[1], CultureInfo.InvariantCulture);
+
+                    // Kolom ke-3 biasanya brightness/bright_ti4, kolom ke-10 confidence
+                    double brightness = double.Parse(kolom[2], CultureInfo.InvariantCulture);
+
+                    int confidence = 50;
+                    if (int.TryParse(kolom[10], out int confVal))
+                    {
+                        confidence = confVal;
+                    }
+
+                    // --- TAMBAHKAN BARIS INI KEMBALI ---
+                    // Kolom ke-13 di dataset MODIS/VIIRS umumnya adalah FRP (Fire Radiative Power)
+                    double frp = double.Parse(kolom[12], CultureInfo.InvariantCulture);
+                    // -----------------------------------
+
+                    // Pemanggilan new Hotspot sekarang akan valid karena 'frp' sudah dideklarasikan
+                    hotspots.Add(new Hotspot(lat, lon, confidence, brightness, frp, DateTime.Now));
+                }
+            }
+            return hotspots;
         }
 
-        WaktuSinkronisasi = DateTime.Now;
-        return true;
+        public async Task<bool> SyncAsync()
+        {
+            List<Hotspot> data = await FetchDataAsync();
+            if (data.Count == 0) return false;
+
+            WaktuSinkronisasi = DateTime.Now;
+            return true;
+        }
     }
 }
