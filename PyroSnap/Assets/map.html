@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PyroSnap Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        html, body, #map { height: 100%; margin: 0; padding: 0; }
+        #map { background: #aad3df; }
+        .legend {
+            background: rgba(255,255,255,0.9); padding: 6px 10px; border-radius: 6px;
+            font: 11px sans-serif; line-height: 18px;
+        }
+        .legend i { display:inline-block; width:10px; height:10px; border-radius:50%;
+            margin-right:6px; border:1px solid #fff; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Peta dipusatkan di Indonesia.
+        var map = L.map('map', { attributionControl: true }).setView([-2.5, 118], 5);
+
+        // Peta dasar: CARTO (mengizinkan pemakaian langsung; OSM memblokir WebView).
+        var cartoLight = L.tileLayer(
+            'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            subdomains: 'abcd',
+            attribution: '© OpenStreetMap, © CARTO'
+        }).addTo(map);
+
+        // Layer alternatif: citra satelit Esri.
+        var esriSat = L.tileLayer(
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: 'Tiles © Esri'
+        });
+
+        L.control.layers(
+            { 'Peta': cartoLight, 'Satelit': esriSat },
+            null,
+            { position: 'topright' }
+        ).addTo(map);
+
+        var markers = [];
+
+        function warna(conf) {
+            if (conf >= 80) return '#c81e1e';
+            if (conf >= 50) return '#e68c00';
+            return '#e6c800';
+        }
+
+        // Dipanggil dari C#: menerima JSON array hotspot.
+        function setHotspots(json) {
+            markers.forEach(function (m) { map.removeLayer(m); });
+            markers = [];
+
+            var data = JSON.parse(json);
+            data.forEach(function (h) {
+                var m = L.circleMarker([h.lat, h.lon], {
+                    radius: h.conf >= 80 ? 9 : h.conf >= 50 ? 7 : 5,
+                    fillColor: warna(h.conf),
+                    color: '#ffffff',
+                    weight: 1.5,
+                    fillOpacity: 0.9
+                }).addTo(map);
+
+                m.bindTooltip(
+                    'Lat: ' + h.lat.toFixed(3) + ', Lon: ' + h.lon.toFixed(3) +
+                    '<br>Confidence: ' + h.conf + '%' +
+                    '<br>FRP: ' + h.frp + ' MW');
+
+                // Klik marker -> kirim id ke C#.
+                m.on('click', function () {
+                    if (window.chrome && window.chrome.webview) {
+                        window.chrome.webview.postMessage(String(h.id));
+                    }
+                });
+
+                markers.push(m);
+            });
+
+            // Zoom otomatis ke kumpulan titik bila ada.
+            if (data.length > 0) {
+                var group = L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.3));
+            }
+        }
+
+        // Dipanggil dari C#: fokus peta ke koordinat tertentu.
+        function focusLocation(lat, lon, zoom) {
+            map.setView([lat, lon], zoom || 7);
+        }
+
+        // Legend
+        var legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function () {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML =
+                '<i style="background:#c81e1e"></i>Tinggi (&ge;80%)<br>' +
+                '<i style="background:#e68c00"></i>Sedang (50-79%)<br>' +
+                '<i style="background:#e6c800"></i>Rendah (&lt;50%)';
+            return div;
+        };
+        legend.addTo(map);
+
+        // Beri tahu C# bahwa peta sudah siap menerima data.
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.postMessage('MAP_READY');
+        }
+    </script>
+</body>
+</html>

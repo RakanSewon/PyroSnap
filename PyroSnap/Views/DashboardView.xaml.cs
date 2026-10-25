@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,45 +13,101 @@ using PyroSnap.Services;
 namespace PyroSnap.Views
 {
     /// <summary>
-    /// Tampilan utama: peta hotspot + cari lokasi + filter + daftar.
+    /// Tampilan utama: peta hotspot (Leaflet/OSM via WebView2) + cari lokasi + filter + daftar.
     /// Mewakili use case: View Hotspot Map, Select/Search Location, Filter Hotspots.
-    /// Mengambil data lewat HotspotDataSource (NASA FIRMS) milik tim,
-    /// dengan fallback dummy bila API tidak tersedia.
+    /// Jika WebView2 tidak tersedia, otomatis memakai peta representasi kanvas (offline).
     /// </summary>
     public partial class DashboardView : Page
     {
         private List<Hotspot> _semua = new List<Hotspot>();
         private List<Hotspot> _tampil = new List<Hotspot>();
-
-        // Area yang sedang difokuskan dari hasil pencarian (null = seluruh Indonesia).
         private Location? _areaFokus;
 
-        // Endpoint sama seperti yang dipakai tim di MainWindow lama.
+        private bool _useWeb;        // true bila WebView2 berhasil diinisialisasi
+        private bool _webReady;      // true bila halaman map.html sudah memanggil MAP_READY
+
         private const string MapKey = "3726c0f3b209d53f165c5ab35ae57e28";
         private const string NasaUrl =
             "https://firms.modaps.eosdis.nasa.gov/api/area/csv/" + MapKey +
             "/VIIRS_SNPP_NRT/95,-11,141,6/1";
 
-        // Batas koordinat peta (Indonesia, perkiraan) untuk proyeksi ke kanvas.
         private const double LonMin = 95, LonMax = 141, LatMin = -11, LatMax = 6;
 
-        // Daftar lokasi yang dikenal untuk fitur pencarian. Pakai model Location milik tim.
         private static readonly List<Location> KnownLocations = new()
         {
-            new Location("Riau",             0.5,   101.5),
-            new Location("Jambi",           -1.6,   103.6),
-            new Location("Sumatera Selatan",-3.0,   104.8),
-            new Location("Kalimantan Barat",-0.03,  109.3),
-            new Location("Kalimantan Tengah",-1.7,  113.4),
-            new Location("Jawa",            -7.0,   110.0),
-            new Location("Sulawesi",        -2.0,   120.0),
-            new Location("Papua",           -4.0,   138.0),
+            new Location("Riau",              0.5,   101.5),
+            new Location("Jambi",            -1.6,   103.6),
+            new Location("Sumatera Selatan", -3.0,   104.8),
+            new Location("Kalimantan Barat", -0.03,  109.3),
+            new Location("Kalimantan Tengah",-1.7,   113.4),
+            new Location("Jawa",             -7.0,   110.0),
+            new Location("Sulawesi",         -2.0,   120.0),
+            new Location("Papua",            -4.0,   138.0),
         };
 
         public DashboardView()
         {
             InitializeComponent();
-            Loaded += async (_, _) => await MuatDataAsync();
+            Loaded += DashboardView_Loaded;
+        }
+
+        private async void DashboardView_Loaded(object sender, RoutedEventArgs e)
+        {
+            await InitMapAsync();
+            await MuatDataAsync();
+        }
+
+        // ---- Inisialisasi WebView2 + Leaflet, dengan fallback ke kanvas ----
+        private async System.Threading.Tasks.Task InitMapAsync()
+        {
+            try
+            {
+                await MapWeb.EnsureCoreWebView2Async(null);
+                MapWeb.CoreWebView2.WebMessageReceived += Web_MessageReceived;
+
+                // User-Agent browser normal agar penyedia tile tidak memblokir request.
+                MapWeb.CoreWebView2.Settings.UserAgent =
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+                    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
+                string htmlPath = System.IO.Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory, "Assets", "map.html");
+                MapWeb.CoreWebView2.Navigate(new Uri(htmlPath).AbsoluteUri);
+                _useWeb = true;
+            }
+            catch
+            {
+                // WebView2 Runtime tidak ada → pakai peta kanvas.
+                _useWeb = false;
+                MapWeb.Visibility = Visibility.Collapsed;
+                CanvasMapHost.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void Web_MessageReceived(object? sender,
+            Microsoft.Web.WebView2.Core.CoreWebView2WebMessageReceivedEventArgs e)
+        {
+            string msg = e.TryGetWebMessageAsString();
+
+            if (msg == "MAP_READY")
+            {
+                _webReady = true;
+                KirimDataKePeta();
+                return;
+            }
+
+            // Pesan lain = index hotspot yang diklik di peta.
+            if (int.TryParse(msg, out int idx) && idx >= 0 && idx < _tampil.Count)
+            {
+                var hs = _tampil[idx];
+                var rows = GridHotspot.ItemsSource as IEnumerable<HotspotRow>;
+                var row = rows?.FirstOrDefault(r => ReferenceEquals(r.Source, hs));
+                if (row != null)
+                {
+                    GridHotspot.SelectedItem = row;
+                    GridHotspot.ScrollIntoView(row);
+                }
+            }
         }
 
         private async System.Threading.Tasks.Task MuatDataAsync()
@@ -68,7 +126,6 @@ namespace PyroSnap.Views
                 _semua = new List<Hotspot>();
             }
 
-            // Fallback data contoh bila kosong, agar tampilan tetap bisa dinilai offline.
             if (_semua.Count == 0)
             {
                 _semua = DummyHotspots();
@@ -105,11 +162,36 @@ namespace PyroSnap.Views
             LblCount.Text = $"{_tampil.Count} dari {_semua.Count} titik";
             AppSession.CurrentHotspots = _tampil;
 
-            GambarPeta();
+            if (_useWeb) KirimDataKePeta();
+            else GambarPeta();
 
-            // Auto-pilih baris pertama supaya tombol "Lihat Detail" langsung bisa dipakai.
             if (GridHotspot.Items.Count > 0)
                 GridHotspot.SelectedIndex = 0;
+        }
+
+        // Kirim data hotspot ke Leaflet sebagai JSON. Index dipakai sebagai id.
+        private void KirimDataKePeta()
+        {
+            if (!_useWeb || !_webReady || MapWeb.CoreWebView2 == null) return;
+
+            var sb = new StringBuilder("[");
+            for (int i = 0; i < _tampil.Count; i++)
+            {
+                var h = _tampil[i];
+                if (i > 0) sb.Append(',');
+                sb.Append('{')
+                  .Append($"\"id\":{i},")
+                  .Append($"\"lat\":{h.Latitude.ToString(CultureInfo.InvariantCulture)},")
+                  .Append($"\"lon\":{h.Longitude.ToString(CultureInfo.InvariantCulture)},")
+                  .Append($"\"conf\":{h.Confidence},")
+                  .Append($"\"frp\":{h.Frp.ToString(CultureInfo.InvariantCulture)}")
+                  .Append('}');
+            }
+            sb.Append(']');
+
+            // JSON di-encode lagi agar aman dilewatkan sebagai argumen string JS.
+            string jsArg = System.Text.Json.JsonSerializer.Serialize(sb.ToString());
+            _ = MapWeb.CoreWebView2.ExecuteScriptAsync($"setHotspots({jsArg})");
         }
 
         // ---- Use case: Select / Search Location ----
@@ -142,7 +224,6 @@ namespace PyroSnap.Views
                 return;
             }
 
-            // Fokuskan ke area ~3 derajat di sekitar lokasi; saring hotspot di area itu.
             _areaFokus = lokasi;
             const double radius = 3.0;
             _tampil = _semua.Where(h =>
@@ -151,11 +232,19 @@ namespace PyroSnap.Views
 
             RefreshTampilan();
 
+            // Arahkan peta ke lokasi tersebut.
+            if (_useWeb && _webReady && MapWeb.CoreWebView2 != null)
+            {
+                string lat = lokasi.Latitude.ToString(CultureInfo.InvariantCulture);
+                string lon = lokasi.Longitude.ToString(CultureInfo.InvariantCulture);
+                _ = MapWeb.CoreWebView2.ExecuteScriptAsync($"focusLocation({lat},{lon},7)");
+            }
+
             if (_tampil.Count == 0)
                 MessageBox.Show($"Tidak ada hotspot di sekitar {lokasi.NamaLokasi}.", "PyroSnap");
         }
 
-        // ---- Use case: Filter Hotspots (pakai FilterCriteria milik tim) ----
+        // ---- Use case: Filter Hotspots ----
         private void BtnApplyFilter_Click(object sender, RoutedEventArgs e)
         {
             var filter = new FilterCriteria
@@ -164,7 +253,6 @@ namespace PyroSnap.Views
                 FrpMin = SldFrp.Value
             };
 
-            // Filter diterapkan pada data yang sedang tampil (hormati hasil pencarian).
             var basis = _areaFokus == null ? _semua : _tampil;
             _tampil = basis.Where(filter.IsMatch).ToList();
             RefreshTampilan();
@@ -202,8 +290,7 @@ namespace PyroSnap.Views
 
         private void GridHotspot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Sorot titik yang dipilih di peta.
-            GambarPeta();
+            if (!_useWeb) GambarPeta(); // sorot titik terpilih pada kanvas
         }
 
         private void BukaDetail()
@@ -224,13 +311,16 @@ namespace PyroSnap.Views
         private void BtnLogout_Click(object sender, RoutedEventArgs e)
             => ((MainWindow)Window.GetWindow(this)).Navigate(new LoginView());
 
+        // =========================================================
+        //  Fallback peta kanvas (dipakai hanya bila WebView2 gagal)
+        // =========================================================
         private void MapCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            if (_useWeb) return;
             GambarGrid();
             GambarPeta();
         }
 
-        // ---- Garis grid koordinat sebagai latar peta ----
         private void GambarGrid()
         {
             GridCanvas.Children.Clear();
@@ -238,8 +328,6 @@ namespace PyroSnap.Views
             if (w <= 0 || h <= 0) return;
 
             var penBrush = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0));
-
-            // garis bujur tiap 10 derajat
             for (double lon = 100; lon < LonMax; lon += 10)
             {
                 double x = (lon - LonMin) / (LonMax - LonMin) * w;
@@ -250,7 +338,6 @@ namespace PyroSnap.Views
                     RenderTransform = new TranslateTransform(x + 2, h - 14)
                 });
             }
-            // garis lintang tiap 5 derajat
             for (double lat = 5; lat > LatMin; lat -= 5)
             {
                 double y = (LatMax - lat) / (LatMax - LatMin) * h;
@@ -258,9 +345,9 @@ namespace PyroSnap.Views
             }
         }
 
-        // ---- Menggambar titik hotspot pada "peta" ----
         private void GambarPeta()
         {
+            if (MapCanvas == null) return;
             MapCanvas.Children.Clear();
 
             double w = MapCanvas.ActualWidth, h = MapCanvas.ActualHeight;
@@ -281,13 +368,10 @@ namespace PyroSnap.Views
 
                 var dot = new Ellipse
                 {
-                    Width = r,
-                    Height = r,
-                    Fill = fill,
+                    Width = r, Height = r, Fill = fill,
                     Stroke = isSel ? Brushes.Black : Brushes.White,
                     StrokeThickness = isSel ? 2.5 : 1.5,
-                    Cursor = Cursors.Hand,
-                    Tag = hs,
+                    Cursor = Cursors.Hand, Tag = hs,
                     ToolTip = $"{hs.Latitude:0.00}, {hs.Longitude:0.00}  |  {hs.Confidence}%  |  {hs.Frp} MW"
                 };
                 dot.MouseLeftButtonUp += Dot_Click;
@@ -298,7 +382,6 @@ namespace PyroSnap.Views
             }
         }
 
-        // Klik titik di peta → pilih di daftar (satu klik) / buka detail (jika sudah terpilih).
         private void Dot_Click(object sender, MouseButtonEventArgs e)
         {
             if (sender is not Ellipse el || el.Tag is not Hotspot hs) return;
@@ -309,7 +392,6 @@ namespace PyroSnap.Views
 
             if (ReferenceEquals(GridHotspot.SelectedItem, row))
             {
-                // Titik yang sama diklik dua kali → buka detail.
                 AppSession.SelectedHotspot = hs;
                 ((MainWindow)Window.GetWindow(this)).Navigate(new DetailView());
             }

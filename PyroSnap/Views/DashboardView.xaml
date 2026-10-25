@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d"
       d:DesignHeight="640" d:DesignWidth="960"
       Title="Dashboard"
@@ -99,36 +100,38 @@
                     <RowDefinition Height="3*" />
                 </Grid.RowDefinitions>
 
-                <!-- Peta representasi -->
+                <!-- Peta -->
                 <Border Grid.Row="0" Background="#FFEAF2F8" CornerRadius="10"
                         Margin="0,0,0,12" ClipToBounds="True">
                     <Grid>
-                        <!-- lapisan grid koordinat digambar di belakang titik -->
-                        <Canvas x:Name="GridCanvas" IsHitTestVisible="False" />
-                        <Canvas x:Name="MapCanvas" SizeChanged="MapCanvas_SizeChanged" />
+                        <!-- Peta interaktif (Leaflet + OpenStreetMap via WebView2) -->
+                        <wv2:WebView2 x:Name="MapWeb" />
 
-                        <TextBlock Text="Peta Hotspot Indonesia (representasi) — klik titik untuk detail"
-                                   Foreground="{StaticResource MutedText}" FontSize="11"
-                                   Margin="10,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" />
-
-                        <!-- Legend -->
-                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,10,10"
-                                Background="#CCFFFFFF" CornerRadius="6" Padding="8,6">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,1">
-                                    <Ellipse Width="10" Height="10" Fill="#C81E1E" VerticalAlignment="Center" />
-                                    <TextBlock Text="Tinggi (≥80%)" FontSize="10" Margin="6,0,0,0" />
+                        <!-- Fallback: representasi kanvas bila WebView2 tak tersedia -->
+                        <Grid x:Name="CanvasMapHost" Visibility="Collapsed">
+                            <Canvas x:Name="GridCanvas" IsHitTestVisible="False" />
+                            <Canvas x:Name="MapCanvas" SizeChanged="MapCanvas_SizeChanged" />
+                            <TextBlock Text="Peta representasi (offline) — klik titik untuk detail"
+                                       Foreground="{StaticResource MutedText}" FontSize="11"
+                                       Margin="10,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                            <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,10,10"
+                                    Background="#CCFFFFFF" CornerRadius="6" Padding="8,6">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,1">
+                                        <Ellipse Width="10" Height="10" Fill="#C81E1E" VerticalAlignment="Center" />
+                                        <TextBlock Text="Tinggi (≥80%)" FontSize="10" Margin="6,0,0,0" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,1">
+                                        <Ellipse Width="10" Height="10" Fill="#E68C00" VerticalAlignment="Center" />
+                                        <TextBlock Text="Sedang (50–79%)" FontSize="10" Margin="6,0,0,0" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,1">
+                                        <Ellipse Width="10" Height="10" Fill="#E6C800" VerticalAlignment="Center" />
+                                        <TextBlock Text="Rendah (&lt;50%)" FontSize="10" Margin="6,0,0,0" />
+                                    </StackPanel>
                                 </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,1">
-                                    <Ellipse Width="10" Height="10" Fill="#E68C00" VerticalAlignment="Center" />
-                                    <TextBlock Text="Sedang (50–79%)" FontSize="10" Margin="6,0,0,0" />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,1">
-                                    <Ellipse Width="10" Height="10" Fill="#E6C800" VerticalAlignment="Center" />
-                                    <TextBlock Text="Rendah (&lt;50%)" FontSize="10" Margin="6,0,0,0" />
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
+                            </Border>
+                        </Grid>
 
                         <!-- Loading overlay -->
                         <Border x:Name="LoadingOverlay" Background="#CCFFFFFF" Visibility="Collapsed">
