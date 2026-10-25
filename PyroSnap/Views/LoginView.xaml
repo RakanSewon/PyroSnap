@@ -1,0 +1,46 @@
+<Page x:Class="PyroSnap.Views.LoginView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      d:DesignHeight="640" d:DesignWidth="960"
+      Title="Login"
+      Background="{StaticResource PageBg}">
+
+    <Grid>
+        <Border Width="380" VerticalAlignment="Center" HorizontalAlignment="Center"
+                Background="{StaticResource PanelBg}" CornerRadius="12" Padding="32">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="2" Opacity="0.2" />
+            </Border.Effect>
+
+            <StackPanel>
+                <TextBlock Text="🔥 PyroSnap" FontSize="30" FontWeight="Bold"
+                           Foreground="{StaticResource FireRed}"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="Pemantauan Titik Api / Hotspot"
+                           Foreground="{StaticResource MutedText}"
+                           HorizontalAlignment="Center" Margin="0,2,0,24" />
+
+                <TextBlock Text="Username" FontWeight="SemiBold" Margin="0,0,0,4" />
+                <TextBox x:Name="TxtUsername" Padding="8" FontSize="14"
+                         BorderBrush="#FFCCCCCC" BorderThickness="1" />
+
+                <TextBlock Text="Password" FontWeight="SemiBold" Margin="0,16,0,4" />
+                <PasswordBox x:Name="TxtPassword" Padding="8" FontSize="14"
+                             BorderBrush="#FFCCCCCC" BorderThickness="1" />
+
+                <TextBlock x:Name="LblError" Foreground="{StaticResource FireRed}"
+                           TextWrapping="Wrap" Margin="0,10,0,0" Visibility="Collapsed" />
+
+                <Button x:Name="BtnLogin" Content="Login" Style="{StaticResource PrimaryButton}"
+                        Margin="0,22,0,0" Height="42" Click="BtnLogin_Click" />
+
+                <TextBlock Text="Demo: admin / pyrosnap"
+                           Foreground="{StaticResource MutedText}" FontSize="11"
+                           HorizontalAlignment="Center" Margin="0,14,0,0" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

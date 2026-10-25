@@ -12,4 +12,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <!-- Peta interaktif (Leaflet + OpenStreetMap) di-host lewat WebView2 -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
+  </ItemGroup>
+
+  <!-- File HTML peta ikut dikopi ke output agar bisa dimuat WebView2 -->
+  <ItemGroup>
+    <None Update="Assets\map.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

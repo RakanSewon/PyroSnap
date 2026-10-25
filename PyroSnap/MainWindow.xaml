@@ -5,8 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PyroSnap"
         mc:Ignorable="d"
-        Title="PyroSnap" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="PyroSnap" Height="640" Width="960"
+        WindowStartupLocation="CenterScreen"
+        Background="#FFF7F3F0">
+    <!--
+        MainWindow berperan sebagai host navigasi (shell).
+        Setiap "form"/tampilan dimuat ke dalam Frame di bawah ini.
+        Perpindahan antar tampilan dilakukan lewat MainWindow.Navigate(...).
+    -->
+    <Frame x:Name="MainFrame"
+           NavigationUIVisibility="Hidden"
+           Focusable="False" />
 </Window>
