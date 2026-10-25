@@ -35,13 +35,31 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Panel kiri: Filter + aksi -->
+            <!-- Panel kiri: Cari + Filter + aksi -->
             <Border Grid.Column="0" Background="{StaticResource PanelBg}" CornerRadius="10"
                     Padding="18" Margin="0,0,16,0">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.12" />
                 </Border.Effect>
                 <StackPanel>
+                    <!-- Cari Lokasi (use case Select/Search Location) -->
+                    <TextBlock Text="Cari Lokasi" FontSize="16" FontWeight="Bold" Margin="0,0,0,8" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="TxtSearch" Grid.Column="0" Padding="6" FontSize="13"
+                                 BorderBrush="#FFCCCCCC" BorderThickness="1"
+                                 KeyDown="TxtSearch_KeyDown" />
+                        <Button Grid.Column="1" Content="Cari" Style="{StaticResource PrimaryButton}"
+                                Margin="6,0,0,0" Padding="12,6" Click="BtnSearch_Click" />
+                    </Grid>
+                    <TextBlock Text="mis. Riau, Jambi, Kalimantan"
+                               Foreground="{StaticResource MutedText}" FontSize="11" Margin="0,4,0,0" />
+
+                    <Separator Margin="0,16" />
+
                     <TextBlock Text="Filter Hotspot" FontSize="16" FontWeight="Bold" Margin="0,0,0,12" />
 
                     <TextBlock Text="Confidence minimum (%)" Margin="0,0,0,4" />
@@ -65,7 +83,7 @@
 
                     <Separator Margin="0,18" />
 
-                    <Button Content="Lihat Detail" Style="{StaticResource SecondaryButton}"
+                    <Button Content="Lihat Detail" Style="{StaticResource PrimaryButton}"
                             Height="38" Margin="0,0,0,8" Click="BtnDetail_Click" />
                     <Button Content="Export Laporan" Style="{StaticResource SecondaryButton}"
                             Height="38" Click="BtnExport_Click" />
@@ -82,16 +100,44 @@
                 </Grid.RowDefinitions>
 
                 <!-- Peta representasi -->
-                <Border Grid.Row="0" Background="#FFE8F0E8" CornerRadius="10"
+                <Border Grid.Row="0" Background="#FFEAF2F8" CornerRadius="10"
                         Margin="0,0,0,12" ClipToBounds="True">
                     <Grid>
+                        <!-- lapisan grid koordinat digambar di belakang titik -->
+                        <Canvas x:Name="GridCanvas" IsHitTestVisible="False" />
                         <Canvas x:Name="MapCanvas" SizeChanged="MapCanvas_SizeChanged" />
-                        <TextBlock Text="Peta Hotspot (representasi) — tiap titik = 1 hotspot"
+
+                        <TextBlock Text="Peta Hotspot Indonesia (representasi) — klik titik untuk detail"
                                    Foreground="{StaticResource MutedText}" FontSize="11"
-                                   Margin="10,8,0,0" VerticalAlignment="Top" />
-                        <TextBlock x:Name="LblMapStatus" Text="Memuat data..."
-                                   Foreground="{StaticResource MutedText}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                   Margin="10,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" />
+
+                        <!-- Legend -->
+                        <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,10,10"
+                                Background="#CCFFFFFF" CornerRadius="6" Padding="8,6">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,1">
+                                    <Ellipse Width="10" Height="10" Fill="#C81E1E" VerticalAlignment="Center" />
+                                    <TextBlock Text="Tinggi (≥80%)" FontSize="10" Margin="6,0,0,0" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,1">
+                                    <Ellipse Width="10" Height="10" Fill="#E68C00" VerticalAlignment="Center" />
+                                    <TextBlock Text="Sedang (50–79%)" FontSize="10" Margin="6,0,0,0" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,1">
+                                    <Ellipse Width="10" Height="10" Fill="#E6C800" VerticalAlignment="Center" />
+                                    <TextBlock Text="Rendah (&lt;50%)" FontSize="10" Margin="6,0,0,0" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Loading overlay -->
+                        <Border x:Name="LoadingOverlay" Background="#CCFFFFFF" Visibility="Collapsed">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock x:Name="LblMapStatus" Text="Memuat data hotspot..."
+                                           Foreground="{StaticResource FireRed}" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
                     </Grid>
                 </Border>
 
@@ -110,6 +156,7 @@
                                   HeadersVisibility="Column" GridLinesVisibility="Horizontal"
                                   BorderThickness="0" RowHeaderWidth="0"
                                   SelectionMode="Single" Margin="4,0,4,4"
+                                  SelectionChanged="GridHotspot_SelectionChanged"
                                   MouseDoubleClick="GridHotspot_MouseDoubleClick">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Koordinat" Binding="{Binding Koordinat}" Width="*" />
