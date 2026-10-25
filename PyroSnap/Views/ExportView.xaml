@@ -1,0 +1,59 @@
+<Page x:Class="PyroSnap.Views.ExportView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      d:DesignHeight="640" d:DesignWidth="960"
+      Title="Export Laporan"
+      Background="{StaticResource PageBg}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource PageHeader}">
+            <TextBlock Text="Export Laporan Hotspot" FontSize="20" FontWeight="Bold" Foreground="White" />
+        </Border>
+
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="240" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Opsi -->
+            <Border Grid.Column="0" Background="{StaticResource PanelBg}" CornerRadius="10"
+                    Padding="18" Margin="0,0,16,0">
+                <StackPanel>
+                    <TextBlock x:Name="LblInfo" Text="Jumlah hotspot: -" FontWeight="SemiBold"
+                               TextWrapping="Wrap" Margin="0,0,0,16" />
+
+                    <TextBlock Text="Format:" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <RadioButton x:Name="RbTxt" Content="TXT" IsChecked="True" Margin="0,0,0,6"
+                                 Checked="Format_Changed" />
+                    <RadioButton x:Name="RbCsv" Content="CSV (Excel)" Margin="0,0,0,6"
+                                 Checked="Format_Changed" />
+
+                    <Button Content="Export ke File" Style="{StaticResource PrimaryButton}"
+                            Margin="0,20,0,0" Height="40" Click="BtnExport_Click" />
+                    <Button Content="Kembali" Style="{StaticResource SecondaryButton}"
+                            Margin="0,10,0,0" Height="36" Click="BtnBack_Click" />
+                </StackPanel>
+            </Border>
+
+            <!-- Preview -->
+            <Border Grid.Column="1" Background="{StaticResource PanelBg}" CornerRadius="10" Padding="4">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Text="Preview Laporan" FontWeight="Bold"
+                               Margin="12,10,0,6" />
+                    <TextBox x:Name="TxtPreview" IsReadOnly="True" FontFamily="Consolas" FontSize="12"
+                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                             BorderThickness="0" Margin="8,0,8,8" />
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

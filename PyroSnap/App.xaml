@@ -3,6 +3,78 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+
+            <!-- Warna tema PyroSnap (api / merah-oranye) -->
+            <Color x:Key="FireRedColor">#FFB71C1C</Color>
+            <SolidColorBrush x:Key="FireRed" Color="{StaticResource FireRedColor}" />
+            <SolidColorBrush x:Key="FireOrange" Color="#FFE65100" />
+            <SolidColorBrush x:Key="PanelBg" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="PageBg" Color="#FFF7F3F0" />
+            <SolidColorBrush x:Key="MutedText" Color="#FF6D6D6D" />
+
+            <!-- Tombol utama (aksi penting) -->
+            <Style x:Key="PrimaryButton" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource FireRed}" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Padding" Value="16,8" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="b" Background="{TemplateBinding Background}"
+                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="b" Property="Opacity" Value="0.9" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="b" Property="Opacity" Value="0.75" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Tombol sekunder -->
+            <Style x:Key="SecondaryButton" TargetType="Button">
+                <Setter Property="Background" Value="#FFEDE7E3" />
+                <Setter Property="Foreground" Value="#FF333333" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Padding" Value="16,8" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="b" Background="{TemplateBinding Background}"
+                                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="b" Property="Background" Value="#FFE0D8D2" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Header merah di tiap halaman -->
+            <Style x:Key="PageHeader" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource FireRed}" />
+                <Setter Property="Padding" Value="20,14" />
+            </Style>
+
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
