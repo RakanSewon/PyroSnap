@@ -57,7 +57,7 @@
                         
                         <!-- Pilihan TXT -->
                         <Border Background="#FFF8FAFC" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,8">
-                            <RadioButton x:Name="RbTxt" IsChecked="True" Checked="Format_Changed">
+                            <RadioButton x:Name="RbTxt" GroupName="FormatEkspor" IsChecked="True" Checked="Format_Changed">
                                 <StackPanel Margin="6,0,0,0">
                                     <TextBlock Text="Teks Naratif (.txt)" FontWeight="SemiBold" FontSize="13" />
                                     <TextBlock Text="Format teks ringkasan untuk laporan bacaan langsung" FontSize="11" Foreground="{StaticResource MutedText}" TextWrapping="Wrap" />
@@ -67,7 +67,7 @@
 
                         <!-- Pilihan CSV -->
                         <Border Background="#FFF8FAFC" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,8">
-                            <RadioButton x:Name="RbCsv" Checked="Format_Changed">
+                            <RadioButton x:Name="RbCsv" GroupName="FormatEkspor" Checked="Format_Changed">
                                 <StackPanel Margin="6,0,0,0">
                                     <TextBlock Text="Tabel CSV (.csv)" FontWeight="SemiBold" FontSize="13" />
                                     <TextBlock Text="Format baris-kolom untuk analisis di Microsoft Excel" FontSize="11" Foreground="{StaticResource MutedText}" TextWrapping="Wrap" />
@@ -77,7 +77,7 @@
 
                         <!-- Pilihan JSON -->
                         <Border Background="#FFF8FAFC" BorderBrush="#FFE2E8F0" BorderThickness="1" CornerRadius="6" Padding="10,8" Margin="0,0,0,16">
-                            <RadioButton x:Name="RbJson" Checked="Format_Changed">
+                            <RadioButton x:Name="RbJson" GroupName="FormatEkspor" Checked="Format_Changed">
                                 <StackPanel Margin="6,0,0,0">
                                     <TextBlock Text="Terstruktur JSON (.json)" FontWeight="SemiBold" FontSize="13" />
                                     <TextBlock Text="Format standar API untuk pertukaran data sistem" FontSize="11" Foreground="{StaticResource MutedText}" TextWrapping="Wrap" />
