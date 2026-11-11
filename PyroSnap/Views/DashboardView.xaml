@@ -38,59 +38,61 @@
 
             <!-- Panel kiri: Cari + Filter + aksi -->
             <Border Grid.Column="0" Background="{StaticResource PanelBg}" CornerRadius="10"
-                    Padding="18" Margin="0,0,16,0">
+                    Padding="16,16,8,16" Margin="0,0,16,0">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.12" />
                 </Border.Effect>
-                <StackPanel>
-                    <!-- Cari Lokasi (use case Select/Search Location) -->
-                    <TextBlock Text="Cari Lokasi" FontSize="16" FontWeight="Bold" Margin="0,0,0,8" />
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox x:Name="TxtSearch" Grid.Column="0" Padding="6" FontSize="13"
-                                 BorderBrush="#FFCCCCCC" BorderThickness="1"
-                                 KeyDown="TxtSearch_KeyDown" />
-                        <Button Grid.Column="1" Content="Cari" Style="{StaticResource PrimaryButton}"
-                                Margin="6,0,0,0" Padding="12,6" Click="BtnSearch_Click" />
-                    </Grid>
-                    <TextBlock Text="mis. Riau, Jambi, Kalimantan"
-                               Foreground="{StaticResource MutedText}" FontSize="11" Margin="0,4,0,0" />
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,0,10,0">
+                        <!-- Cari Lokasi (use case Select/Search Location) -->
+                        <TextBlock Text="Cari Lokasi" FontSize="16" FontWeight="Bold" Margin="0,0,0,8" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="TxtSearch" Grid.Column="0" Padding="6" FontSize="13"
+                                     BorderBrush="#FFCCCCCC" BorderThickness="1"
+                                     KeyDown="TxtSearch_KeyDown" />
+                            <Button Grid.Column="1" Content="Cari" Style="{StaticResource PrimaryButton}"
+                                    Margin="6,0,0,0" Padding="12,6" Click="BtnSearch_Click" />
+                        </Grid>
+                        <TextBlock Text="mis. Riau, Jambi, Kalimantan"
+                                   Foreground="{StaticResource MutedText}" FontSize="11" Margin="0,4,0,0" />
 
-                    <Separator Margin="0,16" />
+                        <Separator Margin="0,16" />
 
-                    <TextBlock Text="Filter Hotspot" FontSize="16" FontWeight="Bold" Margin="0,0,0,12" />
+                        <TextBlock Text="Filter Hotspot" FontSize="16" FontWeight="Bold" Margin="0,0,0,12" />
 
-                    <TextBlock Text="Confidence minimum (%)" Margin="0,0,0,4" />
-                    <Slider x:Name="SldConfidence" Minimum="0" Maximum="100" Value="0"
-                            TickFrequency="10" IsSnapToTickEnabled="True"
-                            ValueChanged="SldConfidence_ValueChanged" />
-                    <TextBlock x:Name="LblConfidence" Text="0 %" Foreground="{StaticResource MutedText}"
-                               HorizontalAlignment="Right" />
+                        <TextBlock Text="Confidence minimum (%)" Margin="0,0,0,4" />
+                        <Slider x:Name="SldConfidence" Minimum="0" Maximum="100" Value="0"
+                                TickFrequency="10" IsSnapToTickEnabled="True"
+                                ValueChanged="SldConfidence_ValueChanged" />
+                        <TextBlock x:Name="LblConfidence" Text="0 %" Foreground="{StaticResource MutedText}"
+                                   HorizontalAlignment="Right" />
 
-                    <TextBlock Text="FRP minimum (MW)" Margin="0,12,0,4" />
-                    <Slider x:Name="SldFrp" Minimum="0" Maximum="100" Value="0"
-                            TickFrequency="5" IsSnapToTickEnabled="True"
-                            ValueChanged="SldFrp_ValueChanged" />
-                    <TextBlock x:Name="LblFrp" Text="0 MW" Foreground="{StaticResource MutedText}"
-                               HorizontalAlignment="Right" />
+                        <TextBlock Text="FRP minimum (MW)" Margin="0,12,0,4" />
+                        <Slider x:Name="SldFrp" Minimum="0" Maximum="100" Value="0"
+                                TickFrequency="5" IsSnapToTickEnabled="True"
+                                ValueChanged="SldFrp_ValueChanged" />
+                        <TextBlock x:Name="LblFrp" Text="0 MW" Foreground="{StaticResource MutedText}"
+                                   HorizontalAlignment="Right" />
 
-                    <Button Content="Terapkan Filter" Style="{StaticResource PrimaryButton}"
-                            Margin="0,18,0,0" Height="38" Click="BtnApplyFilter_Click" />
-                    <Button Content="Reset" Style="{StaticResource SecondaryButton}"
-                            Margin="0,8,0,0" Height="34" Click="BtnReset_Click" />
+                        <Button Content="Terapkan Filter" Style="{StaticResource PrimaryButton}"
+                                Margin="0,18,0,0" Height="38" Click="BtnApplyFilter_Click" />
+                        <Button Content="Reset" Style="{StaticResource SecondaryButton}"
+                                Margin="0,8,0,0" Height="34" Click="BtnReset_Click" />
 
-                    <Separator Margin="0,18" />
+                        <Separator Margin="0,18" />
 
-                    <Button Content="Lihat Detail" Style="{StaticResource PrimaryButton}"
-                            Height="38" Margin="0,0,0,8" Click="BtnDetail_Click" />
-                    <Button Content="Export Laporan" Style="{StaticResource SecondaryButton}"
-                            Height="38" Click="BtnExport_Click" />
-                    <Button Content="Muat Ulang Data" Style="{StaticResource SecondaryButton}"
-                            Height="34" Margin="0,8,0,0" Click="BtnReload_Click" />
-                </StackPanel>
+                        <Button Content="Lihat Detail" Style="{StaticResource PrimaryButton}"
+                                Height="38" Margin="0,0,0,8" Click="BtnDetail_Click" />
+                        <Button Content="Export Laporan" Style="{StaticResource SecondaryButton}"
+                                Height="38" Click="BtnExport_Click" />
+                        <Button Content="Muat Ulang Data" Style="{StaticResource SecondaryButton}"
+                                Height="34" Margin="0,8,0,0" Click="BtnReload_Click" />
+                    </StackPanel>
+                </ScrollViewer>
             </Border>
 
             <!-- Panel kanan: "peta" + daftar -->
