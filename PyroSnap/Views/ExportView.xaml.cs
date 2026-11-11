@@ -1,15 +1,16 @@
+using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using PyroSnap.Services.Exporters;
 
 namespace PyroSnap.Views
 {
     /// <summary>
-    /// Tampilan Export Laporan (use case Export Hotspot Report).
-    /// Memakai HotspotReport milik tim untuk format TXT; CSV dibangun di layer UI.
+    /// Tampilan Export Laporan (use case: Export Hotspot Report).
+    /// Mengimplementasikan konsep Polymorphism dari arsitektur ReportExporter
+    /// untuk mendukung berbagai format laporan (TXT, CSV) secara dinamis.
     /// </summary>
     public partial class ExportView : Page
     {
@@ -25,46 +26,44 @@ namespace PyroSnap.Views
 
         private bool IsCsv => RbCsv.IsChecked == true;
 
+        /// <summary>
+        /// Factory helper method untuk menghasilkan objek turunan ReportExporter.
+        /// Objek kelas turunan (TxtReportExporter atau CsvReportExporter) diperlakukan
+        /// sebagai tipe base class (ReportExporter) yang mewujudkan konsep Polymorphism.
+        /// </summary>
+        private ReportExporter DapatkanExporter()
+        {
+            return IsCsv ? new CsvReportExporter() : new TxtReportExporter();
+        }
+
         private void Format_Changed(object sender, RoutedEventArgs e)
         {
             PerbaruiPreview();
         }
 
+        /// <summary>
+        /// Memperbarui pratinjau teks laporan dengan pemanggilan polimorfik method GenerateContent().
+        /// </summary>
         private void PerbaruiPreview()
         {
             if (TxtPreview == null) return;
-            TxtPreview.Text = IsCsv ? BuatCsv() : BuatTxt();
-        }
 
-        /// <summary>Format TXT memanfaatkan HotspotReport.Generate() milik tim.</summary>
-        private string BuatTxt()
-        {
-            var report = new HotspotReport("TXT");
-            report.MuatData(_data);
-            if (!report.Generate())
-                return "(tidak ada data untuk dilaporkan)";
-
-            // HotspotReport menyimpan isi secara privat; bangun ulang preview setara
-            // dengan memanggil GetDetail() seperti yang dilakukan Generate().
-            var sb = new StringBuilder();
-            sb.AppendLine("LAPORAN HOTSPOT (TXT)");
-            sb.AppendLine("Jumlah titik panas: " + _data.Count);
-            foreach (var h in _data)
-                sb.AppendLine(h.GetDetail());
-            return sb.ToString();
-        }
-
-        private string BuatCsv()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine("Latitude,Longitude,Confidence,Brightness,FRP,WaktuAkuisisi");
-            foreach (var h in _data)
+            if (_data.Count == 0)
             {
-                sb.AppendLine($"{h.Latitude},{h.Longitude},{h.Confidence},{h.Brightness},{h.Frp}," +
-                              $"{h.WaktuAkuisisi:yyyy-MM-dd HH:mm}");
+                TxtPreview.Text = "(tidak ada data untuk dilaporkan)";
+                return;
             }
-            if (_data.Count == 0) sb.AppendLine("(tidak ada data)");
-            return sb.ToString();
+
+            try
+            {
+                // Polymorphism: Pemanggilan GenerateContent() dieksekusi sesuai kelas konkretnya
+                ReportExporter exporter = DapatkanExporter();
+                TxtPreview.Text = exporter.GenerateContent(_data);
+            }
+            catch (Exception ex)
+            {
+                TxtPreview.Text = $"Perhatian: {ex.Message}";
+            }
         }
 
         private void BtnExport_Click(object sender, RoutedEventArgs e)
@@ -78,28 +77,28 @@ namespace PyroSnap.Views
             string ext = IsCsv ? "csv" : "txt";
             var dlg = new SaveFileDialog
             {
-                FileName = "Laporan_Hotspot_PyroSnap",
+                FileName = $"Laporan_Hotspot_PyroSnap_{DateTime.Now:yyyyMMdd_HHmm}",
                 DefaultExt = "." + ext,
                 Filter = IsCsv ? "CSV (Excel)|*.csv" : "Teks|*.txt"
             };
 
             if (dlg.ShowDialog() != true) return;
 
-            if (IsCsv)
+            // Penerapan Polymorphism: Objek bertipe abstract base class (ReportExporter)
+            ReportExporter exporter = DapatkanExporter();
+
+            // Penerapan Method Overloading dengan parameter 'out' (Lab 9.1)
+            bool sukses = exporter.ExportToFile(_data, dlg.FileName, out string statusPesan);
+
+            if (sukses)
             {
-                File.WriteAllText(dlg.FileName, BuatCsv());
+                MessageBox.Show($"{statusPesan}\n\nLokasi file:\n{dlg.FileName}",
+                    "Export Berhasil", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
-                // Pakai alur HotspotReport milik tim untuk file TXT.
-                var report = new HotspotReport("TXT");
-                report.MuatData(_data);
-                report.Generate();
-                report.ExportToFile(dlg.FileName);
+                MessageBox.Show(statusPesan, "Export Gagal", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
-            MessageBox.Show($"Laporan berhasil diekspor ke:\n{dlg.FileName}",
-                "Export Berhasil", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void BtnBack_Click(object sender, RoutedEventArgs e)
