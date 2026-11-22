@@ -7,3 +7,20 @@ Anggota 2: STELLA FLORENCIA DOULIM - 24/542739/TK/60285\
 
 <img width="640" height="756" alt="image" src="https://github.com/user-attachments/assets/d86c468a-f704-4de5-a8cf-5277176fc846" />
 
+## Menjalankan secara lokal
+
+1. **Prasyarat:** Windows, .NET 8 SDK, WebView2 Runtime, PostgreSQL.
+2. **Database:** buat database `pyrosnap`, lalu jalankan skema dan migrasi sebagai `postgres`:
+   ```bash
+   createdb -h localhost -U postgres pyrosnap
+   database/migrate.sh 001 -h localhost -U postgres -d pyrosnap
+   ```
+3. **Konfigurasi:** buat file `.env` di root repo (sudah di-gitignore, jangan di-commit):
+   ```
+   PYROSNAP_DB=Host=localhost;Port=5432;Database=pyrosnap;Username=<user>;Password=<password>
+   FIRMS_MAP_KEY=<key NASA FIRMS>
+   ```
+4. **Jalankan:** `dotnet run --project PyroSnap`
+
+Detail lengkap: [docs/database/setup-and-seed.md](docs/database/setup-and-seed.md). Rencana dan progres: [docs/progress/backend-progress.md](docs/progress/backend-progress.md).
+

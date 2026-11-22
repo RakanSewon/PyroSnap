@@ -3,17 +3,112 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PyroSnap"
         mc:Ignorable="d"
-        Title="PyroSnap" Height="640" Width="960"
+        Title="PyroSnap — Pemantauan Titik Panas" Height="760" Width="1280"
+        MinWidth="1024" MinHeight="640"
         WindowStartupLocation="CenterScreen"
-        Background="#FFF7F3F0">
+        FontFamily="Segoe UI" FontSize="13"
+        Background="{DynamicResource PageBg}" Foreground="{DynamicResource TextPrimary}">
     <!--
-        MainWindow berperan sebagai host navigasi (shell).
-        Setiap "form"/tampilan dimuat ke dalam Frame di bawah ini.
-        Perpindahan antar tampilan dilakukan lewat MainWindow.Navigate(...).
+        Shell aplikasi (gaya D5): menu samping + bilah atas + area halaman (Frame).
+        Halaman Masuk/Daftar (dan Panduan tanpa sesi) tampil penuh tanpa shell.
+        Navigasi lewat Views/Navigasi.cs; isi shell diatur di MainWindow.xaml.cs (AturShell).
     -->
-    <Frame x:Name="MainFrame"
-           NavigationUIVisibility="Hidden"
-           Focusable="False" />
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="KolomSidebar" Width="240" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ===== Menu samping ===== -->
+        <Border x:Name="Sidebar" Grid.Column="0" Style="{StaticResource Kartu}" Margin="16,16,0,16" Padding="8,20">
+            <DockPanel>
+                <!-- Logo -->
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="16,0,0,12">
+                    <Border Width="40" Height="40" CornerRadius="20" Background="{DynamicResource Brand}">
+                        <Viewbox Width="20" Height="20">
+                            <Path Data="{StaticResource LogoNyala}" Fill="{DynamicResource BrandFg}" />
+                        </Viewbox>
+                    </Border>
+                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="PyroSnap" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="Pemantauan titik panas" FontSize="12" Foreground="{DynamicResource MutedText}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Bawah: tema & keluar -->
+                <StackPanel DockPanel.Dock="Bottom">
+                    <TextBlock Text="LAINNYA" Style="{StaticResource LabelSeksi}" />
+                    <Button x:Name="BtnTema" Style="{StaticResource NavAksi}" Tag="&#xE708;" Content="Tema gelap"
+                            AutomationProperties.Name="Ganti tema" Click="BtnTema_Click" />
+                    <Button x:Name="BtnKeluar" Style="{StaticResource NavAksi}" Tag="&#xE7E8;" Content="Keluar"
+                            Click="BtnKeluar_Click" />
+                </StackPanel>
+
+                <!-- Menu utama -->
+                <StackPanel>
+                    <TextBlock Text="UTAMA" Style="{StaticResource LabelSeksi}" />
+                    <RadioButton x:Name="NavDashboard" Style="{StaticResource NavItem}" Tag="&#xE80F;" Content="Dashboard"
+                                 Click="NavDashboard_Click" />
+                    <RadioButton x:Name="NavPeringatan" Style="{StaticResource NavItem}" Tag="&#xE7ED;" Content="Peringatan"
+                                 Click="NavPeringatan_Click" />
+                    <RadioButton x:Name="NavEkspor" Style="{StaticResource NavItem}" Tag="&#xE896;" Content="Ekspor Laporan"
+                                 Click="NavEkspor_Click" />
+                    <TextBlock Text="INFORMASI" Style="{StaticResource LabelSeksi}" />
+                    <RadioButton x:Name="NavPanduan" Style="{StaticResource NavItem}" Tag="&#xE897;" Content="Panduan &amp; Kontak"
+                                 Click="NavPanduan_Click" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ===== Area kanan: bilah atas + halaman ===== -->
+        <Grid x:Name="AreaKanan" Grid.Column="1" Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border x:Name="BilahAtas" Grid.Row="0" Style="{StaticResource Kartu}" Padding="20,12" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtJudul" Text="Dashboard" FontSize="20" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                        <TextBlock x:Name="TxtSubjudul" FontSize="12" Foreground="{DynamicResource MutedText}" TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Lonceng peringatan (Admin & Operator) + lencana jumlah belum dibaca -->
+                        <Grid x:Name="WadahLonceng" Margin="0,0,12,0">
+                            <Button x:Name="BtnLonceng" Style="{StaticResource TombolIkon}" Content="&#xE7ED;"
+                                    AutomationProperties.Name="Peringatan operasional" Click="NavPeringatan_Click" />
+                            <Border x:Name="Lencana" Background="{DynamicResource FireRed}" CornerRadius="9" MinWidth="18" Height="18"
+                                    Padding="5,0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-4,-4,0"
+                                    Visibility="Collapsed" IsHitTestVisible="False">
+                                <TextBlock x:Name="TxtLencana" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PanelBg}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                        <!-- Profil: avatar inisial + nama + peran -->
+                        <Border Background="{DynamicResource SecondaryBg}" CornerRadius="{StaticResource RadiusKontrol}" Padding="6,6,16,6">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="34" Height="34" CornerRadius="17" Background="{DynamicResource InkBg}">
+                                    <TextBlock x:Name="TxtInisial" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource InkFg}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" MaxWidth="170">
+                                    <TextBlock x:Name="TxtNamaUser" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock x:Name="TxtPeranUser" FontSize="12" Foreground="{DynamicResource MutedText}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Frame x:Name="MainFrame" Grid.Row="1" NavigationUIVisibility="Hidden" Focusable="False" />
+        </Grid>
+    </Grid>
 </Window>

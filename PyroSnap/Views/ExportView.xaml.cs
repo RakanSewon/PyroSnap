@@ -1,110 +1,136 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
+using Npgsql;
+using PyroSnap.Services;
 
 namespace PyroSnap.Views
 {
     /// <summary>
-    /// Tampilan Export Laporan (use case Export Hotspot Report).
-    /// Memakai HotspotReport milik tim untuk format TXT; CSV dibangun di layer UI.
+    /// Ekspor laporan (use case Export Hotspot Report). Pratinjau dan file memakai teks
+    /// yang sama dari HotspotReport.Generate(). Tidak tersedia untuk Tamu (K10).
     /// </summary>
     public partial class ExportView : Page
     {
+        private const int BarisPratinjauMaks = 200;   // UX-10
+
         private readonly List<Hotspot> _data;
 
         public ExportView()
         {
             InitializeComponent();
             _data = AppSession.CurrentHotspots ?? new List<Hotspot>();
-            LblInfo.Text = $"Jumlah hotspot: {_data.Count}";
-            PerbaruiPreview();
+            Loaded += (_, _) =>
+            {
+                // SCR-A9 / RUI-05: penjaga hak ekspor.
+                if (!Navigasi.PastikanHak(this, AppSession.BolehEkspor)) return;
+                LblInfo.Text = _data.Count.ToString("N0");
+                PerbaruiPreview();
+            };
         }
 
         private bool IsCsv => RbCsv.IsChecked == true;
 
-        private void Format_Changed(object sender, RoutedEventArgs e)
+        private void Format_Changed(object sender, RoutedEventArgs e) => PerbaruiPreview();
+
+        private HotspotReport BuatLaporan()
         {
-            PerbaruiPreview();
+            var report = new HotspotReport(IsCsv ? "CSV" : "TXT");
+            report.MuatData(_data);
+            report.Generate();
+            return report;
         }
 
         private void PerbaruiPreview()
         {
-            if (TxtPreview == null) return;
-            TxtPreview.Text = IsCsv ? BuatCsv() : BuatTxt();
-        }
+            if (TxtPreview == null || LblPratinjauInfo == null) return;
 
-        /// <summary>Format TXT memanfaatkan HotspotReport.Generate() milik tim.</summary>
-        private string BuatTxt()
-        {
-            var report = new HotspotReport("TXT");
-            report.MuatData(_data);
-            if (!report.Generate())
-                return "(tidak ada data untuk dilaporkan)";
-
-            // HotspotReport menyimpan isi secara privat; bangun ulang preview setara
-            // dengan memanggil GetDetail() seperti yang dilakukan Generate().
-            var sb = new StringBuilder();
-            sb.AppendLine("LAPORAN HOTSPOT (TXT)");
-            sb.AppendLine("Jumlah titik panas: " + _data.Count);
-            foreach (var h in _data)
-                sb.AppendLine(h.GetDetail());
-            return sb.ToString();
-        }
-
-        private string BuatCsv()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine("Latitude,Longitude,Confidence,Brightness,FRP,WaktuAkuisisi");
-            foreach (var h in _data)
+            var report = BuatLaporan();
+            if (report.Isi.Length == 0)
             {
-                sb.AppendLine($"{h.Latitude},{h.Longitude},{h.Confidence},{h.Brightness},{h.Frp}," +
-                              $"{h.WaktuAkuisisi:yyyy-MM-dd HH:mm}");
+                TxtPreview.Text = "(tidak ada data untuk dilaporkan)";
+                LblPratinjauInfo.Text = "";
+                return;
             }
-            if (_data.Count == 0) sb.AppendLine("(tidak ada data)");
-            return sb.ToString();
+
+            // Hanya sebagian baris yang ditampilkan supaya tetap ringan; file berisi semuanya.
+            string[] baris = report.Isi.Split('\n');
+            TxtPreview.Text = string.Join("\n", baris.Take(BarisPratinjauMaks));
+            LblPratinjauInfo.Text = baris.Length > BarisPratinjauMaks
+                ? $"Menampilkan {BarisPratinjauMaks} baris pertama dari {baris.Length}; file berisi semua baris."
+                : $"{baris.Length} baris.";
         }
 
-        private void BtnExport_Click(object sender, RoutedEventArgs e)
+        private async void BtnExport_Click(object sender, RoutedEventArgs e)
         {
+            if (!AppSession.BolehEkspor) return;
             if (_data.Count == 0)
             {
-                MessageBox.Show("Tidak ada data untuk diekspor.", "PyroSnap");
+                PesanUi.Tampilkan(BarPesan, LblPesan,
+                    "Tidak ada titik panas untuk diekspor. Longgarkan filter di Dashboard dulu.", JenisPesan.Peringatan);
                 return;
             }
 
             string ext = IsCsv ? "csv" : "txt";
             var dlg = new SaveFileDialog
             {
-                FileName = "Laporan_Hotspot_PyroSnap",
+                FileName = $"Laporan_Titik_Panas_{DateTime.Now:yyyyMMdd_HHmm}",
                 DefaultExt = "." + ext,
                 Filter = IsCsv ? "CSV (Excel)|*.csv" : "Teks|*.txt"
             };
 
             if (dlg.ShowDialog() != true) return;
 
-            if (IsCsv)
+            var report = BuatLaporan();
+            try
             {
-                File.WriteAllText(dlg.FileName, BuatCsv());
-            }
-            else
-            {
-                // Pakai alur HotspotReport milik tim untuk file TXT.
-                var report = new HotspotReport("TXT");
-                report.MuatData(_data);
-                report.Generate();
                 report.ExportToFile(dlg.FileName);
             }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                MessageBox.Show($"Laporan gagal disimpan:\n{ex.Message}\n\n" +
+                    "Pastikan file tidak sedang dibuka aplikasi lain dan folder dapat ditulisi.",
+                    "Ekspor Gagal", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
-            MessageBox.Show($"Laporan berhasil diekspor ke:\n{dlg.FileName}",
-                "Export Berhasil", MessageBoxButton.OK, MessageBoxImage.Information);
+            BtnExport.IsEnabled = false;
+            string catatan = await CatatKeDatabaseAsync(report, dlg.FileName);
+            BtnExport.IsEnabled = true;
+
+            MessageBox.Show($"Laporan berhasil diekspor ke:\n{dlg.FileName}\n\n{catatan}",
+                "Ekspor Berhasil", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private void BtnBack_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// RPT-04/FT-05d: catat laporan + pembuatnya di database. File sudah tersimpan,
+        /// jadi kegagalan di sini hanya diberitahukan, tidak membatalkan ekspor.
+        /// </summary>
+        private static async Task<string> CatatKeDatabaseAsync(HotspotReport report, string filePath)
         {
-            ((MainWindow)Window.GetWindow(this)).Navigate(new DashboardView());
+            if (AppSession.UserIdAngka is not int userId ||
+                AppSession.NamaSumber == null || AppSession.EndpointTanpaKey == null)
+            {
+                return "Catatan: laporan tidak dicatat di database (sesi atau sumber data tidak diketahui).";
+            }
+
+            try
+            {
+                var (reportId, jumlah) = await ReportRepository.SimpanAsync(
+                    report, userId, AppSession.NamaSumber, AppSession.EndpointTanpaKey, filePath);
+                return $"Tercatat di database sebagai laporan #{reportId} ({jumlah} titik panas).";
+            }
+            catch (Exception ex) when (ex is NpgsqlException or InvalidOperationException)
+            {
+                return "Catatan: laporan tidak tercatat di database. " + PesanUi.Ringkas(ex.Message);
+            }
         }
+
+        private void BtnBack_Click(object sender, RoutedEventArgs e) => Navigasi.KeBeranda(this);
     }
 }

@@ -20,13 +20,11 @@ public class Hotspot
         WaktuAkuisisi = waktu;
     }
 
+    // Angka dengan titik desimal di semua locale; waktu akuisisi FIRMS dalam UTC.
     public string GetDetail()
     {
-        return "Lat: " + Latitude
-            + ", Lon: " + Longitude
-            + ", Confidence: " + Confidence + "%"
-            + ", Brightness: " + Brightness + " K"
-            + ", FRP: " + Frp + " MW"
-            + ", Waktu: " + WaktuAkuisisi.ToString("yyyy-MM-dd HH:mm");
+        return string.Create(System.Globalization.CultureInfo.InvariantCulture,
+            $"Lat: {Latitude}, Lon: {Longitude}, Confidence: {Confidence}%, " +
+            $"Brightness: {Brightness} K, FRP: {Frp} MW, Waktu: {WaktuAkuisisi:yyyy-MM-dd HH:mm} UTC");
     }
 }

@@ -7,13 +7,27 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         html, body, #map { height: 100%; margin: 0; padding: 0; }
-        #map { background: #aad3df; }
-        .legend {
-            background: rgba(255,255,255,0.9); padding: 6px 10px; border-radius: 6px;
-            font: 11px sans-serif; line-height: 18px;
+        /* DS-08: warna antarmuka peta mengikuti tema aplikasi (diisi dari config.tema). */
+        :root {
+            --latar: #e9ece7; --panel: #ffffff; --teks: #1a1c19; --teks-redup: #5f645e; --tepi: #e3e5e0;
         }
+        #map { background: var(--latar); }
+        .legend {
+            background: var(--panel); color: var(--teks); padding: 8px 12px; border-radius: 12px;
+            border: 1px solid var(--tepi); font: 12px "Segoe UI", sans-serif; line-height: 20px;
+        }
+        .leaflet-bar a, .leaflet-control-layers, .leaflet-control-layers-expanded {
+            background: var(--panel); color: var(--teks); border-color: var(--tepi);
+        }
+        .leaflet-bar a:hover { background: var(--tepi); color: var(--teks); }
+        .leaflet-touch .leaflet-bar, .leaflet-touch .leaflet-control-layers { border: 1px solid var(--tepi); }
+        .leaflet-container .leaflet-control-attribution {
+            background: var(--panel); color: var(--teks-redup); opacity: 0.85;
+        }
+        .leaflet-container .leaflet-control-attribution a { color: var(--teks-redup); }
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--panel); color: var(--teks); }
         .legend i { display:inline-block; width:10px; height:10px; border-radius:50%;
-            margin-right:6px; border:1px solid #fff; }
+            margin-right:6px; border:1px solid #fff; vertical-align:middle; box-sizing:border-box; }
     </style>
 </head>
 <body>
@@ -23,13 +37,43 @@
         // Peta dipusatkan di Indonesia.
         var map = L.map('map', { attributionControl: true }).setView([-2.5, 118], 5);
 
-        // Peta dasar: CARTO (mengizinkan pemakaian langsung; OSM memblokir WebView).
-        var cartoLight = L.tileLayer(
-            'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_4ugy_1_922034262e18f98262d42171', {
-            maxZoom: 19,
-            subdomains: 'abcd',
-            attribution: '© OpenStreetMap, © CARTO'
-        }).addTo(map);
+        // Konfigurasi dari C# (DashboardView.InitMapAsync). Key tidak ditulis di sini.
+        var config = window.PYROSNAP_CONFIG || {};
+
+        // DS-08: tema dari aplikasi (Views/Tema.cs). Tanpa aplikasi: tema terang.
+        var tema = config.tema || { gelap: false, sorot: '#1c1d1b' };
+        ['latar', 'panel', 'teks', 'teksRedup', 'tepiKartu'].forEach(function (k) {
+            if (!tema[k]) return;
+            var nama = { latar: '--latar', panel: '--panel', teks: '--teks', teksRedup: '--teks-redup', tepiKartu: '--tepi' }[k];
+            document.documentElement.style.setProperty(nama, tema[k]);
+        });
+
+        // Peta dasar. CARTO kini mewajibkan API key (tanpa key setiap tile bertuliskan
+        // "API KEY REQUIRED"), dan OSM memblokir WebView. Karena itu bawaannya Esri Canvas
+        // (Light/Dark Gray, tanpa key, penyedia sama dengan layer Satelit) dan CARTO hanya
+        // dipakai bila CARTO_KEY diisi di .env. Tema gelap memakai varian gelap.
+        var petaDasar;
+        if (config.cartoKey) {
+            var gayaCarto = tema.gelap ? 'dark_all' : 'light_all';
+            petaDasar = L.tileLayer('https://{s}.basemaps.cartocdn.com/' + gayaCarto + '/{z}/{x}/{y}{r}.png?key=' +
+                encodeURIComponent(config.cartoKey), {
+                maxZoom: 19,
+                subdomains: 'abcd',
+                attribution: '© OpenStreetMap, © CARTO'
+            });
+        } else {
+            var gayaEsri = tema.gelap ? 'Dark' : 'Light';
+            var esriCanvas = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_' + gayaEsri + '_Gray_';
+            petaDasar = L.layerGroup([
+                L.tileLayer(esriCanvas + 'Base/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 16,
+                    attribution: 'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS user community'
+                }),
+                // Lapisan nama tempat di atas peta dasar
+                L.tileLayer(esriCanvas + 'Reference/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16 })
+            ]);
+        }
+        petaDasar.addTo(map);
 
         // Layer alternatif: citra satelit Esri.
         var esriSat = L.tileLayer(
@@ -39,38 +83,66 @@
         });
 
         L.control.layers(
-            { 'Peta': cartoLight, 'Satelit': esriSat },
+            { 'Peta': petaDasar, 'Satelit': esriSat },
             null,
             { position: 'topright' }
         ).addTo(map);
 
         var markers = [];
 
-        function warna(conf) {
-            if (conf >= 80) return '#c81e1e';
-            if (conf >= 50) return '#e68c00';
-            return '#e6c800';
+        // Aturan tingkat dari C# (Views/TingkatHotspot.cs, kelas LAPAN). Nilai cadangan
+        // hanya dipakai bila halaman dibuka tanpa aplikasi.
+        var tingkat = config.tingkat || {
+            batasNominal: 30, batasTinggi: 80,
+            warna: { tinggi: '#9b1c1c', nominal: '#b45309', rendah: '#8a6d00' },
+            tepi: { tinggi: '#5a0000', lain: '#ffffff' },
+            tebalTepi: { tinggi: 2.5, lain: 1.5 },
+            label: { tinggi: 'Tinggi (≥ 80%)', nominal: 'Nominal (30–79%)', rendah: 'Rendah (< 30%)' }
+        };
+
+        function kelas(conf) {
+            if (conf >= tingkat.batasTinggi) return 'tinggi';
+            if (conf >= tingkat.batasNominal) return 'nominal';
+            return 'rendah';
+        }
+
+        function namaKelas(conf) {
+            var k = kelas(conf);
+            return k.charAt(0).toUpperCase() + k.slice(1);
+        }
+
+        var selectedId = -1;
+
+        function radius(conf) { var k = kelas(conf); return k === 'tinggi' ? 9 : k === 'nominal' ? 7 : 5; }
+
+        // DS-05 / UX-13: tingkat dibedakan oleh ukuran + garis tepi (Tinggi: tepi gelap tebal) + label,
+        // bukan hanya warna (Nominal dan Rendah hampir sama terang).
+        function gayaNormal(h) {
+            var k = kelas(h.conf);
+            return {
+                radius: radius(h.conf), fillColor: tingkat.warna[k],
+                color: k === 'tinggi' ? tingkat.tepi.tinggi : tingkat.tepi.lain,
+                weight: k === 'tinggi' ? tingkat.tebalTepi.tinggi : tingkat.tebalTepi.lain,
+                fillOpacity: 0.9
+            };
         }
 
         // Dipanggil dari C#: menerima JSON array hotspot.
-        function setHotspots(json) {
+        // fit = true hanya setelah data baru dimuat; filter tidak mengubah posisi peta.
+        function setHotspots(json, fit) {
             markers.forEach(function (m) { map.removeLayer(m); });
             markers = [];
+            selectedId = -1;
 
             var data = JSON.parse(json);
             data.forEach(function (h) {
-                var m = L.circleMarker([h.lat, h.lon], {
-                    radius: h.conf >= 80 ? 9 : h.conf >= 50 ? 7 : 5,
-                    fillColor: warna(h.conf),
-                    color: '#ffffff',
-                    weight: 1.5,
-                    fillOpacity: 0.9
-                }).addTo(map);
+                var m = L.circleMarker([h.lat, h.lon], gayaNormal(h)).addTo(map);
+                m.hotspot = h;
 
                 m.bindTooltip(
-                    'Lat: ' + h.lat.toFixed(3) + ', Lon: ' + h.lon.toFixed(3) +
-                    '<br>Confidence: ' + h.conf + '%' +
-                    '<br>FRP: ' + h.frp + ' MW');
+                    'Koordinat: ' + h.lat.toFixed(3) + ', ' + h.lon.toFixed(3) +
+                    '<br>Keyakinan deteksi: ' + namaKelas(h.conf) + ' (' + h.conf + '%)' +
+                    '<br>Intensitas api (FRP): ' + h.frp + ' MW');
 
                 // Klik marker -> kirim id ke C#.
                 m.on('click', function () {
@@ -82,10 +154,40 @@
                 markers.push(m);
             });
 
-            // Zoom otomatis ke kumpulan titik bila ada.
-            if (data.length > 0) {
+            // Titik berkeyakinan tinggi selalu di lapisan paling atas agar tidak tertutup
+            // titik Nominal/Rendah yang berdekatan (BUG-34).
+            naikkanTinggi();
+
+            // Zoom otomatis ke kumpulan titik hanya bila diminta. Jarak tepi kecil (5%) agar
+            // peta setinggi ±300 px di aplikasi tetap memakai zoom yang cukup dekat (BUG-35).
+            if (fit && data.length > 0) {
                 var group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.3));
+                map.fitBounds(group.getBounds().pad(0.05));
+            }
+        }
+
+        function naikkanTinggi() {
+            markers.forEach(function (m) {
+                if (kelas(m.hotspot.conf) === 'tinggi') m.bringToFront();
+            });
+            if (selectedId >= 0 && markers[selectedId]) markers[selectedId].bringToFront();
+        }
+
+        // Dipanggil dari C#: sorot hotspot yang dipilih di daftar (-1 = tidak ada).
+        function highlightHotspot(id) {
+            if (selectedId >= 0 && markers[selectedId]) {
+                markers[selectedId].setStyle(gayaNormal(markers[selectedId].hotspot));
+            }
+            selectedId = -1;
+            naikkanTinggi();
+            selectedId = id;
+            var m = markers[id];
+            if (!m) return;
+
+            m.setStyle({ radius: radius(m.hotspot.conf) + 4, color: tema.sorot || '#000000', weight: 3 });
+            m.bringToFront();
+            if (!map.getBounds().contains(m.getLatLng())) {
+                map.panTo(m.getLatLng());
             }
         }
 
@@ -94,14 +196,26 @@
             map.setView([lat, lon], zoom || 7);
         }
 
-        // Legend
-        var legend = L.control({ position: 'bottomright' });
+        // Legenda dari konfigurasi tingkat (sama dengan legenda di aplikasi).
+        // Kiri bawah = Samudra Hindia (kosong dari titik). Di kanan bawah legenda menutupi
+        // Papua selatan (Merauke), tempat banyak titik termasuk yang berkeyakinan tinggi (BUG-36).
+        var legend = L.control({ position: 'bottomleft' });
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
-            div.innerHTML =
-                '<i style="background:#c81e1e"></i>Tinggi (&ge;80%)<br>' +
-                '<i style="background:#e68c00"></i>Sedang (50-79%)<br>' +
-                '<i style="background:#e6c800"></i>Rendah (&lt;50%)';
+            var judul = document.createElement('b');
+            judul.textContent = 'Keyakinan deteksi';
+            div.appendChild(judul);
+            ['tinggi', 'nominal', 'rendah'].forEach(function (k) {
+                div.appendChild(document.createElement('br'));
+                var i = document.createElement('i');
+                i.style.background = tingkat.warna[k];
+                var ukuran = k === 'tinggi' ? 14 : k === 'nominal' ? 11 : 8;
+                i.style.width = i.style.height = ukuran + 'px';
+                i.style.borderColor = k === 'tinggi' ? tingkat.tepi.tinggi : '#8a8a8a';
+                i.style.borderWidth = (k === 'tinggi' ? 2 : 1) + 'px';
+                div.appendChild(i);
+                div.appendChild(document.createTextNode(tingkat.label[k]));
+            });
             return div;
         };
         legend.addTo(map);

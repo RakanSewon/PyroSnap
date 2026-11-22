@@ -6,9 +6,13 @@ namespace PyroSnap.Services
 {
         public static class DatabaseConnection
     {
+        // Dibaca dari env/.env lewat AppConfig. Tidak ada nilai default:
+        // koneksi tanpa password ke postgres lokal hanya menyembunyikan salah konfigurasi.
         public static string ConnectionString =>
-            Environment.GetEnvironmentVariable("PYROSNAP_DB")
-            ?? "Host=localhost;Port=5432;Database=pyrosnap;Username=postgres";
+            AppConfig.DatabaseConnectionString
+            ?? throw new InvalidOperationException(
+                $"Koneksi database belum diatur. Isi {AppConfig.EnvDatabase} di environment " +
+                "variable atau file .env (lihat docs/database/setup-and-seed.md).");
 
         public static async Task<NpgsqlConnection> OpenAsync()
         {

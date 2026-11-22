@@ -18,6 +18,11 @@
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2792.45" />
     <!-- Driver PostgreSQL -->
     <PackageReference Include="Npgsql" Version="8.0.5" />
+    <!-- Hash password BCrypt untuk login (keputusan K4) -->
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <!-- Layanan web API pihak ketiga (Modul 10, Lab 10.1). 112.1.0: tanpa celah tercatat, target net8.0
+         (106.11.4 saran modul terkena CVE-2021-27293). Lihat docs/backend/web-api.md §3a. -->
+    <PackageReference Include="RestSharp" Version="112.1.0" />
   </ItemGroup>
 
   <!-- File HTML peta ikut dikopi ke output agar bisa dimuat WebView2 -->

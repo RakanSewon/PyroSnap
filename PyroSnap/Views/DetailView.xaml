@@ -4,62 +4,239 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
-      d:DesignHeight="640" d:DesignWidth="960"
-      Title="Detail Hotspot"
-      Background="{StaticResource PageBg}">
+      d:DesignHeight="640" d:DesignWidth="1000"
+      Title="Detail Titik Panas"
+      Background="{DynamicResource PageBg}"
+      FontSize="13" Foreground="{DynamicResource TextPrimary}">
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <!-- Judul halaman ada di bilah atas shell (MainWindow). -->
+    <Page.Resources>
+        <Style x:Key="LabelData" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource MutedText}" />
+            <Setter Property="Margin" Value="0,6" />
+        </Style>
+        <Style x:Key="NilaiData" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,6" />
+        </Style>
+        <Style x:Key="Ubin" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource SecondaryBg}" />
+            <Setter Property="CornerRadius" Value="{StaticResource RadiusKontrol}" />
+            <Setter Property="Padding" Value="14,12" />
+        </Style>
+    </Page.Resources>
 
-        <Border Grid.Row="0" Style="{StaticResource PageHeader}">
-            <TextBlock Text="Detail Hotspot" FontSize="20" FontWeight="Bold" Foreground="White" />
-        </Border>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="1" Width="460" VerticalAlignment="Center" HorizontalAlignment="Center"
-                Background="{StaticResource PanelBg}" CornerRadius="12" Padding="28">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.15" />
-            </Border.Effect>
-            <StackPanel>
-                <TextBlock x:Name="LblTingkat" Text="Tingkat: -" FontSize="18" FontWeight="Bold"
-                           Margin="0,0,0,16" />
+            <!-- ===== Kiri: data titik ===== -->
+            <StackPanel Grid.Column="0">
+                <Border Style="{StaticResource Kartu}" Padding="24">
+                    <StackPanel>
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource SecondaryButton}" IsCancel="True"
+                                    VerticalAlignment="Top" Click="BtnBack_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource TeksIkon}" FontSize="14" Text="&#xE72B;" Margin="0,0,8,0" />
+                                    <TextBlock Text="Kembali" />
+                                </StackPanel>
+                            </Button>
+                            <!-- UX-04: keyakinan deteksi, bukan "tingkat keparahan" -->
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse x:Name="DotTingkat" Width="16" Height="16" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="LblTingkat" Text="Keyakinan deteksi: -" FontSize="18" FontWeight="SemiBold"
+                                               Margin="10,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock x:Name="LblTingkatPenjelasan" Style="{StaticResource Keterangan}" FontSize="13"
+                                           TextWrapping="Wrap" Margin="26,4,0,0" />
+                            </StackPanel>
+                        </DockPanel>
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="160" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="36" />
-                        <RowDefinition Height="36" />
-                        <RowDefinition Height="36" />
-                        <RowDefinition Height="36" />
-                        <RowDefinition Height="36" />
-                    </Grid.RowDefinitions>
+                        <!-- Angka utama -->
+                        <Grid Margin="0,20,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource Ubin}"
+                                    ToolTip="Seberapa yakin satelit bahwa titik ini benar sumber panas/api.">
+                                <StackPanel>
+                                    <TextBlock Text="Keyakinan deteksi" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="LblConfidence" Text="-" Style="{StaticResource AngkaKpi}" FontSize="24" Margin="0,2,0,0" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="LblConfidenceKelas" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource Ubin}"
+                                    ToolTip="Fire Radiative Power: daya pancar panas api dalam megawatt (MW).">
+                                <StackPanel>
+                                    <TextBlock Text="Intensitas api (FRP)" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="LblFrp" Text="-" Style="{StaticResource AngkaKpi}" FontSize="24" Margin="0,2,0,0" TextWrapping="Wrap" />
+                                    <TextBlock Text="Makin besar, makin kuat apinya" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="4" Style="{StaticResource Ubin}"
+                                    ToolTip="Suhu kecerahan piksel yang diukur satelit (Kelvin).">
+                                <StackPanel>
+                                    <TextBlock Text="Kecerahan" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="LblBrightness" Text="-" Style="{StaticResource AngkaKpi}" FontSize="24" Margin="0,2,0,0" TextWrapping="Wrap" />
+                                    <TextBlock Text="Suhu kecerahan piksel" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Koordinat" FontWeight="SemiBold" />
-                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="LblKoordinat" Text="-" />
+                        <!-- Label / nilai -->
+                        <Grid Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="Wilayah" Style="{StaticResource LabelData}" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="LblWilayah" Text="-" Style="{StaticResource NilaiData}" />
+                            <TextBlock Grid.Row="1" Text="Koordinat" Style="{StaticResource LabelData}" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="LblKoordinat" Text="-" Style="{StaticResource NilaiData}" />
+                            <TextBlock Grid.Row="2" Text="Waktu deteksi" Style="{StaticResource LabelData}" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="LblWaktu" Text="-" Style="{StaticResource NilaiData}" />
+                        </Grid>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Confidence" FontWeight="SemiBold" />
-                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="LblConfidence" Text="-" />
+                        <TextBlock Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,12,0,0"
+                                   Text="Titik panas adalah deteksi satelit dan belum tentu kebakaran. Hasil cek lapangan tampil di samping bila sudah ada." />
 
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Brightness" FontWeight="SemiBold" />
-                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="LblBrightness" Text="-" />
+                        <!-- Navigasi ke titik (Admin & Operator, OPS-02) -->
+                        <StackPanel x:Name="PanelNavigasi" Orientation="Horizontal" Margin="0,20,0,0">
+                            <Button Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" Click="BtnBukaArah_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource TeksIkon}" FontSize="14" Text="&#xE81D;" Margin="0,0,8,0" />
+                                    <TextBlock Text="Buka arah di peta daring" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource SecondaryButton}" Click="BtnSalinKoordinat_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource TeksIkon}" FontSize="14" Text="&#xE8C8;" Margin="0,0,8,0" />
+                                    <TextBlock Text="Salin koordinat" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
 
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="FRP" FontWeight="SemiBold" />
-                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="LblFrp" Text="-" />
-
-                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Waktu Akuisisi" FontWeight="SemiBold" />
-                    <TextBlock Grid.Row="4" Grid.Column="1" x:Name="LblWaktu" Text="-" />
-                </Grid>
-
-                <Button Content="Kembali" Style="{StaticResource PrimaryButton}"
-                        Margin="0,24,0,0" Height="40" HorizontalAlignment="Left" Width="140"
-                        Click="BtnBack_Click" />
+                <!-- Bilah pesan (FE-05) -->
+                <Border x:Name="BarPesan" Style="{StaticResource BilahPesan}" Margin="0,12,0,0">
+                    <DockPanel>
+                        <TextBlock Style="{StaticResource IkonPesan}" />
+                        <TextBlock x:Name="LblPesan" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+                    </DockPanel>
+                </Border>
             </StackPanel>
-        </Border>
-    </Grid>
+
+            <!-- ===== Kanan: kondisi sekitar (web API, Modul 10) + verifikasi lapangan (OPS-01) ===== -->
+            <StackPanel Grid.Column="2">
+            <Border Style="{StaticResource Kartu}" Padding="24" Margin="0,0,0,16">
+                <StackPanel>
+                    <DockPanel>
+                        <Button x:Name="BtnMuatKondisi" DockPanel.Dock="Right" Style="{StaticResource TombolIkon}" Content="&#xE72C;"
+                                Width="32" Height="32" FontSize="13" VerticalAlignment="Top"
+                                ToolTip="Muat ulang kondisi sekitar" AutomationProperties.Name="Muat ulang kondisi sekitar"
+                                Click="BtnMuatKondisi_Click" />
+                        <StackPanel>
+                            <TextBlock Text="Kondisi sekitar" Style="{StaticResource JudulKartu}" />
+                            <TextBlock Text="Data langsung dari layanan web; bisa berbeda dengan kondisi di lapangan."
+                                       Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </DockPanel>
+
+                    <!-- Nama wilayah administratif (Nominatim) -->
+                    <TextBlock Text="Wilayah administratif (perkiraan)" Style="{StaticResource Keterangan}" Margin="0,16,0,2" />
+                    <TextBlock x:Name="LblWilayahAdmin" Text="Memuat..." FontWeight="SemiBold" TextWrapping="Wrap" />
+
+                    <!-- Kualitas udara (Open-Meteo Air Quality) -->
+                    <Border Style="{StaticResource Ubin}" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Kualitas udara" Style="{StaticResource Keterangan}" />
+                            <TextBlock x:Name="LblUdara" Text="Memuat..." FontSize="18" FontWeight="SemiBold" Margin="0,4,0,0" TextWrapping="Wrap" />
+                            <!-- Chip di baris sendiri: kategori bisa panjang -->
+                            <Border x:Name="ChipUdara" Style="{StaticResource Chip}" Margin="0,6,0,0" Visibility="Collapsed">
+                                <TextBlock x:Name="LblUdaraKategori" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            </Border>
+                            <TextBlock x:Name="LblUdaraSaran" Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Angin & cuaca (Open-Meteo Forecast) -->
+                    <Border Style="{StaticResource Ubin}" Margin="0,10,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Angin dan cuaca" Style="{StaticResource Keterangan}" />
+                            <TextBlock x:Name="LblAngin" Text="Memuat..." FontSize="18" FontWeight="SemiBold" Margin="0,4,0,0" TextWrapping="Wrap" />
+                            <TextBlock x:Name="LblArahAngin" TextWrapping="Wrap" Margin="0,2,0,0" />
+                            <TextBlock x:Name="LblCuacaLain" Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock x:Name="LblKondisiWaktu" Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,10,0,0" />
+
+                    <!-- WEB-07: atribusi wajib (Open-Meteo CC BY 4.0, OpenStreetMap ODbL) -->
+                    <TextBlock Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,8,0,0">
+                        <Hyperlink x:Name="TautanOpenMeteo" NavigateUri="https://open-meteo.com/" RequestNavigate="Tautan_RequestNavigate"
+                                   Foreground="{DynamicResource MutedText}">Weather data by Open-Meteo.com</Hyperlink>
+                        <Run Text=" (CC BY 4.0) · Nama wilayah " />
+                        <Hyperlink NavigateUri="https://www.openstreetmap.org/copyright" RequestNavigate="Tautan_RequestNavigate"
+                                   Foreground="{DynamicResource MutedText}">© OpenStreetMap contributors</Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Kartu}" Padding="24" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="Verifikasi lapangan" Style="{StaticResource JudulKartu}" />
+                    <TextBlock x:Name="LblVerifikasiStatus" Text="Memuat status..." TextWrapping="Wrap" Margin="0,8,0,0" />
+                    <ItemsControl x:Name="ListRiwayat" Margin="0,8,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,3" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Form isi verifikasi (Admin & Operator) -->
+                    <StackPanel x:Name="PanelFormVerifikasi">
+                        <Separator />
+                        <TextBlock Text="Catat hasil cek lapangan" FontWeight="SemiBold" Margin="0,0,0,10" />
+                        <Border Style="{StaticResource WadahSegmen}">
+                            <WrapPanel>
+                                <RadioButton x:Name="RbApiAktif" Style="{StaticResource Segmen}" Content="Api aktif" GroupName="StatusVerifikasi" />
+                                <RadioButton x:Name="RbSudahPadam" Style="{StaticResource Segmen}" Content="Sudah padam" GroupName="StatusVerifikasi" />
+                                <RadioButton x:Name="RbBukanKebakaran" Style="{StaticResource Segmen}" Content="Bukan kebakaran" GroupName="StatusVerifikasi" />
+                            </WrapPanel>
+                        </Border>
+                        <TextBlock Text="Catatan (opsional, maks. 500 karakter)" Style="{StaticResource Keterangan}" Margin="0,14,0,6" />
+                        <TextBox x:Name="TxtCatatan" Height="80" TextWrapping="Wrap" AcceptsReturn="True" MaxLength="500"
+                                 VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top"
+                                 AutomationProperties.Name="Catatan verifikasi" />
+                        <Button x:Name="BtnSimpanVerifikasi" Style="{StaticResource PrimaryButton}"
+                                HorizontalAlignment="Left" Margin="0,14,0,0" Click="BtnSimpanVerifikasi_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource TeksIkon}" FontSize="14" Text="&#xE73E;" Margin="0,0,8,0" />
+                                <TextBlock Text="Simpan verifikasi" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </Page>

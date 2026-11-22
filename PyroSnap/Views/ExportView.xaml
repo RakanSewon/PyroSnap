@@ -4,56 +4,78 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
-      d:DesignHeight="640" d:DesignWidth="960"
-      Title="Export Laporan"
-      Background="{StaticResource PageBg}">
+      d:DesignHeight="640" d:DesignWidth="1000"
+      Title="Ekspor Laporan"
+      Background="{DynamicResource PageBg}"
+      FontSize="13" Foreground="{DynamicResource TextPrimary}">
 
+    <!-- Judul halaman ada di bilah atas shell (MainWindow). -->
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Style="{StaticResource PageHeader}">
-            <TextBlock Text="Export Laporan Hotspot" FontSize="20" FontWeight="Bold" Foreground="White" />
-        </Border>
-
-        <Grid Grid.Row="1" Margin="20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="240" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <!-- Opsi -->
-            <Border Grid.Column="0" Background="{StaticResource PanelBg}" CornerRadius="10"
-                    Padding="18" Margin="0,0,16,0">
+        <!-- Opsi -->
+        <StackPanel Grid.Column="0">
+            <!-- KPI jumlah data -->
+            <Border Style="{StaticResource Kartu}" Margin="0,0,0,16">
                 <StackPanel>
-                    <TextBlock x:Name="LblInfo" Text="Jumlah hotspot: -" FontWeight="SemiBold"
-                               TextWrapping="Wrap" Margin="0,0,0,16" />
-
-                    <TextBlock Text="Format:" FontWeight="SemiBold" Margin="0,0,0,6" />
-                    <RadioButton x:Name="RbTxt" Content="TXT" IsChecked="True" Margin="0,0,0,6"
-                                 Checked="Format_Changed" />
-                    <RadioButton x:Name="RbCsv" Content="CSV (Excel)" Margin="0,0,0,6"
-                                 Checked="Format_Changed" />
-
-                    <Button Content="Export ke File" Style="{StaticResource PrimaryButton}"
-                            Margin="0,20,0,0" Height="40" Click="BtnExport_Click" />
-                    <Button Content="Kembali" Style="{StaticResource SecondaryButton}"
-                            Margin="0,10,0,0" Height="36" Click="BtnBack_Click" />
+                    <TextBlock Text="Titik panas dalam laporan" Style="{StaticResource Keterangan}" />
+                    <TextBlock x:Name="LblInfo" Text="-" Style="{StaticResource AngkaKpi}" Margin="0,4,0,4" />
+                    <TextBlock Text="Titik yang sedang tampil di Dashboard (setelah filter)."
+                               Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
 
-            <!-- Preview -->
-            <Border Grid.Column="1" Background="{StaticResource PanelBg}" CornerRadius="10" Padding="4">
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="Preview Laporan" FontWeight="Bold"
-                               Margin="12,10,0,6" />
-                    <TextBox x:Name="TxtPreview" IsReadOnly="True" FontFamily="Consolas" FontSize="12"
-                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                             BorderThickness="0" Margin="8,0,8,8" />
-                </DockPanel>
+            <Border Style="{StaticResource Kartu}">
+                <StackPanel>
+                    <TextBlock Text="Format file" Style="{StaticResource JudulKartu}" Margin="0,0,0,12" />
+                    <Border Style="{StaticResource WadahSegmen}">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="RbTxt" Style="{StaticResource Segmen}" GroupName="Format" Content="TXT (teks)"
+                                         IsChecked="True" Checked="Format_Changed" />
+                            <RadioButton x:Name="RbCsv" Style="{StaticResource Segmen}" GroupName="Format" Content="CSV (Excel)"
+                                         Checked="Format_Changed" />
+                        </StackPanel>
+                    </Border>
+
+                    <Button x:Name="BtnExport" Style="{StaticResource PrimaryButton}"
+                            Margin="0,24,0,0" Height="44" IsDefault="True" Click="BtnExport_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource TeksIkon}" FontSize="14" Text="&#xE896;" Margin="0,0,8,0" />
+                            <TextBlock Text="Ekspor ke File" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource SecondaryButton}" IsCancel="True"
+                            Margin="0,8,0,0" Height="40" Click="BtnBack_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource TeksIkon}" FontSize="14" Text="&#xE72B;" Margin="0,0,8,0" />
+                            <TextBlock Text="Kembali ke Dashboard" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Bilah pesan (FE-05) -->
+                    <Border x:Name="BarPesan" Style="{StaticResource BilahPesan}" Margin="0,16,0,0">
+                        <DockPanel>
+                            <TextBlock Style="{StaticResource IkonPesan}" />
+                            <TextBlock x:Name="LblPesan" TextWrapping="Wrap" FontSize="12" AutomationProperties.LiveSetting="Polite" />
+                        </DockPanel>
+                    </Border>
+                </StackPanel>
             </Border>
-        </Grid>
+        </StackPanel>
+
+        <!-- Pratinjau -->
+        <Border Grid.Column="2" Style="{StaticResource Kartu}">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="Pratinjau laporan" Style="{StaticResource JudulKartu}" />
+                <TextBlock x:Name="LblPratinjauInfo" DockPanel.Dock="Top" Style="{StaticResource Keterangan}" Margin="0,2,0,12" />
+                <TextBox x:Name="TxtPreview" IsReadOnly="True" FontFamily="Consolas" FontSize="12"
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                         VerticalContentAlignment="Top" AutomationProperties.Name="Pratinjau laporan" />
+            </DockPanel>
+        </Border>
     </Grid>
 </Page>
