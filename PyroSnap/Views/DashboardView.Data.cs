@@ -181,7 +181,7 @@ namespace PyroSnap.Views
             }
 
             // Belum ada data sama sekali (UX-08: pesan jelas di bilah status, bukan dialog).
-            string saran = AppSession.BolehSinkron ? " Tekan \"Perbarui Data dari NASA FIRMS\" untuk mencoba lagi." : "";
+            string saran = AppSession.BolehSinkron ? " Tekan \"Perbarui dari NASA FIRMS\" untuk mencoba lagi." : "";
             TampilkanStatus("Data titik panas belum bisa dimuat.", pesan + saran, JenisPesan.Error);
             TerapkanKriteria(); // daftar & peta kosong
             PerbaruiBannerWarga();

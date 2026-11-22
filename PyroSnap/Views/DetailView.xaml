@@ -71,24 +71,24 @@
                             <Border Grid.Column="0" Style="{StaticResource Ubin}"
                                     ToolTip="Seberapa yakin satelit bahwa titik ini benar sumber panas/api.">
                                 <StackPanel>
-                                    <TextBlock Text="Keyakinan deteksi" Style="{StaticResource Keterangan}" />
-                                    <TextBlock x:Name="LblConfidence" Text="-" Style="{StaticResource AngkaKpi}" FontSize="24" Margin="0,2,0,0" />
+                                    <TextBlock Text="Keyakinan deteksi" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="LblConfidence" Text="-" Style="{StaticResource AngkaKpi}" FontSize="24" Margin="0,2,0,0" TextWrapping="Wrap" />
                                     <TextBlock x:Name="LblConfidenceKelas" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="2" Style="{StaticResource Ubin}"
                                     ToolTip="Fire Radiative Power: daya pancar panas api dalam megawatt (MW).">
                                 <StackPanel>
-                                    <TextBlock Text="Intensitas api (FRP)" Style="{StaticResource Keterangan}" />
-                                    <TextBlock x:Name="LblFrp" Text="-" Style="{StaticResource AngkaKpi}" FontSize="24" Margin="0,2,0,0" />
+                                    <TextBlock Text="Intensitas api (FRP)" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="LblFrp" Text="-" Style="{StaticResource AngkaKpi}" FontSize="24" Margin="0,2,0,0" TextWrapping="Wrap" />
                                     <TextBlock Text="Makin besar, makin kuat apinya" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
                                 </StackPanel>
                             </Border>
                             <Border Grid.Column="4" Style="{StaticResource Ubin}"
                                     ToolTip="Suhu kecerahan piksel yang diukur satelit (Kelvin).">
                                 <StackPanel>
-                                    <TextBlock Text="Kecerahan" Style="{StaticResource Keterangan}" />
-                                    <TextBlock x:Name="LblBrightness" Text="-" Style="{StaticResource AngkaKpi}" FontSize="24" Margin="0,2,0,0" />
+                                    <TextBlock Text="Kecerahan" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
+                                    <TextBlock x:Name="LblBrightness" Text="-" Style="{StaticResource AngkaKpi}" FontSize="24" Margin="0,2,0,0" TextWrapping="Wrap" />
                                     <TextBlock Text="Suhu kecerahan piksel" Style="{StaticResource Keterangan}" TextWrapping="Wrap" />
                                 </StackPanel>
                             </Border>
@@ -143,8 +143,63 @@
                 </Border>
             </StackPanel>
 
-            <!-- ===== Kanan: verifikasi lapangan (OPS-01) ===== -->
-            <Border Grid.Column="2" Style="{StaticResource Kartu}" Padding="24" VerticalAlignment="Top">
+            <!-- ===== Kanan: kondisi sekitar (web API, Modul 10) + verifikasi lapangan (OPS-01) ===== -->
+            <StackPanel Grid.Column="2">
+            <Border Style="{StaticResource Kartu}" Padding="24" Margin="0,0,0,16">
+                <StackPanel>
+                    <DockPanel>
+                        <Button x:Name="BtnMuatKondisi" DockPanel.Dock="Right" Style="{StaticResource TombolIkon}" Content="&#xE72C;"
+                                Width="32" Height="32" FontSize="13" VerticalAlignment="Top"
+                                ToolTip="Muat ulang kondisi sekitar" AutomationProperties.Name="Muat ulang kondisi sekitar"
+                                Click="BtnMuatKondisi_Click" />
+                        <StackPanel>
+                            <TextBlock Text="Kondisi sekitar" Style="{StaticResource JudulKartu}" />
+                            <TextBlock Text="Data langsung dari layanan web; bisa berbeda dengan kondisi di lapangan."
+                                       Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </DockPanel>
+
+                    <!-- Nama wilayah administratif (Nominatim) -->
+                    <TextBlock Text="Wilayah administratif (perkiraan)" Style="{StaticResource Keterangan}" Margin="0,16,0,2" />
+                    <TextBlock x:Name="LblWilayahAdmin" Text="Memuat..." FontWeight="SemiBold" TextWrapping="Wrap" />
+
+                    <!-- Kualitas udara (Open-Meteo Air Quality) -->
+                    <Border Style="{StaticResource Ubin}" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Kualitas udara" Style="{StaticResource Keterangan}" />
+                            <TextBlock x:Name="LblUdara" Text="Memuat..." FontSize="18" FontWeight="SemiBold" Margin="0,4,0,0" TextWrapping="Wrap" />
+                            <!-- Chip di baris sendiri: kategori bisa panjang -->
+                            <Border x:Name="ChipUdara" Style="{StaticResource Chip}" Margin="0,6,0,0" Visibility="Collapsed">
+                                <TextBlock x:Name="LblUdaraKategori" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            </Border>
+                            <TextBlock x:Name="LblUdaraSaran" Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Angin & cuaca (Open-Meteo Forecast) -->
+                    <Border Style="{StaticResource Ubin}" Margin="0,10,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Angin dan cuaca" Style="{StaticResource Keterangan}" />
+                            <TextBlock x:Name="LblAngin" Text="Memuat..." FontSize="18" FontWeight="SemiBold" Margin="0,4,0,0" TextWrapping="Wrap" />
+                            <TextBlock x:Name="LblArahAngin" TextWrapping="Wrap" Margin="0,2,0,0" />
+                            <TextBlock x:Name="LblCuacaLain" Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock x:Name="LblKondisiWaktu" Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,10,0,0" />
+
+                    <!-- WEB-07: atribusi wajib (Open-Meteo CC BY 4.0, OpenStreetMap ODbL) -->
+                    <TextBlock Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,8,0,0">
+                        <Hyperlink x:Name="TautanOpenMeteo" NavigateUri="https://open-meteo.com/" RequestNavigate="Tautan_RequestNavigate"
+                                   Foreground="{DynamicResource MutedText}">Weather data by Open-Meteo.com</Hyperlink>
+                        <Run Text=" (CC BY 4.0) · Nama wilayah " />
+                        <Hyperlink NavigateUri="https://www.openstreetmap.org/copyright" RequestNavigate="Tautan_RequestNavigate"
+                                   Foreground="{DynamicResource MutedText}">© OpenStreetMap contributors</Hyperlink>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Kartu}" Padding="24" VerticalAlignment="Top">
                 <StackPanel>
                     <TextBlock Text="Verifikasi lapangan" Style="{StaticResource JudulKartu}" />
                     <TextBlock x:Name="LblVerifikasiStatus" Text="Memuat status..." TextWrapping="Wrap" Margin="0,8,0,0" />
@@ -181,6 +236,7 @@
                     </StackPanel>
                 </StackPanel>
             </Border>
+            </StackPanel>
         </Grid>
     </ScrollViewer>
 </Page>

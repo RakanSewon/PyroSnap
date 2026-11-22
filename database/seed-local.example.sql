@@ -24,7 +24,7 @@ CREATE TEMP TABLE akun_uji (username text, pw text, role text) ON COMMIT DROP;
 
 INSERT INTO akun_uji (username, pw, role) VALUES
     ('admin_uji',    '<password-admin>',    'Admin'),
-    ('analis_uji',   '<password-analis>',   'Analis'),
+    ('publik_uji',   '<password-publik>',   'Publik'),
     ('operator_uji', '<password-operator>', 'Operator');
 
 DO $$

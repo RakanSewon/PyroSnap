@@ -81,16 +81,17 @@ Persiapan: migrasi `000`–`009` sudah dijalankan; akun uji `admin_uji`, `operat
 | 2 | Dashboard | Mencari tombol/menu Ekspor dan lonceng/menu Peringatan | Keduanya tidak ada | Salah satu tampil | Sesuai ( ) Tidak Sesuai ( ) |
 | 3 | Dashboard | Database dimatikan, lalu masuk sebagai Tamu | Pesan "Data titik panas belum bisa dimuat …"; tombol Panduan tetap bisa dibuka | Aplikasi error / tertutup | Sesuai ( ) Tidak Sesuai ( ) |
 
-## F. Layanan Web API Pihak Ketiga ⏳ (setelah `docs/backend/web-api.md` dikerjakan)
+## F. Layanan Web API Pihak Ketiga (Open-Meteo, OpenStreetMap Nominatim; `docs/backend/web-api.md`)
 
 | No. | Halaman yang Diuji | Aksi Aktor | Reaksi Sistem — Benar | Reaksi Sistem — Salah | Hasil |
 |---|---|---|---|---|---|
-| 1 | Detail — Kondisi sekitar | Membuka Detail sebuah titik | Nama wilayah administratif (desa/kabupaten/provinsi) tampil dari OpenStreetMap | Nama wilayah kosong tanpa keterangan | Sesuai ( ) Tidak Sesuai ( ) |
-| 2 | Detail — Kondisi sekitar | Membuka Detail sebuah titik | Kualitas udara (PM2.5, indeks + kategori) tampil dengan atribusi Open-Meteo | Data tidak tampil / tanpa atribusi | Sesuai ( ) Tidak Sesuai ( ) |
-| 3 | Detail — Kondisi sekitar | Membuka Detail sebuah titik | Kecepatan & arah angin serta kelembapan tampil | Data tidak tampil | Sesuai ( ) Tidak Sesuai ( ) |
-| 4 | Detail — Kondisi sekitar | Memutus internet lalu membuka Detail | Tulisan "tidak tersedia" pada data tambahan; data titik lain tetap tampil | Detail gagal dibuka / aplikasi error | Sesuai ( ) Tidak Sesuai ( ) |
-| 5 | Banner warga (Publik/Tamu) | Memilih wilayah | Banner menampilkan kualitas udara wilayah itu dalam bahasa awam | Kualitas udara tidak tampil | Sesuai ( ) Tidak Sesuai ( ) |
+| 1 | Detail — Kondisi sekitar | Membuka Detail sebuah titik | Kartu "Kondisi sekitar" menampilkan wilayah administratif (desa/kelurahan, kecamatan, kota/kabupaten, provinsi) dengan label "perkiraan" | Nama wilayah kosong tanpa keterangan | Sesuai ( ) Tidak Sesuai ( ) |
+| 2 | Detail — Kondisi sekitar | Membuka Detail sebuah titik | Kualitas udara tampil: PM2.5 (µg/m³), chip kategori + AQI (mis. "Baik · AQI 41"), saran singkat; atribusi "Weather data by Open-Meteo.com" ada dan bisa diklik | Data tidak tampil / tanpa atribusi | Sesuai ( ) Tidak Sesuai ( ) |
+| 3 | Detail — Kondisi sekitar | Membuka Detail sebuah titik | Kecepatan angin (km/jam), arah asal angin + perkiraan arah asap (mis. "dari Barat Daya … asap ke Timur Laut"), kelembapan, suhu, hujan, dan jam data tampil | Data tidak tampil | Sesuai ( ) Tidak Sesuai ( ) |
+| 4 | Detail — Kondisi sekitar | Memutus internet lalu membuka Detail titik yang belum pernah dibuka | Dalam ±10 detik tertulis "Tidak tersedia" + "… tidak bisa dihubungi. Periksa koneksi internet."; data titik dan verifikasi tetap tampil | Detail gagal dibuka / aplikasi error | Sesuai ( ) Tidak Sesuai ( ) |
+| 5 | Wilayah saya (Publik/Tamu) | Memilih wilayah lalu Simpan | Kotak "Kualitas udara di <wilayah>" tampil dengan PM2.5, kategori bahasa awam, saran, dan atribusi Open-Meteo | Kualitas udara tidak tampil | Sesuai ( ) Tidak Sesuai ( ) |
 | 6 | Detail | Membuka beberapa Detail berturut-turut dengan cepat | Nama wilayah tetap muncul (permintaan diantre ≥ 1 detik); titik yang sama tidak diminta ulang | Aplikasi tertahan / diblokir penyedia (HTTP 403/429) | Sesuai ( ) Tidak Sesuai ( ) |
+| 7 | Detail — Kondisi sekitar | Setelah No. 4, menyambung internet lalu menekan tombol muat ulang (ikon panah melingkar) di kartu | Data tambahan termuat tanpa membuka ulang halaman | Tetap "tidak tersedia" / aplikasi error | Sesuai ( ) Tidak Sesuai ( ) |
 
 ## G. Instalasi & Konfigurasi ⏳ (setelah pengemasan MVP-19…26)
 
@@ -125,10 +126,10 @@ Jalankan dengan satu akun Admin dan satu akun Tamu. Kasus 1–5 diulang **di tem
 | C. Operator | 7 | | | |
 | D. Publik | 4 | | | |
 | E. Tamu | 3 | | | |
-| F. Web API ⏳ | 6 | | | |
+| F. Web API | 7 | | | |
 | G. Instalasi ⏳ | 4 | | | |
 | H. Tampilan & Tema | 8 (×2 tema untuk No. 1–5) | | | |
-| **Total** | **63** | | | |
+| **Total** | **64** | | | |
 
 Kasus "Tidak Sesuai" dicatat di `docs/debug/bug-fix.md`, diperbaiki, lalu diuji ulang (siklus Membandingkan → perbaikan → uji ulang pada Modul 10; sanity testing).
 

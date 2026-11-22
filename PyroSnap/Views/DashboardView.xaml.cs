@@ -38,6 +38,13 @@ namespace PyroSnap.Views
         {
             InitializeComponent();
             Loaded += DashboardView_Loaded;
+            // Setiap kunjungan membuat DashboardView baru (Navigasi, ganti tema); lepaskan proses
+            // browser WebView2 halaman lama agar tidak menumpuk di memori.
+            Unloaded += (_, _) =>
+            {
+                _petaDibuang = true;
+                MapWeb.Dispose();
+            };
         }
 
         private async void DashboardView_Loaded(object sender, RoutedEventArgs e)

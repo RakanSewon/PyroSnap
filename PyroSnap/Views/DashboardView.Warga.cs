@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Navigation;
 using Npgsql;
 using PyroSnap.Services;
 
@@ -87,10 +88,11 @@ namespace PyroSnap.Views
             }
 
             var area = WilayahPantau.CariPersis(AppSession.WilayahPilihan);
+            _ = PerbaruiUdaraWargaAsync(area);
             if (area == null)
             {
                 PesanUi.Tampilkan(BarWarga, LblWarga,
-                    "Pilih wilayah Anda di panel kiri untuk melihat peringatan titik panas di sekitar Anda.",
+                    "Pilih wilayah Anda di bagian \"Wilayah saya\" (kolom kanan) untuk melihat peringatan titik panas dan kualitas udara di sekitar Anda.",
                     JenisPesan.Info);
                 return;
             }
@@ -120,6 +122,70 @@ namespace PyroSnap.Views
                     $"Tidak ada titik panas terdeteksi di sekitar {area.NamaLokasi} dalam data terbaru.",
                     JenisPesan.Info);
             }
+        }
+
+        // ---- WEB-06: kualitas udara di pusat wilayah pilihan (Open-Meteo, data CAMS) ----
+        private string? _udaraDiminta;
+
+        private async Task PerbaruiUdaraWargaAsync(Location? area)
+        {
+            if (area == null)
+            {
+                PanelUdaraWarga.Visibility = Visibility.Collapsed;
+                _udaraDiminta = null;
+                return;
+            }
+
+            // Hindari permintaan ganda untuk wilayah yang sama (banner diperbarui berkali-kali).
+            if (_udaraDiminta == area.NamaLokasi) return;
+            _udaraDiminta = area.NamaLokasi;
+
+            PanelUdaraWarga.Visibility = Visibility.Visible;
+            LblUdaraWargaJudul.Text = $"Kualitas udara di {area.NamaLokasi}";
+            LblUdaraWarga.Text = "Memuat...";
+            LblUdaraWargaSaran.Text = "";
+            ChipUdaraWarga.Visibility = Visibility.Collapsed;
+
+            var hasil = await KualitasUdaraApi.AmbilAsync(area.Latitude, area.Longitude);
+            if (_udaraDiminta != area.NamaLokasi) return;   // wilayah sudah diganti selama menunggu
+
+            if (hasil.Data is not { } u)
+            {
+                LblUdaraWarga.Text = "Tidak tersedia";
+                LblUdaraWargaSaran.Text = hasil.Pesan;
+                _udaraDiminta = null;   // boleh dicoba lagi pada pembaruan berikutnya
+                return;
+            }
+
+            LblUdaraWarga.Text = u.Pm25 is double pm ? $"PM2.5 {pm:0.#} µg/m³" : "PM2.5 tidak tersedia";
+            if (u.UsAqi is int aqi)
+            {
+                var k = KualitasUdaraApi.Kategori(aqi);
+                LblUdaraWargaKategori.Text = k.Nama;
+                LblUdaraWargaSaran.Text = $"Indeks {aqi}. {k.Saran} Diukur di pusat area pantau, bukan di rumah Anda.";
+                (string bg, string fg) = k.Tingkat switch
+                {
+                    0 => ("DeltaNaikBg", "DeltaNaikFg"),
+                    1 => ("PesanPeringatanBg", "PesanPeringatanFg"),
+                    _ => ("DeltaTurunBg", "DeltaTurunFg")
+                };
+                ChipUdaraWarga.SetResourceReference(BackgroundProperty, bg);
+                LblUdaraWargaKategori.SetResourceReference(ForegroundProperty, fg);
+                ChipUdaraWarga.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void Tautan_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+            }
+            catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException)
+            {
+                TampilkanStatus("Browser tidak bisa dibuka.", e.Uri.AbsoluteUri, JenisPesan.Peringatan);
+            }
+            e.Handled = true;
         }
 
         // ---- PUB-02: ringkasan per wilayah dari data yang sedang dipakai ----

@@ -264,8 +264,10 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{StaticResource RadiusKontrol}" SnapsToDevicePixels="True">
+                            <!-- Ikuti pengaturan scrollbar TextBox (mis. pratinjau Ekspor, catatan verifikasi) -->
                             <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Focusable="False"
-                                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" />
+                                          HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"
+                                          VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}" />
                         </Border>
                         <Border x:Name="fokus" BorderBrush="{DynamicResource FocusRing}" BorderThickness="2"
                                 CornerRadius="{StaticResource RadiusKontrol}" Visibility="Collapsed" IsHitTestVisible="False" />

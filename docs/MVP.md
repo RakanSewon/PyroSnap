@@ -23,7 +23,7 @@ Di luar MVP kecuali tim memutuskan lain: Fase 6 (MVVM/DI/unit test formal, `ARCH
 | Web API pihak ketiga | 🟨 Diputuskan 2026-11-23: kualitas udara + cuaca/angin (Open-Meteo) + nama wilayah (Nominatim/OSM) dengan RestSharp; rencana di `docs/backend/web-api.md`; **belum ada kode** | NASA FIRMS sudah dikonsumsi sejak awal |
 | Panduan | 🟨 Ada halaman Panduan & Kontak Darurat (untuk warga) dan README singkat. **Belum ada panduan pemakaian aplikasi** | – |
 | Pengemasan | ⬜ Belum ada | Lihat celah di bagian 6 |
-| Pengujian Black Box | 🟨 Worksheet format Lab 10.2 siap: `docs/debug/blackbox-testing.md` (63 kasus). **Belum dijalankan** | Butuh Windows |
+| Pengujian Black Box | 🟨 Worksheet format Lab 10.2 siap: `docs/debug/blackbox-testing.md` (64 kasus). **Belum dijalankan** | Butuh Windows |
 | Pengumpulan | ⬜ Belum | Tujuan: Worksheet Homework Modul 10 |
 
 ## 3. Butir 1 — Finalisasi (aplikasi berjalan tanpa error/bug)
@@ -57,9 +57,9 @@ Pustaka: **RestSharp** seperti Lab 10.1. Ketentuan penting: atribusi Open-Meteo 
 
 - [x] **MVP-10** — Tentukan layanan yang masuk MVP (2026-11-23: ketiga layanan di atas).
 - [x] **MVP-11** — Tentukan teknologi: RestSharp, kelas layanan statis di `Services/` seperti pola Lab 10.1.
-- [ ] **MVP-12** — Pilih versi RestSharp (modul menyarankan 106.11.4 untuk .NET Framework 4.7.2; PyroSnap .NET 8; versi < 106.12.0 diduga rentan CVE-2021-27293, perlu verifikasi) — WEB-00.
+- [x] **MVP-12** — RestSharp **112.1.0** (106.11.4 saran modul punya celah CVE-2021-27293) — WEB-00, 2026-11-23.
 - [x] **MVP-13** — Rencana kontrak & penempatan di aplikasi: `docs/backend/web-api.md`.
-- [ ] **MVP-14** — Implementasi + uji (WEB-01…WEB-09), termasuk bagian F worksheet Black Box.
+- [x] **MVP-14** — Implementasi + uji otomatis (WEB-01…08) selesai 2026-11-23, 25/25 lulus termasuk panggilan asli. Sisa: bagian F worksheet Black Box di Windows (WEB-09).
 - [ ] **MVP-15** — Jelaskan data tambahan dan sumbernya di panduan pemakaian (WEB-10).
 
 ## 5. Butir 3 — Panduan sederhana penggunaan
@@ -102,7 +102,7 @@ Pekerjaan:
 **Format dari Modul 10 (sudah diketahui):** worksheet berisi *Nama Aplikasi*, *Tanggal Pengujian*, *Tester*; kolom **No · Halaman yang Diuji · Aksi Aktor · Reaksi Sistem (Benar / Salah) · Hasil (Sesuai / Tidak Sesuai)**, dikelompokkan per jenis pengguna (contoh modul: Halaman Sistem Admin, Halaman Sistem Pelanggan). Teknik: **functional testing, black box**. Siklus menurut modul: identifikasi → perancangan test case → persiapan → eksekusi → membandingkan (gagal → perbaiki → uji ulang).
 
 Bahan yang sudah ada:
-- **Worksheet siap pakai: `docs/debug/blackbox-testing.md`** — 63 kasus: A Umum (14), B Admin (17), C Operator (7), D Publik (4), E Tamu (3), F Web API (6, menunggu fitur), G Instalasi (4, menunggu kemasan), H Tampilan & Tema (8; No. 1–5 dijalankan di kedua tema).
+- **Worksheet siap pakai: `docs/debug/blackbox-testing.md`** — 64 kasus: A Umum (14), B Admin (17), C Operator (7), D Publik (4), E Tamu (3), F Web API (7), G Instalasi (4, menunggu kemasan), H Tampilan & Tema (8; No. 1–5 dijalankan di kedua tema).
 - Uji logika di Linux (unit/integration, program uji sementara, **tidak di repo**): parser 30/30, repository F4 26/26, alert 23/23, F7 37/37, matriks peran 7/7, peta 7/7 & 10/10. Modul 10 tidak mewajibkan uji otomatis; yang wajib adalah worksheet black box.
 
 - [x] **MVP-27** — Dapatkan format Modul 10 (2026-11-23: `docs/MODUL 10 - FIX.pdf`).
@@ -124,7 +124,7 @@ Modul 10 menyebut isi pengumpulan "misalnya dalam bentuk .exe, panduan singkat k
 ## 9. Urutan kerja yang disarankan
 
 1. MVP-01 → MVP-04 (migrasi DB 008/009, uji Windows, rotasi key), karena semuanya bergantung pada aplikasi yang terbukti jalan.
-2. Layanan web API (MVP-12, MVP-14) — wajib dalam tugas, belum ada kode.
+2. Layanan web API (MVP-12, MVP-14) — **sudah dikodekan**; tinggal uji bagian F di Windows.
 3. Pengemasan (MVP-19…26) setelah aplikasi dan web API stabil.
 4. Jalankan worksheet Black Box (MVP-30) pada hasil kemasan, perbaiki yang gagal, uji ulang.
 5. Panduan pemakaian (MVP-16…18) dengan tangkapan layar dari hasil uji.
@@ -132,7 +132,7 @@ Modul 10 menyebut isi pengumpulan "misalnya dalam bentuk .exe, panduan singkat k
 7. Pengumpulan ke Worksheet Homework (MVP-32…37).
 
 ## 10. Keputusan terbuka (MVP)
-1. Versi RestSharp (MVP-12 / WEB-00).
+1. ~~Versi RestSharp~~ — diputuskan 112.1.0.
 2. Nama wilayah dari Nominatim disimpan ke database atau cukup cache (WEB-11, K2).
 3. Bentuk kemasan: zip + skrip atau installer (MVP-19).
 4. Bentuk pasti Worksheet Homework dan berkas tambahan (MVP-36).

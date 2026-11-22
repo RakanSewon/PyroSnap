@@ -63,6 +63,13 @@ namespace PyroSnap.Views
             }
         }
 
+        // true setelah halaman ditinggalkan dan WebView2 dibuang (lihat konstruktor DashboardView).
+        private bool _petaDibuang;
+
+        /// <summary>Peta web siap menerima skrip. Pemuatan data yang selesai setelah halaman
+        /// ditinggalkan tidak boleh menyentuh WebView2 yang sudah dibuang.</summary>
+        private bool PetaSiap => !_petaDibuang && _useWeb && _webReady && MapWeb.CoreWebView2 != null;
+
         private void Web_MessageReceived(object? sender,
             Microsoft.Web.WebView2.Core.CoreWebView2WebMessageReceivedEventArgs e)
         {
@@ -91,7 +98,7 @@ namespace PyroSnap.Views
         // Kirim data hotspot ke Leaflet sebagai JSON. Index dipakai sebagai id.
         private void KirimDataKePeta()
         {
-            if (!_useWeb || !_webReady || MapWeb.CoreWebView2 == null) return;
+            if (!PetaSiap) return;
 
             string json = JsonSerializer.Serialize(_tampil.Select((h, i) => new
             {
@@ -113,7 +120,7 @@ namespace PyroSnap.Views
 
         private void SorotDiPeta()
         {
-            if (!_useWeb || !_webReady || MapWeb.CoreWebView2 == null) return;
+            if (!PetaSiap) return;
 
             int idx = GridHotspot.SelectedItem is HotspotRow row ? _tampil.IndexOf(row.Source) : -1;
             _ = MapWeb.CoreWebView2.ExecuteScriptAsync($"highlightHotspot({idx})");
@@ -121,7 +128,7 @@ namespace PyroSnap.Views
 
         private void FokuskanPeta(Location lokasi)
         {
-            if (!_useWeb || !_webReady || MapWeb.CoreWebView2 == null) return;
+            if (!PetaSiap) return;
 
             string lat = lokasi.Latitude.ToString(CultureInfo.InvariantCulture);
             string lon = lokasi.Longitude.ToString(CultureInfo.InvariantCulture);

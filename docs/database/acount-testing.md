@@ -17,7 +17,7 @@ Menyediakan akun uji per peran dan skenario login/otorisasi untuk fase Auth (F3)
 | Username uji | Peran | Tujuan |
 |---|---|---|
 | `admin_uji` | Admin | Uji hak penuh |
-| `analis_uji` | Analis | Uji sync, filter, export |
+| `publik_uji` | Publik | Uji fitur warga: wilayah saya, kualitas udara, ekspor; tanpa sinkron/peringatan/historis |
 | `operator_uji` | Operator | Uji hak terbatas (lihat/filter/detail) |
 | `tidak_ada_uji` | – | **Tidak dibuat**; dipakai untuk uji username tak dikenal |
 
@@ -107,7 +107,7 @@ Hash dibuat langsung oleh PostgreSQL (ekstensi `pgcrypto`, BCrypt cost 11) sehin
 1. Apakah ada akun Admin awal untuk produksi, dan siapa yang membuat (hanya lewat skrip DB)?
 2. Apakah perlu penguncian setelah percobaan gagal berulang (ACC-11)? Ini tambahan di luar diagram.
 3. *(Diputuskan 2026-11-22, K10)* Warga lewat dua jalur: **daftar mandiri** di aplikasi (peran Publik, boleh ekspor) dan **masuk sebagai tamu** (tanpa akun, tanpa ekspor). Akun Admin/Operator tetap dibuat lewat skrip DB (atau Kelola Akun bila SCR-14 disetujui).
-4. Akun uji setelah F7: `analis_uji` diubah menjadi Admin (atau dihapus) dan `publik_uji` ditambahkan (ROLE-05).
+4. ✅ 2026-11-23: seed kini membuat `admin_uji`, `operator_uji`, `publik_uji`. Baris `analis_uji` (peran Analis) dihapus dari seed karena setelah migrasi 008 peran Analis ditolak CHECK dan membuat seed gagal total di database baru. Database lama yang sudah berisi `analis_uji` tetap aman: migrasi 008 mengubahnya menjadi Admin (ACC-16).
 
 ## 9. Rujukan
 `database/001_schema.sql` (tabel `users`), `docs/backend/auth-and-roles.md`, `docs/debug/testing-schema.md`, `Claude.md` §4.6, §5

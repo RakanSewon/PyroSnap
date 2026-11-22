@@ -75,8 +75,9 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock x:Name="TxtJudul" Text="Dashboard" FontSize="20" FontWeight="SemiBold" />
-                        <TextBlock x:Name="TxtSubjudul" FontSize="12" Foreground="{DynamicResource MutedText}" />
+                        <TextBlock x:Name="TxtJudul" Text="Dashboard" FontSize="20" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                        <TextBlock x:Name="TxtSubjudul" FontSize="12" Foreground="{DynamicResource MutedText}" TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <!-- Lonceng peringatan (Admin & Operator) + lencana jumlah belum dibaca -->
@@ -97,8 +98,8 @@
                                     <TextBlock x:Name="TxtInisial" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource InkFg}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
-                                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock x:Name="TxtNamaUser" FontSize="13" FontWeight="SemiBold" />
+                                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" MaxWidth="170">
+                                    <TextBlock x:Name="TxtNamaUser" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                     <TextBlock x:Name="TxtPeranUser" FontSize="12" Foreground="{DynamicResource MutedText}" />
                                 </StackPanel>
                             </StackPanel>

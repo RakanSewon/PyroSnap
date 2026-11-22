@@ -48,7 +48,11 @@ namespace PyroSnap.Views
             TampilkanData(_hotspot);
             PanelNavigasi.Visibility = AppSession.BolehNavigasi ? Visibility.Visible : Visibility.Collapsed;
             PanelFormVerifikasi.Visibility = AppSession.BolehVerifikasi ? Visibility.Visible : Visibility.Collapsed;
+
+            // Web API (Modul 10) berjalan bersamaan dengan verifikasi; kegagalan tidak menghentikan halaman.
+            Task kondisi = MuatKondisiAsync(_hotspot);
             await MuatVerifikasiAsync();
+            await kondisi;
         }
 
         private void TampilkanData(Hotspot h)

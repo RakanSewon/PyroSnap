@@ -34,7 +34,7 @@
   `cat database/008_*.sql database/009_*.sql | sudo -u postgres psql -v ON_ERROR_STOP=1 -d pyrosnap`
 - [ ] **Rotasi key NASA FIRMS** (key lama ada di riwayat git/GitHub) dan putuskan soal key CARTO; isi key baru di `.env`.
 - [ ] **Uji di Windows** (dibutuhkan .NET 8 SDK + WebView2 Runtime): daftar uji ada di `docs/database/acount-testing.md` §6 (ACC-02…ACC-17) dan `docs/progress/frontend-progress.md` (FE5). Kirim hasil per nomor (lulus/gagal + tangkapan layar/pesan error).
-- [x] **Format Modul 10** sudah ada: `docs/MODUL 10 - FIX.pdf` (dipindahkan dari Downloads 2026-11-23). Hasilnya: worksheet `docs/debug/blackbox-testing.md` (63 kasus, format Lab 10.2) dan rencana `docs/backend/web-api.md`.
+- [x] **Format Modul 10** sudah ada: `docs/MODUL 10 - FIX.pdf` (dipindahkan dari Downloads 2026-11-23). Hasilnya: worksheet `docs/debug/blackbox-testing.md` (64 kasus, format Lab 10.2) dan rencana `docs/backend/web-api.md`.
 - [x] PDF Modul 10 **tidak** di-commit: sudah masuk `.gitignore` (2026-11-23). PDF tetap ada di `docs/` secara lokal.
 - [ ] Baca password akun uji di `database/seed-local.sql` (jangan dibagikan lewat chat): `admin_uji`, `analis_uji` (jadi Admin setelah migrasi 008), `operator_uji`.
 - [ ] Cek bentuk "Worksheet Homework Modul 10 – Minimum Viable Product" di kelas dan berkas tambahan yang diminta (MVP-36).
@@ -44,7 +44,7 @@
 2. **Pekerjaan MVP** (`docs/MVP.md`): finalisasi, implementasi web API pihak ketiga (`docs/backend/web-api.md`, WEB-00…11), panduan, pengemasan, menjalankan worksheet Black Box (`docs/debug/blackbox-testing.md`), pengumpulan.
 
 ### C. Keputusan yang masih menunggu tim
-- [x] **Lingkup Web API** — diputuskan 2026-11-23: mengonsumsi REST API pihak ketiga (bukan membangun server): kualitas udara + cuaca/angin (Open-Meteo) + nama wilayah (Nominatim/OSM), pustaka RestSharp. Sisa: versi RestSharp (WEB-00) dan simpan nama wilayah ke DB atau tidak (WEB-11).
+- [x] **Lingkup Web API** — diputuskan 2026-11-23: mengonsumsi REST API pihak ketiga (bukan membangun server): kualitas udara + cuaca/angin (Open-Meteo) + nama wilayah (Nominatim/OSM), pustaka RestSharp. **Dikodekan 2026-11-23** dengan RestSharp 112.1.0: kartu "Kondisi sekitar" di Detail dan kotak kualitas udara warga; uji otomatis 25/25 lulus (termasuk panggilan asli). Sisa: uji bagian F di Windows (WEB-09), panduan (WEB-10), kategori ISPU (belum diverifikasi; sementara US AQI), simpan nama wilayah ke DB atau tidak (WEB-11).
 - [ ] **K1** — nasib `PyroSnap/src/MapViewer.cs` (kode konsol yang tak terpakai): hapus atau hubungkan.
 - [ ] **K2 (formal)** — atribut wilayah pada Hotspot. Sementara memakai 8 area pantau ±3° (`Services/WilayahPantau.cs`); batas provinsi/38 provinsi menunggu ADD-07.
 - [ ] **K7** — apakah class repository dianggap tambahan di luar diagram.

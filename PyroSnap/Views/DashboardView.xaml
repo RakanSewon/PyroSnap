@@ -156,9 +156,9 @@
 
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="5*" MinHeight="160" />
-                    <RowDefinition Height="16" />
-                    <RowDefinition Height="4*" MinHeight="150" />
+                    <RowDefinition Height="5*" MinHeight="110" />
+                    <RowDefinition Height="12" />
+                    <RowDefinition Height="4*" MinHeight="120" />
                 </Grid.RowDefinitions>
 
                 <!-- Peta (WebView2 tidak ikut sudut membulat: diberi jarak dalam kartu) -->
@@ -192,17 +192,18 @@
 
                 <!-- Daftar & ringkasan -->
                 <Border Grid.Row="2" Style="{StaticResource Kartu}" Padding="16,14">
-                    <Grid>
-                        <!-- Tombol di kanan atas, sejajar dengan tab -->
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="1">
-                            <TextBlock x:Name="LblCount" Style="{StaticResource Keterangan}" VerticalAlignment="Center" Margin="0,0,12,0" />
-                            <Button Style="{StaticResource PrimaryButton}" Padding="14,6" Click="BtnDetail_Click">
+                    <DockPanel>
+                        <!-- Baris bawah: jumlah + tombol (tidak menimpa tab pada jendela sempit) -->
+                        <DockPanel DockPanel.Dock="Bottom" Margin="0,10,0,0">
+                            <Button DockPanel.Dock="Right" Style="{StaticResource PrimaryButton}" Padding="14,6" Click="BtnDetail_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Lihat detail" />
                                     <TextBlock Style="{StaticResource TeksIkon}" FontSize="12" Text="&#xE76C;" Margin="8,0,0,0" />
                                 </StackPanel>
                             </Button>
-                        </StackPanel>
+                            <TextBlock x:Name="LblCount" Style="{StaticResource Keterangan}" VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis" Margin="0,0,12,0" />
+                        </DockPanel>
 
                         <TabControl>
                             <TabItem>
@@ -283,7 +284,7 @@
                                 </DockPanel>
                             </TabItem>
                         </TabControl>
-                    </Grid>
+                    </DockPanel>
                 </Border>
             </Grid>
 
@@ -307,6 +308,28 @@
                             </Grid>
                             <TextBlock x:Name="LblWilayahSayaInfo" Style="{StaticResource Keterangan}"
                                        TextWrapping="Wrap" Margin="0,6,0,0" />
+
+                            <!-- WEB-06: kualitas udara di pusat wilayah pilihan (Open-Meteo) -->
+                            <Border x:Name="PanelUdaraWarga" Background="{DynamicResource SecondaryBg}"
+                                    CornerRadius="{StaticResource RadiusKontrol}" Padding="14,12" Margin="0,12,0,0"
+                                    Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock x:Name="LblUdaraWargaJudul" Text="Kualitas udara" Style="{StaticResource Keterangan}"
+                                               TextWrapping="Wrap" />
+                                    <TextBlock x:Name="LblUdaraWarga" Text="Memuat..." FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0"
+                                               TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+                                    <!-- Chip di baris sendiri: kategori bisa panjang ("Tidak sehat bagi kelompok sensitif") -->
+                                    <Border x:Name="ChipUdaraWarga" Style="{StaticResource Chip}" Margin="0,6,0,0" Visibility="Collapsed">
+                                        <TextBlock x:Name="LblUdaraWargaKategori" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                    </Border>
+                                    <TextBlock x:Name="LblUdaraWargaSaran" Style="{StaticResource Keterangan}" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                    <!-- WEB-07: atribusi wajib -->
+                                    <TextBlock Style="{StaticResource Keterangan}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0">
+                                        <Hyperlink NavigateUri="https://open-meteo.com/" RequestNavigate="Tautan_RequestNavigate"
+                                                   Foreground="{DynamicResource MutedText}">Weather data by Open-Meteo.com</Hyperlink>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
                             <Separator />
                         </StackPanel>
 
@@ -332,25 +355,22 @@
                         <!-- Filter -->
                         <TextBlock Text="Filter titik panas" Style="{StaticResource JudulSeksiFilter}" />
 
-                        <DockPanel>
-                            <TextBlock x:Name="LblConfidence" DockPanel.Dock="Right" Text="0 %" FontWeight="SemiBold" />
-                            <TextBlock Text="Keyakinan deteksi minimum"
-                                       ToolTip="Seberapa yakin satelit bahwa titik ini benar sumber panas/api (kelas LAPAN: Rendah &lt; 30, Nominal 30–79, Tinggi ≥ 80)." />
-                        </DockPanel>
+                        <!-- Label dan nilai di baris terpisah: kolom 290 px tidak muat keduanya sebaris -->
+                        <TextBlock Text="Keyakinan deteksi minimum" TextWrapping="Wrap"
+                                   ToolTip="Seberapa yakin satelit bahwa titik ini benar sumber panas/api (kelas LAPAN: Rendah &lt; 30, Nominal 30–79, Tinggi ≥ 80)." />
                         <Slider x:Name="SldConfidence" Minimum="0" Maximum="100" Value="0"
                                 TickFrequency="10" IsSnapToTickEnabled="True" Margin="0,4,0,0"
                                 AutomationProperties.Name="Keyakinan deteksi minimum"
                                 ValueChanged="SldConfidence_ValueChanged" />
+                        <TextBlock x:Name="LblConfidence" Text="0 % (Rendah ke atas)" FontWeight="SemiBold" HorizontalAlignment="Right" />
 
-                        <DockPanel Margin="0,12,0,0">
-                            <TextBlock x:Name="LblFrp" DockPanel.Dock="Right" Text="0 MW" FontWeight="SemiBold" />
-                            <TextBlock Text="Intensitas api (FRP) minimum"
-                                       ToolTip="FRP (Fire Radiative Power) = daya pancar panas api dalam megawatt (MW). Makin besar, makin kuat apinya." />
-                        </DockPanel>
+                        <TextBlock Text="Intensitas api (FRP) minimum" TextWrapping="Wrap" Margin="0,12,0,0"
+                                   ToolTip="FRP (Fire Radiative Power) = daya pancar panas api dalam megawatt (MW). Makin besar, makin kuat apinya." />
                         <Slider x:Name="SldFrp" Minimum="0" Maximum="100" Value="0"
                                 TickFrequency="5" IsSnapToTickEnabled="True" Margin="0,4,0,0"
                                 AutomationProperties.Name="Intensitas api minimum"
                                 ValueChanged="SldFrp_ValueChanged" />
+                        <TextBlock x:Name="LblFrp" Text="0 MW" FontWeight="SemiBold" HorizontalAlignment="Right" />
 
                         <Grid Margin="0,16,0,0">
                             <Grid.ColumnDefinitions>

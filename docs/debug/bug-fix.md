@@ -1,6 +1,6 @@
 # List Bug Yang Ditemukan
 
-> Sumber: review statis kode 2026-11-22. **Belum ada yang diperbaiki.** Aplikasi tidak dijalankan (WPF butuh Windows), jadi tiap bug punya langkah verifikasi untuk dicek di Windows.
+> Sumber: review statis kode 2026-11-22 (BUG-01…19) dan uji menyeluruh di Linux 2026-11-23 (BUG-20…30, semuanya sudah diperbaiki di kode). Aplikasi tidak dijalankan (WPF butuh Windows), jadi tiap bug punya langkah verifikasi untuk dicek di Windows.
 > Prioritas: **P0** = data salah / rahasia bocor, kerjakan dulu · **P1** = fungsi rusak atau menyesatkan · **P2** = kualitas/UX.
 > Fase mengacu pada `docs/progress/backend-progress.md`. Rencana uji ada di `docs/debug/testing-schema.md`.
 
@@ -27,6 +27,17 @@
 | BUG-17 | P2 | Alert & MapViewer berbasis `Console.WriteLine`; kode mati | `src/Alert.cs:15`, `src/MapViewer.cs` | F5 / ARCH-03 |
 | BUG-18 | P2 | Label "Tingkat Keparahan" sebenarnya confidence deteksi | `Views/DetailView.xaml.cs:27` | – (UI) |
 | BUG-19 | P0 | Satelit `VIIRS_SNPP_NRT` berhenti mengirim data sejak 2026-11-02 (ditemukan saat F1) | `HotspotDataSource` URL | F1 |
+| BUG-20 | P0 | Seed akun uji gagal total di database baru: baris `analis_uji` berperan Analis ditolak CHECK setelah migrasi 008 | `database/seed-local*.sql` | Uji 2026-11-23 |
+| BUG-21 | P2 | Pesan gagal muat menyebut tombol lama "Perbarui Data dari NASA FIRMS" | `Views/DashboardView.Data.cs:184` | Uji 2026-11-23 |
+| BUG-22 | P2 | Banner warga menyuruh memilih wilayah "di panel kiri", padahal kini di kolom kanan | `Views/DashboardView.Warga.cs:95` | Uji 2026-11-23 |
+| BUG-23 | P1 | Template TextBox mengunci scrollbar `Hidden`: pratinjau Ekspor (200 baris) dan catatan verifikasi tanpa scrollbar | `Themes/Gaya.xaml` (TextBox) | Uji 2026-11-23 |
+| BUG-24 | P2 | Label slider dan nilainya sebaris tidak muat di kolom filter 290 px; label terpotong | `Views/DashboardView.xaml` (filter) | Uji 2026-11-23 |
+| BUG-25 | P2 | Pada jendela minimum (1024 px), jumlah titik + tombol "Lihat detail" menimpa tab daftar | `Views/DashboardView.xaml` (kartu daftar) | Uji 2026-11-23 |
+| BUG-26 | P2 | Tinggi minimum peta + daftar melebihi ruang pada jendela 640 px; bagian bawah terpotong | `Views/DashboardView.xaml` | Uji 2026-11-23 |
+| BUG-27 | P2 | Chip kategori udara panjang menghimpit judul di Detail dan kotak warga | `DetailView.xaml`, `DashboardView.xaml` | Uji 2026-11-23 |
+| BUG-28 | P2 | Ubin angka Detail (keyakinan, FRP, kecerahan) terpotong pada jendela sempit | `Views/DetailView.xaml` | Uji 2026-11-23 |
+| BUG-29 | P2 | Subjudul bilah atas dan nama pengguna panjang tidak dipotong rapi | `MainWindow.xaml` | Uji 2026-11-23 |
+| BUG-30 | P1 | WebView2 Dashboard lama tidak dibuang saat pindah halaman / ganti tema (proses browser menumpuk) | `Views/DashboardView.xaml.cs`, `.Peta.cs` | Uji 2026-11-23 |
 
 ---
 
@@ -155,6 +166,42 @@
 - **Gejala:** API `data_availability` FIRMS menunjukkan `VIIRS_SNPP_NRT` hanya punya data sampai 2026-11-02; permintaan 1 dan 5 hari untuk Indonesia mengembalikan 0 baris. Akibatnya aplikasi selalu jatuh ke data dummy.
 - **Perbaikan:** default sumber diganti `VIIRS_NOAA20_NRT` (format kolom sama, 450 titik/hari saat diuji); dapat diganti lewat `FIRMS_SOURCE` di `.env` (mis. `VIIRS_NOAA21_NRT`).
 - [x] Diperbaiki  [x] Terverifikasi (uji live: 451 titik)
+
+### BUG-20 (P0) — Seed akun uji gagal di database baru
+- **Gejala:** di database kosong (alur Windows: migrasi 001–009 lalu seed), seed berhenti dengan `violates check constraint … Failing row contains (… analis_uji … Analis)`. Karena seed satu transaksi, **tidak ada akun yang terbuat** sehingga tidak ada yang bisa login.
+- **Penyebab:** migrasi 008 menggabungkan Analis ke Admin dan CHECK hanya mengizinkan Admin/Operator/Publik, tetapi seed masih membuat `analis_uji` berperan Analis. Database Linux lama tidak terkena karena seed dijalankan sebelum 008.
+- **Perbaikan:** baris itu diganti `publik_uji` berperan Publik (password tetap) di `seed-local.sql` dan `seed-local.example.sql`; `docs/database/acount-testing.md` diperbarui.
+- **Verifikasi:** migrasi 001–009 + seed di skema sementara `pg_temp`: seed baru menghasilkan `admin_uji:Admin, operator_uji:Operator, publik_uji:Publik`; seed lama terbukti gagal; seed dua kali tidak menggandakan; penanda `<password-…>` ditolak (6/6).
+- [x] Diperbaiki  [x] Terverifikasi (Linux)  [ ] Dicek di Windows
+
+### BUG-21 (P2) — Nama tombol lama di pesan
+- **Perbaikan:** "Perbarui Data dari NASA FIRMS" → "Perbarui dari NASA FIRMS" (sesuai tombol D5).
+- [x] Diperbaiki  [ ] Dicek di Windows
+
+### BUG-22 (P2) — "Panel kiri" di banner warga
+- **Perbaikan:** teks menunjuk bagian "Wilayah saya" (kolom kanan) dan menyebut kualitas udara.
+- [x] Diperbaiki  [ ] Dicek di Windows
+
+### BUG-23 (P1) — TextBox tanpa scrollbar
+- **Gejala:** pratinjau Ekspor berisi sampai 200 baris dan catatan verifikasi multibaris tidak menampilkan scrollbar walau diatur `Auto`; isi panjang hanya bisa digulir dengan roda tetikus/keyboard.
+- **Penyebab:** template TextBox baru (DS-04/07) menulis `HorizontalScrollBarVisibility="Hidden"` dan `VerticalScrollBarVisibility="Hidden"` tetap pada `PART_ContentHost`.
+- **Perbaikan:** kedua nilai memakai `TemplateBinding` dari TextBox (bawaan TextBox tetap Hidden).
+- [x] Diperbaiki  [ ] Dicek di Windows (Ekspor: scrollbar tampil)
+
+### BUG-24 … BUG-29 (P2) — Tata letak pada jendela kecil
+Dihitung dari ukuran jendela minimum 1024 × 640 (area halaman ±736 × ±420 px setelah menu samping dan bilah atas):
+- **BUG-24:** "Keyakinan deteksi minimum" + "80 % (Tinggi ke atas)" ±300 px pada ruang ±250 px → label dan nilai dipisah baris (nilai di bawah slider, rata kanan).
+- **BUG-25:** tab (±320 px) + jumlah titik + tombol (±220 px) pada kartu ±400 px → jumlah dan tombol "Lihat detail" pindah ke baris bawah kartu.
+- **BUG-26:** `MinHeight` peta 160 + daftar 150 + jarak 16 > ruang tersisa ±284 px → 110 + 120 + 12.
+- **BUG-27:** chip "Tidak sehat bagi kelompok sensitif · AQI …" (±250 px) di samping judul pada kolom ±240 px → chip di baris sendiri dan boleh turun baris.
+- **BUG-28:** ubin angka Detail selebar ±90 px di jendela minimum → label dan angka boleh turun baris.
+- **BUG-29:** subjudul bilah atas (mis. halaman Peringatan) dan nama pengguna hingga 30 karakter → dipotong dengan "…", subjudul lengkap di tooltip, nama maks. 170 px.
+- [x] Diperbaiki  [ ] Dicek di Windows pada ukuran minimum dan 1280 × 760
+
+### BUG-30 (P1) — WebView2 tidak dibuang
+- **Gejala (potensi):** setiap kembali ke Dashboard (dari Detail, Ekspor, menu, atau ganti tema) dibuat `DashboardView` + WebView2 baru; yang lama tidak di-`Dispose`, sehingga proses browser Edge WebView2 bisa menumpuk dan aplikasi makin berat.
+- **Perbaikan:** `Unloaded` → tandai `_petaDibuang` lalu `MapWeb.Dispose()`; semua panggilan skrip peta lewat `PetaSiap`, sehingga pemuatan data yang selesai setelah halaman ditinggalkan tidak menyentuh WebView2 yang sudah dibuang.
+- [x] Diperbaiki  [ ] Dicek di Windows (Pengelola Tugas: jumlah proses `msedgewebview2` tidak terus bertambah setelah bolak-balik Dashboard ↔ Detail)
 
 ---
 
