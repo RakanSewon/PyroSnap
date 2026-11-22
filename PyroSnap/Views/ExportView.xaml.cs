@@ -29,7 +29,7 @@ namespace PyroSnap.Views
             {
                 // SCR-A9 / RUI-05: penjaga hak ekspor.
                 if (!Navigasi.PastikanHak(this, AppSession.BolehEkspor)) return;
-                LblInfo.Text = $"Jumlah titik panas: {_data.Count}";
+                LblInfo.Text = _data.Count.ToString("N0");
                 PerbaruiPreview();
             };
         }

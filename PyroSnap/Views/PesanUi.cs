@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -8,7 +9,8 @@ namespace PyroSnap.Views
 
     /// <summary>
     /// FE-05 / UX-02: pesan di tempat (bilah berwarna) menggantikan MessageBox untuk hal rutin.
-    /// MessageBox tetap dipakai untuk konfirmasi hasil aksi dan error kritis.
+    /// DS-09: bila bilah berisi TextBlock ber-Tag "ikon", ikonnya diisi sesuai jenis pesan.
+    /// Warna diambil dari tema aktif saat pesan ditampilkan.
     /// </summary>
     public static class PesanUi
     {
@@ -20,20 +22,33 @@ namespace PyroSnap.Views
 
         public static void Tampilkan(Border bilah, TextBlock teks, string pesan, JenisPesan jenis)
         {
-            (string bg, string fg) = jenis switch
+            (string bg, string fg, string glyph) = jenis switch
             {
-                JenisPesan.Error => ("PesanErrorBg", "PesanErrorFg"),
-                JenisPesan.Peringatan => ("PesanPeringatanBg", "PesanPeringatanFg"),
-                _ => ("PesanInfoBg", "PesanInfoFg")
+                JenisPesan.Error => ("PesanErrorBg", "PesanErrorFg", Ikon.Error),
+                JenisPesan.Peringatan => ("PesanPeringatanBg", "PesanPeringatanFg", Ikon.Peringatan),
+                _ => ("PesanInfoBg", "PesanInfoFg", Ikon.Info)
             };
 
+            var warnaTeks = (Brush)Application.Current.FindResource(fg);
             bilah.Background = (Brush)Application.Current.FindResource(bg);
-            teks.Foreground = (Brush)Application.Current.FindResource(fg);
+            teks.Foreground = warnaTeks;
             teks.FontWeight = jenis == JenisPesan.Info ? FontWeights.Normal : FontWeights.SemiBold;
             teks.Text = pesan;
+
+            if (CariIkon(bilah) is { } ikon)
+            {
+                ikon.Text = glyph;
+                ikon.Foreground = warnaTeks;
+            }
+
             bilah.Visibility = Visibility.Visible;
         }
 
         public static void Sembunyikan(Border bilah) => bilah.Visibility = Visibility.Collapsed;
+
+        private static TextBlock? CariIkon(DependencyObject induk) =>
+            LogicalTreeHelper.GetChildren(induk).OfType<DependencyObject>()
+                .Select(anak => anak is TextBlock { Tag: "ikon" } tb ? tb : CariIkon(anak))
+                .FirstOrDefault(tb => tb != null);
     }
 }

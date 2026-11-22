@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using Npgsql;
 using PyroSnap.Services;
 
@@ -39,11 +38,15 @@ namespace PyroSnap.Views
                 int baru = daftar.Count(d => !d.Alert.IsRead);
                 LblInfo.Text = daftar.Count == 0
                     ? "Belum ada peringatan."
-                    : $"{baru} belum dibaca dari {daftar.Count} peringatan terbaru. Klik dua kali untuk membuka titik panasnya.";
-                LblInfo.Foreground = (Brush)FindResource("MutedText");
+                    : "Klik dua kali sebuah baris untuk membuka titik panasnya.";
+                LblJumlahBaru.Text = baru.ToString("N0");
+                LblJumlahTotal.Text = daftar.Count.ToString("N0");
                 BtnTandai.IsEnabled = baru > 0;
                 BtnTandaiSemua.IsEnabled = baru > 0;
                 BtnBukaHotspot.IsEnabled = daftar.Count > 0;
+
+                // Lencana lonceng di shell ikut diperbarui setelah dibaca/ditandai.
+                if (Window.GetWindow(this) is MainWindow utama) _ = utama.PerbaruiLencanaAsync();
             }
             catch (Exception ex) when (ex is NpgsqlException or InvalidOperationException)
             {

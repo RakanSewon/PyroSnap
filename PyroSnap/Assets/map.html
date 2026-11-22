@@ -7,13 +7,27 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         html, body, #map { height: 100%; margin: 0; padding: 0; }
-        #map { background: #aad3df; }
-        .legend {
-            background: rgba(255,255,255,0.9); padding: 6px 10px; border-radius: 6px;
-            font: 12px sans-serif; line-height: 18px;
+        /* DS-08: warna antarmuka peta mengikuti tema aplikasi (diisi dari config.tema). */
+        :root {
+            --latar: #e9ece7; --panel: #ffffff; --teks: #1a1c19; --teks-redup: #5f645e; --tepi: #e3e5e0;
         }
+        #map { background: var(--latar); }
+        .legend {
+            background: var(--panel); color: var(--teks); padding: 8px 12px; border-radius: 12px;
+            border: 1px solid var(--tepi); font: 12px "Segoe UI", sans-serif; line-height: 20px;
+        }
+        .leaflet-bar a, .leaflet-control-layers, .leaflet-control-layers-expanded {
+            background: var(--panel); color: var(--teks); border-color: var(--tepi);
+        }
+        .leaflet-bar a:hover { background: var(--tepi); color: var(--teks); }
+        .leaflet-touch .leaflet-bar, .leaflet-touch .leaflet-control-layers { border: 1px solid var(--tepi); }
+        .leaflet-container .leaflet-control-attribution {
+            background: var(--panel); color: var(--teks-redup); opacity: 0.85;
+        }
+        .leaflet-container .leaflet-control-attribution a { color: var(--teks-redup); }
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--panel); color: var(--teks); }
         .legend i { display:inline-block; width:10px; height:10px; border-radius:50%;
-            margin-right:6px; border:1px solid #fff; }
+            margin-right:6px; border:1px solid #fff; vertical-align:middle; box-sizing:border-box; }
     </style>
 </head>
 <body>
@@ -26,10 +40,20 @@
         // Konfigurasi dari C# (DashboardView.InitMapAsync). Key tidak ditulis di sini.
         var config = window.PYROSNAP_CONFIG || {};
 
+        // DS-08: tema dari aplikasi (Views/Tema.cs). Tanpa aplikasi: tema terang.
+        var tema = config.tema || { gelap: false, sorot: '#1c1d1b' };
+        ['latar', 'panel', 'teks', 'teksRedup', 'tepiKartu'].forEach(function (k) {
+            if (!tema[k]) return;
+            var nama = { latar: '--latar', panel: '--panel', teks: '--teks', teksRedup: '--teks-redup', tepiKartu: '--tepi' }[k];
+            document.documentElement.style.setProperty(nama, tema[k]);
+        });
+
         // Peta dasar: CARTO (mengizinkan pemakaian langsung; OSM memblokir WebView).
-        var cartoUrl = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' +
+        // Tema gelap memakai gaya dark_all, tema terang light_all.
+        var gayaCarto = tema.gelap ? 'dark_all' : 'light_all';
+        var cartoUrl = 'https://{s}.basemaps.cartocdn.com/' + gayaCarto + '/{z}/{x}/{y}{r}.png' +
             (config.cartoKey ? '?key=' + encodeURIComponent(config.cartoKey) : '');
-        var cartoLight = L.tileLayer(cartoUrl, {
+        var cartoPeta = L.tileLayer(cartoUrl, {
             maxZoom: 19,
             subdomains: 'abcd',
             attribution: '© OpenStreetMap, © CARTO'
@@ -43,7 +67,7 @@
         });
 
         L.control.layers(
-            { 'Peta': cartoLight, 'Satelit': esriSat },
+            { 'Peta': cartoPeta, 'Satelit': esriSat },
             null,
             { position: 'topright' }
         ).addTo(map);
@@ -54,7 +78,9 @@
         // hanya dipakai bila halaman dibuka tanpa aplikasi.
         var tingkat = config.tingkat || {
             batasNominal: 30, batasTinggi: 80,
-            warna: { tinggi: '#c81e1e', nominal: '#e68c00', rendah: '#e6c800' },
+            warna: { tinggi: '#9b1c1c', nominal: '#b45309', rendah: '#8a6d00' },
+            tepi: { tinggi: '#5a0000', lain: '#ffffff' },
+            tebalTepi: { tinggi: 2.5, lain: 1.5 },
             label: { tinggi: 'Tinggi (≥ 80%)', nominal: 'Nominal (30–79%)', rendah: 'Rendah (< 30%)' }
         };
 
@@ -73,12 +99,14 @@
 
         function radius(conf) { var k = kelas(conf); return k === 'tinggi' ? 9 : k === 'nominal' ? 7 : 5; }
 
-        // UX-13: tingkat Tinggi juga dibedakan dengan garis tepi gelap, bukan hanya warna.
+        // DS-05 / UX-13: tingkat dibedakan oleh ukuran + garis tepi (Tinggi: tepi gelap tebal) + label,
+        // bukan hanya warna (Nominal dan Rendah hampir sama terang).
         function gayaNormal(h) {
             var k = kelas(h.conf);
             return {
                 radius: radius(h.conf), fillColor: tingkat.warna[k],
-                color: k === 'tinggi' ? '#5a0000' : '#ffffff', weight: k === 'tinggi' ? 2 : 1.5,
+                color: k === 'tinggi' ? tingkat.tepi.tinggi : tingkat.tepi.lain,
+                weight: k === 'tinggi' ? tingkat.tebalTepi.tinggi : tingkat.tebalTepi.lain,
                 fillOpacity: 0.9
             };
         }
@@ -126,7 +154,7 @@
             var m = markers[id];
             if (!m) return;
 
-            m.setStyle({ radius: radius(m.hotspot.conf) + 4, color: '#000000', weight: 3 });
+            m.setStyle({ radius: radius(m.hotspot.conf) + 4, color: tema.sorot || '#000000', weight: 3 });
             m.bringToFront();
             if (!map.getBounds().contains(m.getLatLng())) {
                 map.panTo(m.getLatLng());
@@ -149,7 +177,10 @@
                 div.appendChild(document.createElement('br'));
                 var i = document.createElement('i');
                 i.style.background = tingkat.warna[k];
-                if (k === 'tinggi') i.style.borderColor = '#5a0000';
+                var ukuran = k === 'tinggi' ? 14 : k === 'nominal' ? 11 : 8;
+                i.style.width = i.style.height = ukuran + 'px';
+                i.style.borderColor = k === 'tinggi' ? tingkat.tepi.tinggi : '#8a8a8a';
+                i.style.borderWidth = (k === 'tinggi' ? 2 : 1) + 'px';
                 div.appendChild(i);
                 div.appendChild(document.createTextNode(tingkat.label[k]));
             });

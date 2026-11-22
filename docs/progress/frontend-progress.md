@@ -11,7 +11,7 @@
 | FE1 | Perbaikan UX layar yang ada | 🟨 kode selesai; uji Windows & persetujuan teks menunggu | `ui/ux/ux-audit.md`, `ui/ux/copy-and-accessibility.md` | FE0 (FE-01, FE-05) |
 | FE2 | Peran, Tamu & Daftar | 🟨 kode selesai, matriks peran teruji (7/7); migrasi 008 & uji Windows menunggu | `frontend/role-based-ui.md`, `frontend/screens-and-navigation.md` | backend F7: ROLE-01…05 |
 | FE3 | Layar & fitur baru (warga dan lapangan) | 🟨 kode selesai, repository teruji (37/37); migrasi 009 & uji Windows menunggu | `frontend/screens-and-navigation.md`, `ui/ux/user-flows.md` | backend F7: OPS-01…03, PUB-01…03; keputusan K2 |
-| FE4 | Sistem desain baru | ⏸ menunggu diskusi | `ui/design-system.md` | DS-02 |
+| FE4 | Sistem desain baru | 🟨 DS-02…09 selesai di kode (gaya D5 + tema terang/gelap + ikon + peta gelap, 2026-11-23); DS-10 sisa cek di layar Windows | `ui/design-system.md` | DS-02 |
 | FE5 | Uji UI di Windows | 🟨 uji logika di Linux lulus; uji Windows menunggu | `debug/testing-schema.md`, `ui/ux/user-flows.md` | FE0–FE3 |
 
 Legenda: ⬜ belum mulai · 🟨 berjalan · ✅ selesai & terverifikasi · ⏸ menunggu keputusan.
@@ -56,9 +56,16 @@ Legenda: ⬜ belum mulai · 🟨 berjalan · ✅ selesai & terverifikasi · ⏸ 
 - [x] SCR-A8 / OPS-03 — Rentang tanggal data historis
 - [ ] SCR-14, SCR-15 — Kelola akun & riwayat laporan (⏳ belum diputuskan masuk F7)
 
-### FE4 — Sistem desain baru (menunggu diskusi)
-- [ ] DS-02 — Diskusi arah visual, palet (termasuk warna tingkat dengan kontras cukup), tipografi, komponen
-- [ ] DS-03…DS-05 — Dokumentasi, penerapan, cek kontras & fokus keyboard
+### FE4 — Sistem desain baru
+- [x] DS-02, DS-03 — Keputusan: rapikan tema api; tingkat = warna gelap + ukuran + tepi + label; Segoe UI + ikon Segoe Fluent/MDL2; **mode gelap ya** (dibangun bertahap, gelap terakhir) — lihat `ui/design-system.md`
+- [x] DS-04 — Tema terang: token, skala tipografi/jarak, style bersama (kartu, input, tabel, tab), cincin fokus, `InputBorder` `#8A8A8A`
+- [x] DS-05 — Warna & tanda tingkat baru di peta/kanvas/legenda/daftar/Detail; cek kontras & fokus di Windows
+- [x] D5 — Gaya dashboard kartu sesuai gambar referensi: shell menu samping + bilah atas (lonceng berlencana, profil), KPI Dashboard/Peringatan/Ekspor/Detail, segmen pil; semua halaman ditulis ulang
+- [x] DS-06 — Struktur tema (`Themes/Terang.xaml` + `Gelap.xaml` + `Gaya.xaml`, `DynamicResource`, `Views/Tema.cs`, simpan pilihan, tombol di menu samping & Masuk, muat ulang halaman)
+- [x] DS-07 — Tema gelap + template kontrol sendiri di .NET 8 (D6): input, ComboBox, DatePicker (kotak teks), DataGrid, tab, slider, scrollbar
+- [x] DS-08 — Peta gelap (tile `dark_all`, legenda, kontrol, sorotan) + `PYROSNAP_CONFIG.tema`
+- [x] DS-09 — Ikon Segoe (`Views/Ikon.cs`) + logo vektor + ikon di bilah pesan (glyph perlu dicek di Windows)
+- [ ] DS-10 — Uji kedua tema: otomatis lulus; **sisa cek di layar Windows** (semua halaman & peran)
 
 ### FE5 — Uji UI di Windows
 - [x] Uji logika di Linux: parser 30/30 (pemetaan l=20), F7 backend 37/37, matriks peran 7/7, script peta 10/10, build 0 error
@@ -71,7 +78,7 @@ Legenda: ⬜ belum mulai · 🟨 berjalan · ✅ selesai & terverifikasi · ⏸ 
 
 | # | Keputusan | Status |
 |---|---|---|
-| FK1 | Arah visual | ✅ tema dipertahankan sementara; sistem desain baru dibahas berikutnya |
+| FK1 | Arah visual | ✅ rapikan tema api (D1); tipografi Segoe UI + ikon Segoe (D3); tingkat = warna gelap + ukuran + tepi + label (D2); mode gelap ya, bertahap (D4) |
 | FK2 | Arsitektur frontend | ✅ code-behind dirapikan (partial class + helper kecil), bukan MVVM |
 | FK3 (= K10) | Cara warga masuk | ✅ daftar mandiri (Publik, boleh ekspor) + masuk sebagai tamu (tanpa ekspor) |
 | FK4 | Ringkasan & wilayah pilihan: panel di Dashboard atau halaman sendiri | ✅ diterapkan: tab "Ringkasan per Wilayah" + panel "Wilayah Saya" |
@@ -85,4 +92,7 @@ Legenda: ⬜ belum mulai · 🟨 berjalan · ✅ selesai & terverifikasi · ⏸ 
 | Tanggal | Perubahan | Oleh | Commit |
 |---|---|---|---|
 | 2026-11-22 | Dokumen rencana frontend & UI/UX dibuat (tanpa perubahan kode) | – | – |
+| 2026-11-23 | Gaya D5 + DS-06…09: shell menu samping/bilah atas, semua halaman ditulis ulang ke kartu, KPI, tema terang/gelap, ikon Segoe, logo vektor, peta gelap, template Slider/ScrollBar. Build 0 error; pemeriksa kunci & 68 pasangan kontras lulus; uji peta 3 mode 9/9; belum dilihat di Windows | – | belum di-commit |
+| 2026-11-23 | DS-04/DS-05: token & style bersama di `App.xaml` (kartu, input dengan cincin fokus, tabel, tab, fokus tombol), skala huruf/jarak di semua halaman, palet tingkat gelap + ukuran + tepi di peta/kanvas/legenda/daftar. Build 0 error, kunci sumber daya 37/37, script peta 7/7; belum dilihat di Windows | – | belum di-commit |
+| 2026-11-22 | Keputusan sistem desain D1–D4 dicatat di `ui/design-system.md` (token terang/gelap dengan rasio kontras terhitung, warna & tanda tingkat, skala tipografi/jarak, komponen, mekanisme tema); belum ada perubahan kode | – | – |
 | 2026-11-22 | FE0–FE3 dikerjakan: token warna, `TingkatHotspot` (kelas LAPAN 30/80), `Navigasi`, `PesanUi`, hak akses per peran di `AppSession`, Dashboard dipecah 6 partial class, bilah status di luar peta, ComboBox lokasi, kolom waktu & wilayah, urut numerik, tab ringkasan per wilayah, panel Wilayah Saya + banner warga, data historis, halaman Daftar/Panduan baru, mode Tamu, Detail dengan verifikasi & navigasi, Peringatan bisa membuka titik panas, teks diseragamkan (glosarium), teks ≥ 12 px. Uji logika lulus; belum diuji di Windows | – | belum di-commit |

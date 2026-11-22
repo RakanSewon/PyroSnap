@@ -52,7 +52,16 @@ namespace PyroSnap.Views
 
         public static Brush Warna(Tingkat t) => (Brush)Application.Current.FindResource(KunciWarna(t));
 
-        /// <summary>Diameter titik di peta kanvas (UX-13: tingkat tidak hanya dibedakan warna).</summary>
+        /// <summary>
+        /// Garis tepi penanda (DS-05 / D2): Tinggi memakai tepi gelap tebal, tingkat lain tepi putih tipis.
+        /// Nominal dan Rendah hampir sama terang (1,02), jadi ukuran + tepi + label adalah pembeda utama.
+        /// </summary>
+        public static Brush Tepi(Tingkat t) =>
+            (Brush)Application.Current.FindResource(t == Tingkat.Tinggi ? "TingkatTinggiTepi" : "TingkatTepi");
+
+        public static double TebalTepi(Tingkat t) => t == Tingkat.Tinggi ? 2.5 : 1.5;
+
+        /// <summary>Diameter titik di peta kanvas dan daftar (UX-13: tingkat tidak hanya dibedakan warna).</summary>
         public static double UkuranTitik(Tingkat t) => t switch
         {
             Tingkat.Tinggi => 11,
@@ -60,8 +69,10 @@ namespace PyroSnap.Views
             _ => 7
         };
 
-        private static string Hex(Tingkat t) =>
-            Warna(t) is SolidColorBrush b ? $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}" : "#808080";
+        private static string Hex(Brush brush) =>
+            brush is SolidColorBrush b ? $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}" : "#808080";
+
+        private static string Hex(Tingkat t) => Hex(Warna(t));
 
         /// <summary>Konfigurasi untuk map.html (window.PYROSNAP_CONFIG.tingkat).</summary>
         public static object KonfigurasiPeta() => new
@@ -69,6 +80,8 @@ namespace PyroSnap.Views
             batasNominal = BatasNominal,
             batasTinggi = BatasTinggi,
             warna = new { tinggi = Hex(Tingkat.Tinggi), nominal = Hex(Tingkat.Nominal), rendah = Hex(Tingkat.Rendah) },
+            tepi = new { tinggi = Hex(Tepi(Tingkat.Tinggi)), lain = Hex(Tepi(Tingkat.Rendah)) },
+            tebalTepi = new { tinggi = TebalTepi(Tingkat.Tinggi), lain = TebalTepi(Tingkat.Rendah) },
             label = new
             {
                 tinggi = $"Tinggi ({Rentang(Tingkat.Tinggi)})",

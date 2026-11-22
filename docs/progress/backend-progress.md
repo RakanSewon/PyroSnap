@@ -15,6 +15,7 @@
 | F4 | Persistensi hotspot & laporan | P2 | 🟨 kode selesai & uji repository lulus; uji Windows menunggu | `architecture/database-architecture.md`, `backend/report-and-alert.md` |
 | F5 | Alert | P2 | 🟨 kode selesai & uji repository lulus; uji Windows menunggu | `backend/report-and-alert.md` (Bagian B) |
 | F6 | Opsional: service+interface, MVVM, DI, unit test | – | ⬜ menunggu persetujuan | `architecture/backend-architecture.md` (ARCH-B*) |
+| F8 | Layanan web API pihak ketiga (Modul 10): kualitas udara, cuaca/angin, nama wilayah — RestSharp | P1 (wajib MVP) | ⬜ rencana siap (2026-11-23), belum ada kode | `backend/web-api.md`, `MVP.md` butir 2 |
 | F7 | Peran Admin/Operator/Publik + fitur warga & lapangan | P1 | 🟨 kode & migrasi 008/009 selesai, teruji di tabel sementara (37/37); migrasi DB lokal & uji Windows menunggu | `database/acount-testing.md` §5, `feature/additional-feature.md` (ADD-09…13) |
 
 Legenda: ⬜ belum mulai · 🟨 berjalan · ✅ selesai & terverifikasi · ⛔ terblokir.

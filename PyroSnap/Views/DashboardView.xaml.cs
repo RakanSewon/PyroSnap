@@ -14,6 +14,7 @@ namespace PyroSnap.Views
     ///
     /// FE-02: kode dipecah menjadi partial class —
     ///   DashboardView.xaml.cs  : siklus hidup halaman, tampilan per peran, tombol navigasi
+    ///   DashboardView.Kpi.cs     : kartu KPI di atas peta
     ///   DashboardView.Data.cs    : muat data (NASA FIRMS / database), status, peringatan operasional
     ///   DashboardView.Historis.cs: data historis per rentang tanggal
     ///   DashboardView.Filter.cs  : cari lokasi dan filter
@@ -71,13 +72,8 @@ namespace PyroSnap.Views
         // ---- RUI-03: elemen tampil sesuai peran (role-based-ui.md §2) ----
         private void AturTampilanPeran()
         {
-            LblUser.Text = AppSession.IsTamu
-                ? "Tamu"
-                : $"{AppSession.CurrentUser?.Username} · {AppSession.Peran}";
-            BtnLogout.Content = AppSession.IsTamu ? "Keluar (Tamu)" : "Keluar";
-
+            // Nama/peran, lonceng peringatan, Panduan, dan Keluar ada di shell (MainWindow).
             BtnReload.Visibility = Tampil(AppSession.BolehSinkron);
-            BtnAlert.Visibility = Tampil(AppSession.TerimaAlertOperasional);
             BtnExport.Visibility = Tampil(AppSession.BolehEkspor);
             PanelHistoris.Visibility = Tampil(AppSession.BolehHistoris);
             PanelWilayahSaya.Visibility = Tampil(AppSession.IsWarga);
@@ -122,19 +118,6 @@ namespace PyroSnap.Views
         private void BtnExport_Click(object sender, RoutedEventArgs e)
         {
             if (AppSession.BolehEkspor) Navigasi.Ke(this, new ExportView());
-        }
-
-        private void BtnAlert_Click(object sender, RoutedEventArgs e)
-        {
-            if (AppSession.TerimaAlertOperasional) Navigasi.Ke(this, new AlertView());
-        }
-
-        private void BtnPanduan_Click(object sender, RoutedEventArgs e) => Navigasi.Ke(this, new PanduanView());
-
-        private void BtnLogout_Click(object sender, RoutedEventArgs e)
-        {
-            AppSession.Bersihkan();
-            Navigasi.Ke(this, new LoginView());
         }
     }
 }

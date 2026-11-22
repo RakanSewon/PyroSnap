@@ -28,6 +28,8 @@ namespace PyroSnap.Views
 
             try
             {
+                // DS-08: latar WebView sama dengan latar peta tema (tanpa kilatan putih di tema gelap).
+                MapWeb.DefaultBackgroundColor = WarnaGambar(Tema.Warna("MapBg"));
                 await MapWeb.EnsureCoreWebView2Async(null);
                 MapWeb.CoreWebView2.WebMessageReceived += Web_MessageReceived;
 
@@ -41,7 +43,8 @@ namespace PyroSnap.Views
                 string mapConfig = JsonSerializer.Serialize(new
                 {
                     cartoKey = AppConfig.CartoKey,
-                    tingkat = TingkatHotspot.KonfigurasiPeta()
+                    tingkat = TingkatHotspot.KonfigurasiPeta(),
+                    tema = Tema.KonfigurasiPeta()
                 });
                 await MapWeb.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
                     $"window.PYROSNAP_CONFIG = {mapConfig};");
@@ -134,10 +137,19 @@ namespace PyroSnap.Views
             foreach (var t in new[] { Tingkat.Tinggi, Tingkat.Nominal, Tingkat.Rendah })
             {
                 var baris = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 1, 0, 1) };
-                baris.Children.Add(new Ellipse
+                baris.Children.Add(new Grid
                 {
-                    Width = TingkatHotspot.UkuranTitik(t), Height = TingkatHotspot.UkuranTitik(t),
-                    Fill = TingkatHotspot.Warna(t), VerticalAlignment = VerticalAlignment.Center
+                    Width = 12, Height = 12, VerticalAlignment = VerticalAlignment.Center,
+                    Children =
+                    {
+                        new Ellipse
+                        {
+                            Width = TingkatHotspot.UkuranTitik(t), Height = TingkatHotspot.UkuranTitik(t),
+                            Fill = TingkatHotspot.Warna(t), Stroke = TingkatHotspot.Tepi(t),
+                            StrokeThickness = TingkatHotspot.TebalTepi(t),
+                            HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center
+                        }
+                    }
                 });
                 baris.Children.Add(new TextBlock
                 {
@@ -161,14 +173,17 @@ namespace PyroSnap.Views
             double w = MapCanvas.ActualWidth, h = MapCanvas.ActualHeight;
             if (w <= 0 || h <= 0) return;
 
-            var penBrush = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0));
+            // Garis lintang/bujur memakai warna teks tema dengan transparansi (terlihat di terang & gelap).
+            Color teks = Tema.Warna("TextPrimary");
+            var penBrush = new SolidColorBrush(Color.FromArgb(48, teks.R, teks.G, teks.B));
+            var labelBrush = new SolidColorBrush(Tema.Warna("MutedText"));
             for (double lon = 100; lon < LonMax; lon += 10)
             {
                 double x = (lon - LonMin) / (LonMax - LonMin) * w;
                 GridCanvas.Children.Add(new Line { X1 = x, Y1 = 0, X2 = x, Y2 = h, Stroke = penBrush, StrokeThickness = 1 });
                 GridCanvas.Children.Add(new TextBlock
                 {
-                    Text = lon + "°E", FontSize = 10, Foreground = penBrush,
+                    Text = lon + "°E", FontSize = 10, Foreground = labelBrush,
                     RenderTransform = new TranslateTransform(x + 2, h - 14)
                 });
             }
@@ -201,9 +216,9 @@ namespace PyroSnap.Views
                 var dot = new Ellipse
                 {
                     Width = r, Height = r, Fill = TingkatHotspot.Warna(t),
-                    // UX-13: tingkat Tinggi juga dibedakan dengan garis tepi gelap
-                    Stroke = isSel ? Brushes.Black : t == Tingkat.Tinggi ? Brushes.DarkRed : Brushes.White,
-                    StrokeThickness = isSel ? 2.5 : 1.5,
+                    // DS-05 / UX-13: ukuran + garis tepi (Tinggi: tepi tebal); terpilih: tepi warna tinta tema
+                    Stroke = isSel ? (Brush)FindResource("InkBg") : TingkatHotspot.Tepi(t),
+                    StrokeThickness = isSel ? 3 : TingkatHotspot.TebalTepi(t),
                     Cursor = Cursors.Hand, Tag = hs,
                     ToolTip = $"{hs.Latitude:0.00}, {hs.Longitude:0.00} | {TingkatHotspot.Nama(t)} {hs.Confidence}% | FRP {hs.Frp:0.##} MW"
                 };
@@ -233,5 +248,7 @@ namespace PyroSnap.Views
                 GridHotspot.ScrollIntoView(row);
             }
         }
+
+        private static System.Drawing.Color WarnaGambar(Color c) => System.Drawing.Color.FromArgb(c.A, c.R, c.G, c.B);
     }
 }

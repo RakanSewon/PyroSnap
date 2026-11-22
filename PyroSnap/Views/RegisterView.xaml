@@ -6,51 +6,53 @@
       mc:Ignorable="d"
       d:DesignHeight="700" d:DesignWidth="1080"
       Title="Daftar Akun Warga"
-      Background="{StaticResource PageBg}">
+      Background="{DynamicResource PageBg}"
+      FontSize="13" Foreground="{DynamicResource TextPrimary}">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Border Width="420" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,24"
-                Background="{StaticResource PanelBg}" CornerRadius="12" Padding="32">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="20" ShadowDepth="2" Opacity="0.2" />
-            </Border.Effect>
+        <Border Width="440" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,32"
+                Style="{StaticResource KartuBesar}" Padding="36">
 
             <StackPanel>
-                <TextBlock Text="Daftar Akun Warga" FontSize="24" FontWeight="Bold"
-                           Foreground="{StaticResource FireRed}" HorizontalAlignment="Center" />
-                <TextBlock Foreground="{StaticResource MutedText}" FontSize="12" TextWrapping="Wrap"
-                           TextAlignment="Center" Margin="0,4,0,20"
+                <Border Width="56" Height="56" CornerRadius="28" Background="{DynamicResource Brand}" HorizontalAlignment="Center">
+                    <Viewbox Width="28" Height="28">
+                        <Path Data="{StaticResource LogoNyala}" Fill="{DynamicResource BrandFg}" />
+                    </Viewbox>
+                </Border>
+                <TextBlock Text="Daftar Akun Warga" FontSize="22" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" Margin="0,16,0,0" />
+                <TextBlock Style="{StaticResource Keterangan}" TextWrapping="Wrap"
+                           TextAlignment="Center" Margin="0,6,0,28"
                            Text="Dengan akun, wilayah pilihan Anda tersimpan dan Anda bisa mengekspor laporan. Kami hanya menyimpan username dan password (terenkripsi)." />
 
-                <TextBlock Text="Username" FontWeight="SemiBold" Margin="0,0,0,4" />
-                <TextBox x:Name="TxtUsername" Padding="8" FontSize="14" MaxLength="30"
-                         BorderBrush="{StaticResource InputBorder}" BorderThickness="1"
+                <TextBlock Text="Username" FontWeight="SemiBold" Margin="0,0,0,6" />
+                <TextBox x:Name="TxtUsername" MaxLength="30"
                          AutomationProperties.Name="Username" />
                 <TextBlock Text="3–30 karakter: huruf, angka, titik, atau garis bawah."
-                           Foreground="{StaticResource MutedText}" FontSize="12" Margin="0,2,0,0" />
+                           Style="{StaticResource Keterangan}" Margin="0,4,0,0" />
 
-                <TextBlock Text="Password" FontWeight="SemiBold" Margin="0,14,0,4" />
-                <PasswordBox x:Name="TxtPassword" Padding="8" FontSize="14"
-                             BorderBrush="{StaticResource InputBorder}" BorderThickness="1"
+                <TextBlock Text="Password" FontWeight="SemiBold" Margin="0,16,0,6" />
+                <PasswordBox x:Name="TxtPassword"
                              AutomationProperties.Name="Password" />
                 <TextBlock Text="Minimal 8 karakter."
-                           Foreground="{StaticResource MutedText}" FontSize="12" Margin="0,2,0,0" />
+                           Style="{StaticResource Keterangan}" Margin="0,4,0,0" />
 
-                <TextBlock Text="Ulangi password" FontWeight="SemiBold" Margin="0,14,0,4" />
-                <PasswordBox x:Name="TxtKonfirmasi" Padding="8" FontSize="14"
-                             BorderBrush="{StaticResource InputBorder}" BorderThickness="1"
+                <TextBlock Text="Ulangi password" FontWeight="SemiBold" Margin="0,16,0,6" />
+                <PasswordBox x:Name="TxtKonfirmasi"
                              AutomationProperties.Name="Ulangi password" />
 
                 <!-- Bilah pesan (FE-05) -->
-                <Border x:Name="BarPesan" CornerRadius="8" Padding="10,8" Margin="0,14,0,0" Visibility="Collapsed">
-                    <TextBlock x:Name="LblPesan" TextWrapping="Wrap" FontSize="13"
-                               AutomationProperties.LiveSetting="Assertive" />
+                <Border x:Name="BarPesan" Style="{StaticResource BilahPesan}" Margin="0,16,0,0">
+                    <DockPanel>
+                        <TextBlock Style="{StaticResource IkonPesan}" />
+                        <TextBlock x:Name="LblPesan" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" />
+                    </DockPanel>
                 </Border>
 
                 <Button x:Name="BtnDaftar" Content="Daftar dan Masuk" Style="{StaticResource PrimaryButton}"
-                        Margin="0,20,0,0" Height="42" IsDefault="True" Click="BtnDaftar_Click" />
+                        Margin="0,24,0,0" Height="44" IsDefault="True" Click="BtnDaftar_Click" />
                 <Button Content="Kembali ke Halaman Masuk" Style="{StaticResource SecondaryButton}"
-                        Margin="0,8,0,0" Height="36" IsCancel="True" Click="BtnKembali_Click" />
+                        Margin="0,8,0,0" Height="40" IsCancel="True" Click="BtnKembali_Click" />
             </StackPanel>
         </Border>
     </ScrollViewer>

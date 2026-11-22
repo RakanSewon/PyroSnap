@@ -37,9 +37,9 @@ Isi halaman Panduan & kontak darurat (PUB-03) **harus diambil dari sumber resmi 
 | ID | Target | Keterangan |
 |---|---|---|
 | A11Y-01 | Teks minimum 12 px; status/error ≥ 12 px | UX-15 |
-| A11Y-02 | Kontras teks ≥ 4.5:1, elemen grafis (titik peta, legenda) ≥ 3:1 | Lihat tabel kontras di `ux-audit.md` §2; warna tingkat kuning/oranye perlu diganti (sistem desain) |
+| A11Y-02 | Kontras teks ≥ 4.5:1, elemen grafis (titik peta, legenda) ≥ 3:1 | Dihitung untuk 34 pasangan per tema (terang & gelap), semua lulus — lihat `design-system.md` §2–3, §12; tepi input 3,25 / 3,82; ComboBox/DatePicker kini bertemplate sendiri; perlu dicek di layar Windows |
 | A11Y-03 | Informasi tidak hanya lewat warna | Tingkat juga ditulis sebagai teks + beda ukuran/garis tepi (UX-13) |
-| A11Y-04 | Bisa dipakai dengan keyboard | Enter untuk Login/Daftar (IsDefault), Esc untuk kembali, Enter membuka Detail dari daftar, urutan Tab logis |
+| A11Y-04 | Bisa dipakai dengan keyboard | Enter untuk Login/Daftar (IsDefault), Esc untuk kembali, Enter membuka Detail dari daftar, urutan Tab logis; cincin fokus 2 px `FocusRing` di tombol dan input (DS-04) |
 | A11Y-05 | Nama aksesibilitas untuk tombol ikon | `AutomationProperties.Name` pada 🔔 dan tombol ikon lain |
 | A11Y-06 | Pesan status bisa dibaca pembaca layar | `AutomationProperties.LiveSetting` pada bilah status (bila memungkinkan di WPF .NET 8) |
 | A11Y-07 | Peta bukan satu-satunya cara | Semua informasi peta juga ada di daftar (sudah terpenuhi) |

@@ -4,30 +4,49 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
-      d:DesignHeight="700" d:DesignWidth="1080"
+      d:DesignHeight="700" d:DesignWidth="1000"
       Title="Panduan &amp; Kontak Darurat"
-      Background="{StaticResource PageBg}">
+      Background="{DynamicResource PageBg}"
+      FontSize="13" Foreground="{DynamicResource TextPrimary}">
 
     <!--
         PUB-03 / ADD-13. Isi diparafrasekan dari sumber resmi (dicek 2026-11-22, lihat bagian Sumber).
         CPY-03: tim wajib mengecek ulang isi dan nomor sebelum dipakai untuk publik.
+        Dengan sesi, judul ada di bilah atas shell; tanpa sesi (dari halaman Masuk) tampil bilah sendiri.
     -->
     <Page.Resources>
-        <Style x:Key="Judul" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Margin" Value="0,0,0,8" />
-        </Style>
         <Style x:Key="Butir" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13" />
             <Setter Property="TextWrapping" Value="Wrap" />
-            <Setter Property="Margin" Value="0,3" />
+            <Setter Property="LineHeight" Value="20" />
+            <Setter Property="Margin" Value="0,4" />
         </Style>
-        <Style x:Key="Kartu" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource PanelBg}" />
-            <Setter Property="CornerRadius" Value="12" />
-            <Setter Property="Padding" Value="22" />
-            <Setter Property="Margin" Value="0,0,0,14" />
+        <Style x:Key="Sumber" TargetType="TextBlock" BasedOn="{StaticResource Butir}">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="LineHeight" Value="18" />
+            <Setter Property="Foreground" Value="{DynamicResource MutedText}" />
+        </Style>
+        <Style x:Key="KartuPanduan" TargetType="Border" BasedOn="{StaticResource Kartu}">
+            <Setter Property="Padding" Value="24" />
+            <Setter Property="Margin" Value="0,0,0,16" />
+        </Style>
+        <!-- Ubin nomor darurat -->
+        <Style x:Key="Ubin" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource SecondaryBg}" />
+            <Setter Property="CornerRadius" Value="{StaticResource RadiusKontrol}" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="Margin" Value="0,0,8,8" />
+        </Style>
+        <Style x:Key="NomorUbin" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource FireRed}" />
+        </Style>
+        <Style x:Key="LabelUbin" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Foreground" Value="{DynamicResource MutedText}" />
+            <Setter Property="Margin" Value="0,2,0,0" />
         </Style>
     </Page.Resources>
 
@@ -37,108 +56,134 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Style="{StaticResource PageHeader}">
-            <Grid>
-                <TextBlock Text="Panduan &amp; Kontak Darurat" FontSize="20" FontWeight="Bold" Foreground="White"
-                           VerticalAlignment="Center" />
-                <Button Content="Kembali" Style="{StaticResource SecondaryButton}" FontSize="13" IsCancel="True"
-                        HorizontalAlignment="Right" Click="BtnBack_Click" />
-            </Grid>
+        <!-- Bilah sendiri saat dibuka tanpa sesi -->
+        <Border x:Name="BilahTanpaSesi" Grid.Row="0" Style="{StaticResource Kartu}" Padding="20,12" Margin="16,16,16,0"
+                Visibility="Collapsed">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Style="{StaticResource SecondaryButton}" IsCancel="True" Click="BtnBack_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource TeksIkon}" FontSize="14" Text="&#xE72B;" Margin="0,0,8,0" />
+                        <TextBlock Text="Kembali ke Masuk" />
+                    </StackPanel>
+                </Button>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource Brand}">
+                        <Viewbox Width="18" Height="18">
+                            <Path Data="{StaticResource LogoNyala}" Fill="{DynamicResource BrandFg}" />
+                        </Viewbox>
+                    </Border>
+                    <TextBlock Text="Panduan &amp; Kontak Darurat" FontSize="20" FontWeight="SemiBold"
+                               VerticalAlignment="Center" Margin="12,0,0,0" />
+                </StackPanel>
+            </DockPanel>
         </Border>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Width="700" Margin="0,20,0,20">
+        <ScrollViewer x:Name="Gulir" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Grid MaxWidth="1100" Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-                <!-- Nomor darurat -->
-                <Border Style="{StaticResource Kartu}">
-                    <StackPanel>
-                        <TextBlock Text="Nomor Darurat" Style="{StaticResource Judul}" />
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="90" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="112" FontSize="18" FontWeight="Bold" Foreground="{StaticResource FireRed}" />
-                            <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource Butir}"
-                                       Text="Panggilan darurat tunggal (kebakaran, kecelakaan, bencana, kesehatan). Gratis; belum tersedia di semua kabupaten/kota — bila tidak tersambung, pakai nomor di bawah." />
-                            <TextBlock Grid.Row="1" Text="113" FontSize="18" FontWeight="Bold" Foreground="{StaticResource FireRed}" />
-                            <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource Butir}" Text="Pemadam kebakaran." />
-                            <TextBlock Grid.Row="2" Text="117" FontSize="18" FontWeight="Bold" Foreground="{StaticResource FireRed}" />
-                            <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource Butir}" Text="Call center BNPB (pelaporan dan informasi bencana)." />
-                            <TextBlock Grid.Row="3" Text="118 / 119" FontSize="18" FontWeight="Bold" Foreground="{StaticResource FireRed}" />
-                            <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource Butir}" Text="Ambulans / layanan gawat darurat kesehatan." />
-                            <TextBlock Grid.Row="4" Text="110" FontSize="18" FontWeight="Bold" Foreground="{StaticResource FireRed}" />
-                            <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource Butir}" Text="Polisi." />
-                            <TextBlock Grid.Row="5" Text="115" FontSize="18" FontWeight="Bold" Foreground="{StaticResource FireRed}" />
-                            <TextBlock Grid.Row="5" Grid.Column="1" Style="{StaticResource Butir}" Text="Basarnas (pencarian dan pertolongan)." />
-                        </Grid>
-                        <TextBlock Style="{StaticResource Butir}" Foreground="{StaticResource MutedText}" Margin="0,10,0,0"
-                                   Text="Untuk kebakaran hutan dan lahan, hubungi juga BPBD kabupaten/kota setempat (nomor berbeda di tiap daerah; cek kanal resmi pemerintah daerah Anda)." />
-                    </StackPanel>
-                </Border>
+                <!-- Kolom kiri -->
+                <StackPanel Grid.Column="0">
+                    <Border Style="{StaticResource KartuPanduan}">
+                        <StackPanel>
+                            <TextBlock Text="Nomor Darurat" Style="{StaticResource JudulKartu}" />
+                            <TextBlock Text="Bebas pulsa dari ponsel maupun telepon rumah." Style="{StaticResource Keterangan}" Margin="0,2,0,16" />
+                            <UniformGrid Columns="2" Margin="0,0,-8,-8">
+                                <Border Style="{StaticResource Ubin}">
+                                    <StackPanel>
+                                        <TextBlock Text="112" Style="{StaticResource NomorUbin}" />
+                                        <TextBlock Text="Darurat tunggal: kebakaran, kecelakaan, bencana, kesehatan" Style="{StaticResource LabelUbin}" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Ubin}">
+                                    <StackPanel>
+                                        <TextBlock Text="113" Style="{StaticResource NomorUbin}" />
+                                        <TextBlock Text="Pemadam kebakaran" Style="{StaticResource LabelUbin}" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Ubin}">
+                                    <StackPanel>
+                                        <TextBlock Text="117" Style="{StaticResource NomorUbin}" />
+                                        <TextBlock Text="Call center BNPB (pelaporan dan informasi bencana)" Style="{StaticResource LabelUbin}" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Ubin}">
+                                    <StackPanel>
+                                        <TextBlock Text="118 / 119" Style="{StaticResource NomorUbin}" />
+                                        <TextBlock Text="Ambulans / gawat darurat kesehatan" Style="{StaticResource LabelUbin}" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Ubin}">
+                                    <StackPanel>
+                                        <TextBlock Text="110" Style="{StaticResource NomorUbin}" />
+                                        <TextBlock Text="Polisi" Style="{StaticResource LabelUbin}" />
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource Ubin}">
+                                    <StackPanel>
+                                        <TextBlock Text="115" Style="{StaticResource NomorUbin}" />
+                                        <TextBlock Text="Basarnas (pencarian dan pertolongan)" Style="{StaticResource LabelUbin}" />
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+                            <TextBlock Style="{StaticResource Sumber}" Margin="0,12,0,0"
+                                       Text="112 belum tersedia di semua kabupaten/kota — bila tidak tersambung, pakai nomor lain di atas. Untuk kebakaran hutan dan lahan, hubungi juga BPBD kabupaten/kota setempat (nomor berbeda di tiap daerah; cek kanal resmi pemerintah daerah Anda)." />
+                        </StackPanel>
+                    </Border>
 
-                <!-- Tentang titik panas -->
-                <Border Style="{StaticResource Kartu}">
-                    <StackPanel>
-                        <TextBlock Text="Tentang Titik Panas (Hotspot)" Style="{StaticResource Judul}" />
-                        <TextBlock Style="{StaticResource Butir}"
-                                   Text="• Titik panas adalah lokasi yang dideteksi satelit lebih panas dari sekitarnya. Titik panas belum tentu kebakaran; status &quot;Verifikasi lapangan&quot; di halaman Detail menunjukkan hasil cek petugas bila sudah ada." />
-                        <TextBlock Style="{StaticResource Butir}"
-                                   Text="• Keyakinan deteksi mengikuti kelas LAPAN: Tinggi (≥ 80%) — perlu segera ditindaklanjuti; Nominal (30–79%) — waspada; Rendah (&lt; 30%) — perlu diperhatikan." />
-                        <TextBlock Style="{StaticResource Butir}"
-                                   Text="• Intensitas api (FRP, megawatt) menunjukkan seberapa kuat panas yang dipancarkan; makin besar, makin kuat apinya." />
-                    </StackPanel>
-                </Border>
+                    <Border Style="{StaticResource KartuPanduan}">
+                        <StackPanel>
+                            <TextBlock Text="Tentang Titik Panas (Hotspot)" Style="{StaticResource JudulKartu}" Margin="0,0,0,8" />
+                            <TextBlock Style="{StaticResource Butir}"
+                                       Text="• Titik panas adalah lokasi yang dideteksi satelit lebih panas dari sekitarnya. Titik panas belum tentu kebakaran; status &quot;Verifikasi lapangan&quot; di halaman Detail menunjukkan hasil cek petugas bila sudah ada." />
+                            <TextBlock Style="{StaticResource Butir}"
+                                       Text="• Keyakinan deteksi mengikuti kelas LAPAN: Tinggi (≥ 80%) — perlu segera ditindaklanjuti; Nominal (30–79%) — waspada; Rendah (&lt; 30%) — perlu diperhatikan." />
+                            <TextBlock Style="{StaticResource Butir}"
+                                       Text="• Intensitas api (FRP, megawatt) menunjukkan seberapa kuat panas yang dipancarkan; makin besar, makin kuat apinya." />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
 
-                <!-- Saat ada asap -->
-                <Border Style="{StaticResource Kartu}">
-                    <StackPanel>
-                        <TextBlock Text="Saat Ada Kabut Asap" Style="{StaticResource Judul}" />
-                        <TextBlock Style="{StaticResource Butir}" Text="• Kurangi aktivitas di luar rumah, terutama untuk balita, ibu hamil, lansia, dan penderita penyakit pernapasan." />
-                        <TextBlock Style="{StaticResource Butir}" Text="• Bila harus keluar, pakai masker yang sesuai untuk asap (mis. N95/KN95) dan pasang dengan benar; masker kain/medis kurang melindungi dari asap tebal." />
-                        <TextBlock Style="{StaticResource Butir}" Text="• Tutup jendela dan ventilasi saat asap pekat; gunakan penjernih udara bila ada." />
-                        <TextBlock Style="{StaticResource Butir}" Text="• Pantau kualitas udara (ISPU) dari kanal resmi sebelum beraktivitas." />
-                        <TextBlock Style="{StaticResource Butir}" Text="• Segera ke fasilitas kesehatan bila sesak napas, batuk berat, atau nyeri dada." />
-                    </StackPanel>
-                </Border>
+                <!-- Kolom kanan -->
+                <StackPanel Grid.Column="2">
+                    <Border Style="{StaticResource KartuPanduan}">
+                        <StackPanel>
+                            <TextBlock Text="Saat Ada Kabut Asap" Style="{StaticResource JudulKartu}" Margin="0,0,0,8" />
+                            <TextBlock Style="{StaticResource Butir}" Text="• Kurangi aktivitas di luar rumah, terutama untuk balita, ibu hamil, lansia, dan penderita penyakit pernapasan." />
+                            <TextBlock Style="{StaticResource Butir}" Text="• Bila harus keluar, pakai masker yang sesuai untuk asap (mis. N95/KN95) dan pasang dengan benar; masker kain/medis kurang melindungi dari asap tebal." />
+                            <TextBlock Style="{StaticResource Butir}" Text="• Tutup jendela dan ventilasi saat asap pekat; gunakan penjernih udara bila ada." />
+                            <TextBlock Style="{StaticResource Butir}" Text="• Pantau kualitas udara (ISPU) dari kanal resmi sebelum beraktivitas." />
+                            <TextBlock Style="{StaticResource Butir}" Text="• Segera ke fasilitas kesehatan bila sesak napas, batuk berat, atau nyeri dada." />
+                        </StackPanel>
+                    </Border>
 
-                <!-- Mencegah kebakaran -->
-                <Border Style="{StaticResource Kartu}">
-                    <StackPanel>
-                        <TextBlock Text="Mencegah dan Melaporkan Kebakaran" Style="{StaticResource Judul}" />
-                        <TextBlock Style="{StaticResource Butir}" Text="• Jangan membakar lahan atau sampah, terutama saat musim kemarau." />
-                        <TextBlock Style="{StaticResource Butir}" Text="• Bila melihat api atau asap mencurigakan, laporkan ke 112/113 atau BPBD setempat dengan menyebut lokasi sejelas mungkin." />
-                        <TextBlock Style="{StaticResource Butir}" Text="• Ikuti arahan petugas dan informasi resmi pemerintah setempat." />
-                    </StackPanel>
-                </Border>
+                    <Border Style="{StaticResource KartuPanduan}">
+                        <StackPanel>
+                            <TextBlock Text="Mencegah dan Melaporkan Kebakaran" Style="{StaticResource JudulKartu}" Margin="0,0,0,8" />
+                            <TextBlock Style="{StaticResource Butir}" Text="• Jangan membakar lahan atau sampah, terutama saat musim kemarau." />
+                            <TextBlock Style="{StaticResource Butir}" Text="• Bila melihat api atau asap mencurigakan, laporkan ke 112/113 atau BPBD setempat dengan menyebut lokasi sejelas mungkin." />
+                            <TextBlock Style="{StaticResource Butir}" Text="• Ikuti arahan petugas dan informasi resmi pemerintah setempat." />
+                        </StackPanel>
+                    </Border>
 
-                <!-- Sumber -->
-                <Border Style="{StaticResource Kartu}">
-                    <StackPanel>
-                        <TextBlock Text="Sumber" Style="{StaticResource Judul}" />
-                        <TextBlock Style="{StaticResource Butir}" Foreground="{StaticResource MutedText}"
-                                   Text="Isi halaman ini diringkas dari sumber berikut dan dicek pada 22 November 2026. Informasi resmi dapat berubah; selalu utamakan pengumuman pemerintah setempat." />
-                        <TextBlock Style="{StaticResource Butir}" Foreground="{StaticResource MutedText}" FontSize="12"
-                                   Text="• Kementerian Kesehatan RI — imbauan menghadapi asap karhutla (kemkes.go.id)" />
-                        <TextBlock Style="{StaticResource Butir}" Foreground="{StaticResource MutedText}" FontSize="12"
-                                   Text="• Permenkominfo No. 10 Tahun 2016 tentang Nomor Panggilan Darurat Tunggal 112; liputan Antara (2025) dan Metro TV (2026) tentang perluasan layanan 112" />
-                        <TextBlock Style="{StaticResource Butir}" Foreground="{StaticResource MutedText}" FontSize="12"
-                                   Text="• BNPB — call center 117 (dikutip Kemenko PMK dan media nasional)" />
-                        <TextBlock Style="{StaticResource Butir}" Foreground="{StaticResource MutedText}" FontSize="12"
-                                   Text="• Daftar nomor darurat nasional (110, 113, 115, 118/119) — rangkuman Katadata" />
-                        <TextBlock Style="{StaticResource Butir}" Foreground="{StaticResource MutedText}" FontSize="12"
-                                   Text="• Panduan LAPAN Fire Hotspot v2.0 (2020) — kelas tingkat kepercayaan titik panas" />
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+                    <Border Style="{StaticResource KartuPanduan}">
+                        <StackPanel>
+                            <TextBlock Text="Sumber" Style="{StaticResource JudulKartu}" Margin="0,0,0,8" />
+                            <TextBlock Style="{StaticResource Sumber}"
+                                       Text="Isi halaman ini diringkas dari sumber berikut dan dicek pada 22 November 2026. Informasi resmi dapat berubah; selalu utamakan pengumuman pemerintah setempat." />
+                            <TextBlock Style="{StaticResource Sumber}" Text="• Kementerian Kesehatan RI — imbauan menghadapi asap karhutla (kemkes.go.id)" />
+                            <TextBlock Style="{StaticResource Sumber}" Text="• Permenkominfo No. 10 Tahun 2016 tentang Nomor Panggilan Darurat Tunggal 112; liputan Antara (2025) dan Metro TV (2026) tentang perluasan layanan 112" />
+                            <TextBlock Style="{StaticResource Sumber}" Text="• BNPB — call center 117 (dikutip Kemenko PMK dan media nasional)" />
+                            <TextBlock Style="{StaticResource Sumber}" Text="• Daftar nomor darurat nasional (110, 113, 115, 118/119) — rangkuman Katadata" />
+                            <TextBlock Style="{StaticResource Sumber}" Text="• Panduan LAPAN Fire Hotspot v2.0 (2020) — kelas tingkat kepercayaan titik panas" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </Page>

@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using Npgsql;
 using System.Windows.Controls;
-using System.Windows.Media;
 using PyroSnap.Services;
 
 namespace PyroSnap.Views
@@ -18,6 +17,7 @@ namespace PyroSnap.Views
         public LoginView()
         {
             InitializeComponent();
+            BtnTema.Content = Tema.IsGelap ? Ikon.Matahari : Ikon.Bulan;
             Loaded += LoginView_Loaded;
         }
 
@@ -32,7 +32,7 @@ namespace PyroSnap.Views
             catch (Exception ex)
             {
                 LblDbStatus.Text = "Database tidak tersedia: " + PesanUi.Ringkas(ex.Message);
-                LblDbStatus.Foreground = (Brush)FindResource("FireRed");
+                LblDbStatus.SetResourceReference(ForegroundProperty, "FireRed");
             }
         }
 
@@ -49,7 +49,7 @@ namespace PyroSnap.Views
             }
 
             BtnLogin.IsEnabled = false;
-            LblError.Visibility = Visibility.Collapsed;
+            PesanUi.Sembunyikan(BarPesan);
 
             try
             {
@@ -96,8 +96,14 @@ namespace PyroSnap.Views
 
         private void TampilkanError(string pesan)
         {
-            LblError.Text = pesan;
-            LblError.Visibility = Visibility.Visible;
+            PesanUi.Tampilkan(BarPesan, LblPesan, pesan, JenisPesan.Error);
+        }
+
+        // DS-06: ganti tema lalu muat ulang halaman ini.
+        private void BtnTema_Click(object sender, RoutedEventArgs e)
+        {
+            Tema.Ganti();
+            Navigasi.Ke(this, new LoginView());
         }
     }
 }

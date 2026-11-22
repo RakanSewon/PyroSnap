@@ -28,6 +28,9 @@ namespace PyroSnap.Views
             Loaded += async (_, _) => await MuatAsync();
         }
 
+        /// <summary>DS-06: salinan halaman ini (tujuan Kembali sama) untuk muat ulang saat tema diganti.</summary>
+        public DetailView Salinan() => new(_halamanKembali);
+
         private static string NamaSumber =>
             AppSession.NamaSumber ?? HotspotDataSource.NamaFirms(AppConfig.FirmsSource);
 
@@ -62,8 +65,9 @@ namespace PyroSnap.Views
             LblKoordinat.Text = KoordinatTeks(h);
             LblWaktu.Text = $"{h.WaktuAkuisisi.ToLocalTime():dd MMM yyyy, HH:mm} (waktu lokal) · " +
                             $"{h.WaktuAkuisisi:HH:mm} UTC";
-            LblConfidence.Text = $"{h.Confidence} % — kelas {TingkatHotspot.Nama(t)} ({TingkatHotspot.Rentang(t)})";
-            LblFrp.Text = $"{h.Frp:0.##} MW (makin besar, makin kuat apinya)";
+            LblConfidence.Text = $"{h.Confidence}%";
+            LblConfidenceKelas.Text = $"Kelas {TingkatHotspot.Nama(t)} ({TingkatHotspot.Rentang(t)})";
+            LblFrp.Text = $"{h.Frp:0.##} MW";
             LblBrightness.Text = $"{h.Brightness:0.#} K";
         }
 

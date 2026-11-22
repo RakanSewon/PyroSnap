@@ -239,22 +239,8 @@ namespace PyroSnap.Views
         }
 
         // ---- Peringatan operasional (FT-07c / ALR-06), hanya Admin & Operator ----
-        /// <summary>Tampilkan jumlah peringatan belum dibaca milik user di tombol header.</summary>
-        private async Task PerbaruiJumlahAlertAsync()
-        {
-            if (!AppSession.TerimaAlertOperasional || AppSession.UserIdAngka is not int userId) return;
-
-            try
-            {
-                int belumDibaca = await AlertRepository.JumlahBelumDibacaAsync(userId);
-                BtnAlert.Content = belumDibaca > 0 ? $"🔔 Peringatan ({belumDibaca})" : "🔔 Peringatan";
-                BtnAlert.ToolTip = belumDibaca > 0 ? $"{belumDibaca} peringatan belum dibaca" : "Tidak ada peringatan baru";
-            }
-            catch (Exception ex) when (ex is NpgsqlException or InvalidOperationException)
-            {
-                BtnAlert.Content = "🔔 Peringatan (?)";
-                BtnAlert.ToolTip = "Jumlah peringatan tidak bisa dibaca: database tidak tersedia.";
-            }
-        }
+        /// <summary>Perbarui lencana jumlah peringatan belum dibaca di lonceng shell.</summary>
+        private Task PerbaruiJumlahAlertAsync() =>
+            Window.GetWindow(this) is MainWindow utama ? utama.PerbaruiLencanaAsync() : Task.CompletedTask;
     }
 }

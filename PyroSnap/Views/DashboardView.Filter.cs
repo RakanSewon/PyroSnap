@@ -34,10 +34,11 @@ namespace PyroSnap.Views
         {
             GridHotspot.ItemsSource = _tampil.Select(h => new HotspotRow(h)).ToList();
             LblCount.Text = _areaFokus == null
-                ? $"Menampilkan {_tampil.Count} dari {_semua.Count} titik"
-                : $"Menampilkan {_tampil.Count} dari {_semua.Count} titik · area {_areaFokus.NamaLokasi}";
-            LblTabDaftar.Text = $"Daftar Titik Panas ({_tampil.Count})";
+                ? $"{_tampil.Count} dari {_semua.Count} titik"
+                : $"{_tampil.Count} dari {_semua.Count} titik · area {_areaFokus.NamaLokasi}";
+            LblTabDaftar.Text = $"Daftar titik panas ({_tampil.Count})";
             AppSession.CurrentHotspots = _tampil;
+            PerbaruiKpi();
 
             if (_useWeb) KirimDataKePeta();
             else GambarPeta();

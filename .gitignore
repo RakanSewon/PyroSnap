@@ -8,3 +8,6 @@ obj/
 
 # Seed lokal berisi hash akun uji (jangan di-commit)
 database/seed-local.sql
+
+# Materi kuliah (berisi API key praktikum; jangan di-commit)
+docs/MODUL 10 - FIX.pdf

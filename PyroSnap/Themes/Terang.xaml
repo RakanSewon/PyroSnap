@@ -1,0 +1,46 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        Tema Terang PyroSnap (DS-06/DS-07; docs/ui/design-system.md).
+        Hanya warna. Kunci HARUS sama dengan Themes/Gelap.xaml.
+        Gaya & template ada di Themes/Gaya.xaml dan selalu memakai DynamicResource.
+        Rasio kontras di komentar dihitung dengan rumus WCAG (terang / gelap).
+    -->
+    <SolidColorBrush x:Key="PageBg" Color="#FFEEF0EC" /> <!-- Latar jendela/halaman -->
+    <SolidColorBrush x:Key="PanelBg" Color="#FFFFFFFF" /> <!-- Kartu & panel -->
+    <SolidColorBrush x:Key="CardBorder" Color="#FFE3E5E0" /> <!-- Garis tepi kartu (dekoratif) -->
+    <SolidColorBrush x:Key="TextPrimary" Color="#FF1A1C19" /> <!-- Teks utama (14,96 / 15,99 di latar) -->
+    <SolidColorBrush x:Key="MutedText" Color="#FF5F645E" /> <!-- Teks sekunder (5,28 / 7,71 di latar) -->
+    <SolidColorBrush x:Key="InkBg" Color="#FF1C1D1B" /> <!-- Elemen aktif/utama: tombol utama, tab & nav aktif, baris terpilih -->
+    <SolidColorBrush x:Key="InkFg" Color="#FFFFFFFF" /> <!-- Teks di atas InkBg (16,92 / 15,99) -->
+    <SolidColorBrush x:Key="SecondaryBg" Color="#FFEFF1EC" /> <!-- Tombol sekunder, chip, tombol ikon -->
+    <SolidColorBrush x:Key="SecondaryHoverBg" Color="#FFE3E6DF" /> <!-- Hover tombol sekunder -->
+    <SolidColorBrush x:Key="SecondaryFg" Color="#FF1A1C19" /> <!-- Teks tombol sekunder (15,08 / 12,48) -->
+    <SolidColorBrush x:Key="NavHoverBg" Color="#FFF3F4F1" /> <!-- Hover menu samping -->
+    <SolidColorBrush x:Key="InputBg" Color="#FFF7F8F5" /> <!-- Latar isian -->
+    <SolidColorBrush x:Key="InputBorder" Color="#FF878B85" /> <!-- Batas isian (3,46 / 4,19 di panel) -->
+    <SolidColorBrush x:Key="FocusRing" Color="#FF1F4E79" /> <!-- Cincin fokus keyboard (8,66 / 7,98) -->
+    <SolidColorBrush x:Key="GridLine" Color="#FFECEDEA" /> <!-- Garis tabel (dekoratif) -->
+    <SolidColorBrush x:Key="SelectionBg" Color="#FF1C1D1B" /> <!-- Baris terpilih (= InkBg) -->
+    <SolidColorBrush x:Key="SelectionFg" Color="#FFFFFFFF" /> <!-- Teks baris terpilih -->
+    <SolidColorBrush x:Key="DeltaNaikBg" Color="#FFE2F4E5" /> <!-- Pil indikator positif -->
+    <SolidColorBrush x:Key="DeltaNaikFg" Color="#FF1D6B31" /> <!-- (5,72 / 8,76) -->
+    <SolidColorBrush x:Key="DeltaTurunBg" Color="#FFFDE5E3" /> <!-- Pil indikator bahaya -->
+    <SolidColorBrush x:Key="DeltaTurunFg" Color="#FFA8201A" /> <!-- (6,06 / 8,82) -->
+    <SolidColorBrush x:Key="Brand" Color="#FFB71C1C" /> <!-- Lingkaran logo (6,57 / 3,95 di panel) -->
+    <SolidColorBrush x:Key="BrandFg" Color="#FFFFFFFF" /> <!-- Nyala di logo (6,57 / 4,26) -->
+    <SolidColorBrush x:Key="FireRed" Color="#FFB71C1C" /> <!-- Teks bahaya/error (6,57 / 7,37 di panel) -->
+    <SolidColorBrush x:Key="MapBg" Color="#FFE9ECE7" /> <!-- Latar area peta -->
+    <SolidColorBrush x:Key="OverlayBg" Color="#CCFFFFFF" /> <!-- Lapisan semi-transparan -->
+    <SolidColorBrush x:Key="TingkatTinggi" Color="#FF9B1C1C" /> <!-- Tingkat Tinggi (6,65 / 5,72 di peta) -->
+    <SolidColorBrush x:Key="TingkatNominal" Color="#FFB45309" /> <!-- Tingkat Nominal (4,10 / 7,88) -->
+    <SolidColorBrush x:Key="TingkatRendah" Color="#FF8A6D00" /> <!-- Tingkat Rendah (4,01 / 9,69) -->
+    <SolidColorBrush x:Key="TingkatTinggiTepi" Color="#FF5A0000" /> <!-- Tepi tebal khusus Tinggi -->
+    <SolidColorBrush x:Key="TingkatTepi" Color="#FFFFFFFF" /> <!-- Tepi tipis Nominal & Rendah -->
+    <SolidColorBrush x:Key="PesanInfoBg" Color="#FFEEF3F8" /> <!-- Bilah info -->
+    <SolidColorBrush x:Key="PesanInfoFg" Color="#FF2B4A66" /> <!-- (8,27 / 9,43) -->
+    <SolidColorBrush x:Key="PesanPeringatanBg" Color="#FFFFF3E0" /> <!-- Bilah peringatan -->
+    <SolidColorBrush x:Key="PesanPeringatanFg" Color="#FF7A3E00" /> <!-- (7,61 / 10,20) -->
+    <SolidColorBrush x:Key="PesanErrorBg" Color="#FFFDECEA" /> <!-- Bilah error -->
+    <SolidColorBrush x:Key="PesanErrorFg" Color="#FFB71C1C" /> <!-- (5,74 / 8,82) -->
+</ResourceDictionary>

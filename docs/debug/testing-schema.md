@@ -2,6 +2,8 @@
 
 > Status: **rencana**. Belum ada tes yang ditulis atau dijalankan. Disusun 2026-11-22.
 
+> **Format resmi pengujian tugas (Modul 10): Black Box Testing** — worksheet ada di `docs/debug/blackbox-testing.md`. Dokumen ini tetap menyimpan skenario rinci (TST-xx) dan catatan hasil uji logika.
+
 ## 1. Tujuan
 
 Menetapkan cara membuktikan bahwa tiap bug di `bug-fix.md` benar-benar selesai dan tiap fitur di `feature/main-feature.md` berfungsi, tanpa menambah infrastruktur yang belum disetujui.
@@ -99,6 +101,7 @@ Skenario akun ada di `docs/database/acount-testing.md` (ACC-xx).
 | FE peta (`map.html`) | 2026-11-22 | Claude | Node 24 + tiruan Leaflet | Lulus (10/10) | Legenda dari konfigurasi LAPAN, kelas 20/30/79/80, warna & garis tepi Tinggi, tooltip istilah baru, fit hanya saat data baru, sorot & lepas sorot |
 | Parser (ulang) | 2026-11-22 | Claude | Linux, data FIRMS asli | Lulus (30/30) | Pemetaan `l=20` (kelas Rendah) |
 | TST-34…TST-36, F5 | 2026-11-22 | Claude | DB lokal, tabel sementara (`pg_temp`), data FIRMS asli | Lulus (23/23) | 19 hotspot kritis × 3 user = 57 alert; sinkron ulang 0 baru; conf 60 tidak memicu, conf 90 memicu walau FRP kecil; batas 50 per sinkron; tandai dibaca hanya milik sendiri; CASCADE saat user dihapus. Tabel asli tidak tersentuh |
+| DS-10 (otomatis) | 2026-11-23 | Claude | Linux: build .NET 8, skrip Python, Node 24 + tiruan Leaflet | Lulus | Kunci Terang = Gelap (37); semua XAML valid; urutan `StaticResource` di `Gaya.xaml` benar; warna hanya lewat `DynamicResource`; semua kunci di XAML/C# ada (pemeriksa diuji balik dengan kunci palsu); 68 pasangan kontras lulus; `map.html` 9/9 untuk tanpa konfigurasi, terang, dan gelap. Tampilan di layar Windows belum (worksheet black-box bagian H) |
 
 ## 9. Checklist target
 

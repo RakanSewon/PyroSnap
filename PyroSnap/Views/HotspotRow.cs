@@ -30,6 +30,12 @@ namespace PyroSnap.Views
         public string FrpText => $"{Source.Frp:0.##} MW";
         public string BrightnessText => $"{Source.Brightness:0.#} K";
         public string Tingkat => TingkatHotspot.Nama(TingkatHotspot.Dari(Source.Confidence));
+
+        // Penanda tingkat di daftar (DS-05): warna + ukuran + tepi, sama dengan peta
+        public System.Windows.Media.Brush WarnaTingkat => TingkatHotspot.Warna(TingkatHotspot.Dari(Source.Confidence));
+        public System.Windows.Media.Brush TepiTingkat => TingkatHotspot.Tepi(TingkatHotspot.Dari(Source.Confidence));
+        public double TebalTepiTingkat => TingkatHotspot.TebalTepi(TingkatHotspot.Dari(Source.Confidence));
+        public double UkuranTitik => TingkatHotspot.UkuranTitik(TingkatHotspot.Dari(Source.Confidence));
         public string Wilayah { get; }
     }
 }
