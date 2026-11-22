@@ -48,16 +48,32 @@
             document.documentElement.style.setProperty(nama, tema[k]);
         });
 
-        // Peta dasar: CARTO (mengizinkan pemakaian langsung; OSM memblokir WebView).
-        // Tema gelap memakai gaya dark_all, tema terang light_all.
-        var gayaCarto = tema.gelap ? 'dark_all' : 'light_all';
-        var cartoUrl = 'https://{s}.basemaps.cartocdn.com/' + gayaCarto + '/{z}/{x}/{y}{r}.png' +
-            (config.cartoKey ? '?key=' + encodeURIComponent(config.cartoKey) : '');
-        var cartoPeta = L.tileLayer(cartoUrl, {
-            maxZoom: 19,
-            subdomains: 'abcd',
-            attribution: '© OpenStreetMap, © CARTO'
-        }).addTo(map);
+        // Peta dasar. CARTO kini mewajibkan API key (tanpa key setiap tile bertuliskan
+        // "API KEY REQUIRED"), dan OSM memblokir WebView. Karena itu bawaannya Esri Canvas
+        // (Light/Dark Gray, tanpa key, penyedia sama dengan layer Satelit) dan CARTO hanya
+        // dipakai bila CARTO_KEY diisi di .env. Tema gelap memakai varian gelap.
+        var petaDasar;
+        if (config.cartoKey) {
+            var gayaCarto = tema.gelap ? 'dark_all' : 'light_all';
+            petaDasar = L.tileLayer('https://{s}.basemaps.cartocdn.com/' + gayaCarto + '/{z}/{x}/{y}{r}.png?key=' +
+                encodeURIComponent(config.cartoKey), {
+                maxZoom: 19,
+                subdomains: 'abcd',
+                attribution: '© OpenStreetMap, © CARTO'
+            });
+        } else {
+            var gayaEsri = tema.gelap ? 'Dark' : 'Light';
+            var esriCanvas = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_' + gayaEsri + '_Gray_';
+            petaDasar = L.layerGroup([
+                L.tileLayer(esriCanvas + 'Base/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 16,
+                    attribution: 'Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS user community'
+                }),
+                // Lapisan nama tempat di atas peta dasar
+                L.tileLayer(esriCanvas + 'Reference/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16 })
+            ]);
+        }
+        petaDasar.addTo(map);
 
         // Layer alternatif: citra satelit Esri.
         var esriSat = L.tileLayer(
@@ -67,7 +83,7 @@
         });
 
         L.control.layers(
-            { 'Peta': cartoPeta, 'Satelit': esriSat },
+            { 'Peta': petaDasar, 'Satelit': esriSat },
             null,
             { position: 'topright' }
         ).addTo(map);
@@ -138,11 +154,23 @@
                 markers.push(m);
             });
 
-            // Zoom otomatis ke kumpulan titik hanya bila diminta.
+            // Titik berkeyakinan tinggi selalu di lapisan paling atas agar tidak tertutup
+            // titik Nominal/Rendah yang berdekatan (BUG-34).
+            naikkanTinggi();
+
+            // Zoom otomatis ke kumpulan titik hanya bila diminta. Jarak tepi kecil (5%) agar
+            // peta setinggi ±300 px di aplikasi tetap memakai zoom yang cukup dekat (BUG-35).
             if (fit && data.length > 0) {
                 var group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.3));
+                map.fitBounds(group.getBounds().pad(0.05));
             }
+        }
+
+        function naikkanTinggi() {
+            markers.forEach(function (m) {
+                if (kelas(m.hotspot.conf) === 'tinggi') m.bringToFront();
+            });
+            if (selectedId >= 0 && markers[selectedId]) markers[selectedId].bringToFront();
         }
 
         // Dipanggil dari C#: sorot hotspot yang dipilih di daftar (-1 = tidak ada).
@@ -150,6 +178,8 @@
             if (selectedId >= 0 && markers[selectedId]) {
                 markers[selectedId].setStyle(gayaNormal(markers[selectedId].hotspot));
             }
+            selectedId = -1;
+            naikkanTinggi();
             selectedId = id;
             var m = markers[id];
             if (!m) return;
@@ -167,7 +197,9 @@
         }
 
         // Legenda dari konfigurasi tingkat (sama dengan legenda di aplikasi).
-        var legend = L.control({ position: 'bottomright' });
+        // Kiri bawah = Samudra Hindia (kosong dari titik). Di kanan bawah legenda menutupi
+        // Papua selatan (Merauke), tempat banyak titik termasuk yang berkeyakinan tinggi (BUG-36).
+        var legend = L.control({ position: 'bottomleft' });
         legend.onAdd = function () {
             var div = L.DomUtil.create('div', 'legend');
             var judul = document.createElement('b');

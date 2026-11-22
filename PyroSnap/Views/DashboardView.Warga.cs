@@ -92,7 +92,7 @@ namespace PyroSnap.Views
             if (area == null)
             {
                 PesanUi.Tampilkan(BarWarga, LblWarga,
-                    "Pilih wilayah Anda di bagian \"Wilayah saya\" (kolom kanan) untuk melihat peringatan titik panas dan kualitas udara di sekitar Anda.",
+                    "Pilih wilayah Anda di bawah ini untuk melihat peringatan titik panas dan kualitas udara di sekitar Anda.",
                     JenisPesan.Info);
                 return;
             }

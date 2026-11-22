@@ -92,7 +92,7 @@
                             </Border>
                         </Grid>
                         <!-- Profil: avatar inisial + nama + peran -->
-                        <Border Background="{DynamicResource SecondaryBg}" CornerRadius="{StaticResource RadiusPil}" Padding="6,6,16,6">
+                        <Border Background="{DynamicResource SecondaryBg}" CornerRadius="{StaticResource RadiusKontrol}" Padding="6,6,16,6">
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="34" Height="34" CornerRadius="17" Background="{DynamicResource InkBg}">
                                     <TextBlock x:Name="TxtInisial" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource InkFg}"

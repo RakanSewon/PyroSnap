@@ -38,6 +38,12 @@
 | BUG-28 | P2 | Ubin angka Detail (keyakinan, FRP, kecerahan) terpotong pada jendela sempit | `Views/DetailView.xaml` | Uji 2026-11-23 |
 | BUG-29 | P2 | Subjudul bilah atas dan nama pengguna panjang tidak dipotong rapi | `MainWindow.xaml` | Uji 2026-11-23 |
 | BUG-30 | P1 | WebView2 Dashboard lama tidak dibuang saat pindah halaman / ganti tema (proses browser menumpuk) | `Views/DashboardView.xaml.cs`, `.Peta.cs` | Uji 2026-11-23 |
+| BUG-31 | P0 | Peta dasar kosong bertuliskan "API KEY REQUIRED": CARTO kini mewajibkan API key | `Assets/map.html` | Uji Windows 2026-11-23 |
+| BUG-32 | P2 | Tab, segmen, chip, dan profil tampil sebagai elips, bukan pil | `Themes/Gaya.xaml` (`RadiusPil` 999) | Uji Windows 2026-11-23 |
+| BUG-33 | P2 | Peta terlalu kecil di Dashboard (terdesak KPI, status, banner warga, dan daftar) | `Views/DashboardView.xaml` | Uji Windows 2026-11-23 |
+| BUG-34 | P1 | Titik berkeyakinan tinggi tertutup titik Nominal/Rendah yang digambar sesudahnya | `Assets/map.html` (`setHotspots`) | Uji peta 2026-11-23 |
+| BUG-35 | P2 | Zoom awal terlalu jauh pada peta setinggi ±300 px (tampak sebagian besar Asia) | `Assets/map.html` (`fitBounds pad 0.3`) | Uji peta 2026-11-23 |
+| BUG-36 | P1 | Legenda di kanan bawah menutupi Papua selatan: 166 titik termasuk semua titik Tinggi tersembunyi | `Assets/map.html` (legenda) | Uji peta 2026-11-23 |
 
 ---
 
@@ -202,6 +208,33 @@ Dihitung dari ukuran jendela minimum 1024 × 640 (area halaman ±736 × ±420 px
 - **Gejala (potensi):** setiap kembali ke Dashboard (dari Detail, Ekspor, menu, atau ganti tema) dibuat `DashboardView` + WebView2 baru; yang lama tidak di-`Dispose`, sehingga proses browser Edge WebView2 bisa menumpuk dan aplikasi makin berat.
 - **Perbaikan:** `Unloaded` → tandai `_petaDibuang` lalu `MapWeb.Dispose()`; semua panggilan skrip peta lewat `PetaSiap`, sehingga pemuatan data yang selesai setelah halaman ditinggalkan tidak menyentuh WebView2 yang sudah dibuang.
 - [x] Diperbaiki  [ ] Dicek di Windows (Pengelola Tugas: jumlah proses `msedgewebview2` tidak terus bertambah setelah bolak-balik Dashboard ↔ Detail)
+
+### BUG-31 (P0) — Peta "API KEY REQUIRED"
+- **Gejala (Windows, 2026-11-23):** layer "Peta" hanya berisi tulisan miring "API KEY REQUIRED · carto.com/basemaps/apikey"; layer Satelit normal.
+- **Penyebab:** CARTO Basemaps kini mewajibkan API key. Tanpa key, server tetap menjawab HTTP 200 tetapi setiap tile berisi watermark (dicek dengan `curl`: tile 2 KB bertuliskan "API KEY REQUIRED").
+- **Perbaikan:** peta dasar bawaan diganti **Esri Light Gray Canvas** (tema terang) / **Dark Gray Canvas** (tema gelap) + lapisan nama tempat (`…_Reference`), tanpa key, penyedia sama dengan layer Satelit; atribusi sesuai `copyrightText` layanan ("Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS user community"). CARTO hanya dipakai bila `CARTO_KEY` diisi di `.env`.
+- **Verifikasi:** keempat URL tile Esri dicoba (`curl`: HTTP 200, gambar bersih terang & gelap); uji `map.html` 4 mode lulus (tanpa konfigurasi, terang, gelap, dengan `CARTO_KEY`).
+- [x] Diperbaiki  [x] Terverifikasi (Linux)  [ ] Dicek di Windows
+
+### BUG-32 (P2) — Pil jadi elips
+- **Penyebab:** `RadiusPil` = 999. WPF tidak membatasi `CornerRadius` ke setengah tinggi, sehingga sudut raksasa membentuk elips.
+- **Perbaikan (sesuai permintaan tim: persegi bersudut bulat):** `RadiusPil` 10 (tab), `RadiusChip` 6 (chip, pil KPI), wadah segmen 12 + segmen 8, profil 12. Lingkaran asli (logo, avatar, tombol ikon) tetap karena radiusnya tepat setengah ukuran.
+- [x] Diperbaiki  [ ] Dicek di Windows
+
+### BUG-33 (P2) — Peta terlalu kecil
+- **Perbaikan:** pembagian tinggi peta : daftar 5 : 4 → **2 : 1**; kartu KPI lebih ringkas (padding 16,10, angka 24 px); banner warga dipindah dari baris sendiri ke kolom kanan di atas "Wilayah saya".
+- [x] Diperbaiki  [ ] Dicek di Windows (1280 × 760 dan ukuran minimum)
+
+### BUG-34 … BUG-36 — Titik api di peta (uji 2026-11-23)
+**Cara uji:** data asli NASA FIRMS (VIIRS NOAA-20, 22 Nov 2026: 691 titik — 4 Tinggi, 617 Nominal, 70 Rendah) diubah seperti `HotspotDataSource` + `KirimDataKePeta`, lalu dikirim ke `map.html` yang sama lewat `setHotspots(json, true)` di browser, dengan konfigurasi tema terang/gelap yang disuntikkan seperti aplikasi. Ukuran peta disimulasikan 660 × 320 px (perkiraan di Dashboard).
+
+Hasil yang sudah benar: ke-691 penanda tampil di seluruh Indonesia; tiga tingkat terbedakan (ukuran 9/7/5, warna, tepi); tooltip berisi koordinat, kelas keyakinan, FRP; sorotan titik terpilih jelas; tema gelap memakai tile gelap dan legenda gelap.
+
+- **BUG-34 (P1):** keempat titik Tinggi tertutup 11–73 penanda lain (urutan gambar = urutan data). **Perbaikan:** `naikkanTinggi()` — titik Tinggi (dan titik terpilih) dibawa ke lapisan teratas setelah data dimuat dan setelah sorotan dilepas. **Verifikasi:** posisi lapisan titik Tinggi 687–690 dari 691, tetap setelah pilih/lepas sorotan.
+- **BUG-35 (P2):** `fitBounds(… pad(0.3))` pada 660 × 320 px → zoom 3. **Perbaikan:** `pad(0.05)` → zoom 4, semua titik tetap di dalam peta (0 di luar layar).
+- **BUG-36 (P1):** legenda kanan bawah menutupi 166 titik di Papua selatan (Merauke), termasuk 4/4 titik Tinggi. **Perbaikan:** legenda pindah ke kiri bawah (Samudra Hindia). **Verifikasi:** 0 titik tertutup legenda, atribusi, kontrol layer, maupun tombol zoom.
+- Uji `map.html` (Node) 4 mode tetap lulus.
+- [x] Diperbaiki  [x] Terverifikasi (browser, data asli)  [ ] Dicek di aplikasi Windows
 
 ---
 

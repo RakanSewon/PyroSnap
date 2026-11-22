@@ -17,11 +17,15 @@
     -->
     <Page.Resources>
         <Style x:Key="KartuKpi" TargetType="Border" BasedOn="{StaticResource Kartu}">
-            <Setter Property="Padding" Value="18,14" />
+            <Setter Property="Padding" Value="16,10" />
+        </Style>
+        <!-- Angka KPI sedikit lebih kecil dari AngkaKpi bawaan agar baris KPI hemat tinggi -->
+        <Style x:Key="AngkaKpiRingkas" TargetType="TextBlock" BasedOn="{StaticResource AngkaKpi}">
+            <Setter Property="FontSize" Value="24" />
         </Style>
         <!-- Pil kecil di samping angka KPI -->
         <Style x:Key="PilKpi" TargetType="Border">
-            <Setter Property="CornerRadius" Value="{StaticResource RadiusPil}" />
+            <Setter Property="CornerRadius" Value="{StaticResource RadiusChip}" />
             <Setter Property="Padding" Value="8,2" />
             <Setter Property="Margin" Value="8,0,0,4" />
             <Setter Property="VerticalAlignment" Value="Bottom" />
@@ -37,12 +41,11 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- ===== Baris KPI (dihitung dari titik yang sedang tampil) ===== -->
-        <Grid Grid.Row="0" Margin="0,0,0,16">
+        <Grid Grid.Row="0" Margin="0,0,0,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="12" />
@@ -56,8 +59,8 @@
             <Border Grid.Column="0" Style="{StaticResource KartuKpi}">
                 <StackPanel>
                     <TextBlock Text="Titik panas tampil" Style="{StaticResource Keterangan}" />
-                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                        <TextBlock x:Name="LblKpiTotal" Text="-" Style="{StaticResource AngkaKpi}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                        <TextBlock x:Name="LblKpiTotal" Text="-" Style="{StaticResource AngkaKpiRingkas}" />
                     </StackPanel>
                     <TextBlock x:Name="LblKpiTotalSub" Text=" " Style="{StaticResource Keterangan}" TextTrimming="CharacterEllipsis" />
                 </StackPanel>
@@ -67,8 +70,8 @@
                     ToolTip="Titik dengan keyakinan deteksi ≥ 80% (kelas LAPAN: segera ditindaklanjuti).">
                 <StackPanel>
                     <TextBlock Text="Keyakinan tinggi" Style="{StaticResource Keterangan}" />
-                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                        <TextBlock x:Name="LblKpiTinggi" Text="-" Style="{StaticResource AngkaKpi}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                        <TextBlock x:Name="LblKpiTinggi" Text="-" Style="{StaticResource AngkaKpiRingkas}" />
                         <Border x:Name="PilKpiTinggi" Style="{StaticResource PilKpi}" Background="{DynamicResource DeltaTurunBg}">
                             <TextBlock x:Name="LblKpiTinggiPersen" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource DeltaTurunFg}" />
                         </Border>
@@ -81,8 +84,8 @@
                     ToolTip="Jumlah area pantau yang memiliki minimal satu titik panas tampil.">
                 <StackPanel>
                     <TextBlock Text="Area pantau terdampak" Style="{StaticResource Keterangan}" />
-                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                        <TextBlock x:Name="LblKpiWilayah" Text="-" Style="{StaticResource AngkaKpi}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                        <TextBlock x:Name="LblKpiWilayah" Text="-" Style="{StaticResource AngkaKpiRingkas}" />
                         <Border Style="{StaticResource PilKpi}">
                             <TextBlock x:Name="LblKpiWilayahDari" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource MutedText}" />
                         </Border>
@@ -95,8 +98,8 @@
                     ToolTip="Intensitas api (FRP) terbesar di antara titik yang tampil, dalam megawatt.">
                 <StackPanel>
                     <TextBlock Text="Intensitas api tertinggi" Style="{StaticResource Keterangan}" />
-                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                        <TextBlock x:Name="LblKpiFrp" Text="-" Style="{StaticResource AngkaKpi}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                        <TextBlock x:Name="LblKpiFrp" Text="-" Style="{StaticResource AngkaKpiRingkas}" />
                         <TextBlock Text="MW" Style="{StaticResource Keterangan}" FontSize="13" VerticalAlignment="Bottom" Margin="6,0,0,6" />
                     </StackPanel>
                     <TextBlock x:Name="LblKpiFrpSub" Text=" " Style="{StaticResource Keterangan}" TextTrimming="CharacterEllipsis" />
@@ -138,16 +141,8 @@
             </StackPanel>
         </Grid>
 
-        <!-- Banner peringatan warga (Publik/Tamu, PUB-01) -->
-        <Border x:Name="BarWarga" Grid.Row="2" Style="{StaticResource BilahPesan}" Margin="0,0,0,12">
-            <DockPanel>
-                <TextBlock Style="{StaticResource IkonPesan}" />
-                <TextBlock x:Name="LblWarga" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
-            </DockPanel>
-        </Border>
-
         <!-- ===== Isi: peta + daftar | filter ===== -->
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="16" />
@@ -156,9 +151,10 @@
 
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="5*" MinHeight="110" />
+                    <!-- Peta lebih tinggi (2 : 1); daftar tetap bisa digulir -->
+                    <RowDefinition Height="2*" MinHeight="150" />
                     <RowDefinition Height="12" />
-                    <RowDefinition Height="4*" MinHeight="120" />
+                    <RowDefinition Height="*" MinHeight="120" />
                 </Grid.RowDefinitions>
 
                 <!-- Peta (WebView2 tidak ikut sudut membulat: diberi jarak dalam kartu) -->
@@ -294,6 +290,13 @@
                     <StackPanel>
                         <!-- Wilayah saya (Publik/Tamu, PUB-01) -->
                         <StackPanel x:Name="PanelWilayahSaya">
+                            <!-- Banner peringatan warga: di kolom ini (bukan baris sendiri) agar peta lebih tinggi -->
+                            <Border x:Name="BarWarga" Style="{StaticResource BilahPesan}" Margin="0,0,0,14">
+                                <DockPanel>
+                                    <TextBlock Style="{StaticResource IkonPesan}" />
+                                    <TextBlock x:Name="LblWarga" TextWrapping="Wrap" FontSize="12" AutomationProperties.LiveSetting="Polite" />
+                                </DockPanel>
+                            </Border>
                             <TextBlock Text="Wilayah saya" Style="{StaticResource JudulSeksiFilter}" />
                             <Grid>
                                 <Grid.ColumnDefinitions>

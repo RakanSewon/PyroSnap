@@ -54,7 +54,7 @@ Kelas LAPAN: Rendah (< 30), Nominal (30–79), Tinggi (≥ 80) — `Views/Tingka
 | Nominal | `#B45309` | `#FFA040` | 4,21 / 7,88 | 7 / 9 | 1,5 px warna kartu | "Nominal (30–79%)" |
 | Rendah | `#8A6D00` | `#E6C84A` | 4,13 / 9,69 | 5 / 7 | 1,5 px warna kartu | "Rendah (< 30%)" |
 
-Terhadap tile CARTO (warna tile **perkiraan**: terang darat `#FAFAF8`, air `#D4DADC`; gelap darat `#262626`, air `#0E0E0E`): terang 7,80 / 4,81 / 4,71 di darat dan 5,77 / 3,55 / 3,48 di air; gelap 5,42 / 7,46 / 9,17 di darat. Nominal dan Rendah hampir sama terang, jadi **ukuran + tepi + label tetap wajib**. Warna tingkat dipakai pada penanda, bukan sebagai warna teks.
+Peta dasar kini Esri Light/Dark Gray Canvas (abu-abu netral, BUG-31); kontras penanda di atas tile dihitung terhadap `MapBg` di atas dan perlu dicek di layar. Nominal dan Rendah hampir sama terang, jadi **ukuran + tepi + label tetap wajib**. Warna tingkat dipakai pada penanda, bukan sebagai warna teks.
 
 ## 4. Tipografi, jarak, sudut
 
@@ -68,7 +68,7 @@ Terhadap tile CARTO (warna tile **perkiraan**: terang darat `#FAFAF8`, air `#D4D
 | Judul Masuk/Daftar | 22 px | SemiBold | – |
 | Angka KPI | 28 px (24 di Detail) | SemiBold | `AngkaKpi` |
 
-Jarak (px): **4, 8, 12, 16, 20, 24**; antarkartu 16 (12 di baris KPI). Sudut: `RadiusKontrol` 12 (tombol, input, bilah pesan, ubin), `RadiusKartu` 20 (kartu), `RadiusPil` 999 (segmen, chip, profil).
+Jarak (px): **4, 8, 12, 16, 20, 24**; antarkartu 16 (12 di baris KPI). Sudut: `RadiusKontrol` 12 (tombol, input, bilah pesan, ubin, wadah segmen, profil), `RadiusKartu` 20 (kartu), `RadiusPil` 10 (tab, segmen 8), `RadiusChip` 6 (chip, pil KPI). **Persegi bersudut bulat, bukan pil** (revisi tim 2026-11-23); radius besar seperti 999 dilarang karena WPF menggambarnya sebagai elips (BUG-32).
 
 ## 5. Komponen (`Themes/Gaya.xaml`)
 
@@ -120,7 +120,7 @@ Jarak (px): **4, 8, 12, 16, 20, 24**; antarkartu 16 (12 di baris KPI). Sudut: `R
 ## 7. Tata letak halaman (D5)
 
 - **Shell** (`MainWindow`): kolom menu samping 240 px + area kanan (bilah atas + Frame). Menu sesuai peran: Peringatan hanya Admin/Operator, Ekspor hanya yang boleh ekspor. Shell disembunyikan di Masuk, Daftar, dan Panduan tanpa sesi.
-- **Dashboard**: baris 4 KPI (titik tampil, keyakinan tinggi + %, area pantau terdampak, intensitas tertinggi) → bilah status + tombol Ekspor / Perbarui → peta (atas) dan daftar dengan tab pil (bawah) di kiri, kolom filter 290 px di kanan. Semua KPI dihitung dari titik yang sedang tampil (`DashboardView.Kpi.cs`).
+- **Dashboard**: baris 4 KPI ringkas (titik tampil, keyakinan tinggi + %, area pantau terdampak, intensitas tertinggi) → bilah status + tombol Ekspor / Perbarui → peta (atas, 2 bagian) dan daftar dengan tab (bawah, 1 bagian) di kiri, kolom filter 290 px di kanan (banner warga + Wilayah saya + cari + filter + historis). Semua KPI dihitung dari titik yang sedang tampil (`DashboardView.Kpi.cs`).
 - **Detail**: kiri data titik (3 ubin angka + label/nilai + navigasi); kanan verifikasi lapangan dengan segmen status.
 - **Peringatan**: 2 KPI (belum dibaca, total) + kartu info → daftar dengan chip status.
 - **Ekspor**: kartu KPI jumlah titik + segmen format → pratinjau.
@@ -135,7 +135,7 @@ Jarak (px): **4, 8, 12, 16, 20, 24**; antarkartu 16 (12 di baris KPI). Sudut: `R
 3. `Views/Tema.cs`: `BacaPilihan()` dari `%AppData%\PyroSnap\settings.json` (`{"tema":"Gelap"}`; bawaan Terang; berkas rusak = Terang), `Terapkan()` mengganti kamus indeks 0, `Ganti()` menukar dan menyimpan (gagal simpan tidak menghentikan aplikasi).
 4. `App.OnStartup` memasang tema tersimpan sebelum jendela dibuat.
 5. Tombol tema di menu samping (dan di halaman Masuk). Setelah ganti, **halaman aktif dimuat ulang** (instance baru) supaya warna yang disetel dari kode dan peta ikut berubah; data/filter tetap karena tersimpan di `AppSession`. Detail memakai `Salinan()` agar tujuan tombol Kembali tidak hilang.
-6. Peta (DS-08): `window.PYROSNAP_CONFIG.tema` (`Tema.KonfigurasiPeta()`) berisi `gelap`, warna latar/panel/teks/tepi, dan warna sorot. `map.html` memilih tile CARTO `dark_all`/`light_all`, mewarnai legenda, kontrol zoom/layer, dan atribusi lewat variabel CSS, dan menyorot titik terpilih dengan warna tinta tema. `WebView2.DefaultBackgroundColor` = `MapBg` (tanpa kilatan putih). Peta kanvas memakai warna teks tema untuk garis lintang/bujur.
+6. Peta (DS-08): `window.PYROSNAP_CONFIG.tema` (`Tema.KonfigurasiPeta()`) berisi `gelap`, warna latar/panel/teks/tepi, dan warna sorot. `map.html` memilih peta dasar **Esri Light/Dark Gray Canvas** + lapisan nama tempat (tanpa key; CARTO `light_all`/`dark_all` hanya bila `CARTO_KEY` diisi, karena CARTO kini wajib key — BUG-31), mewarnai legenda, kontrol zoom/layer, dan atribusi lewat variabel CSS, dan menyorot titik terpilih dengan warna tinta tema. `WebView2.DefaultBackgroundColor` = `MapBg` (tanpa kilatan putih). Legenda di **kiri bawah** (laut, bukan Papua selatan — BUG-36); titik Tinggi selalu di lapisan teratas (BUG-34); zoom awal `fitBounds` dengan tepi 5% (BUG-35). Peta kanvas memakai warna teks tema untuk garis lintang/bujur.
 
 ## 9. Checklist target
 
@@ -160,7 +160,7 @@ Tema api (merah + krem) diterapkan lebih dulu: token terpusat, style `Kartu`, te
 - **Kalender DatePicker** (popup) masih bawaan WPF, jadi tampil terang di tema gelap. Kotak teksnya sudah bergaya.
 - Sudut kotak antar-scrollbar (`ScrollViewer`) memakai warna sistem.
 - Ukuran jendela minimum 1024 × 640; di ukuran itu peta dan daftar cukup sempit.
-- Warna tile CARTO di §3 adalah perkiraan; kontras penanda di atas tile perlu dicek di layar.
+- Kontras penanda di atas tile Esri Canvas belum diukur dari layar (perlu dicek di Windows).
 
 ## 12. Hasil verifikasi otomatis (Linux, 2026-11-23)
 

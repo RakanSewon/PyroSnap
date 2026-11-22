@@ -11,7 +11,11 @@
     <!-- ===== Bentuk & huruf ===== -->
     <CornerRadius x:Key="RadiusKontrol">12</CornerRadius>
     <CornerRadius x:Key="RadiusKartu">20</CornerRadius>
-    <CornerRadius x:Key="RadiusPil">999</CornerRadius>
+    <!-- Persegi bersudut bulat untuk tab, segmen, profil. Jangan memakai angka besar (mis. 999):
+         WPF tidak membatasi radius sehingga kotak berubah jadi elips (BUG-32). -->
+    <CornerRadius x:Key="RadiusPil">10</CornerRadius>
+    <!-- Chip/label kecil -->
+    <CornerRadius x:Key="RadiusChip">6</CornerRadius>
     <FontFamily x:Key="IkonFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
 
     <!-- DS-09: logo nyala (vektor) menggantikan emoji 🔥 -->
@@ -72,7 +76,7 @@
     <!-- Chip (label kecil berbentuk pil), mis. tingkat, status -->
     <Style x:Key="Chip" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SecondaryBg}" />
-        <Setter Property="CornerRadius" Value="{StaticResource RadiusPil}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusChip}" />
         <Setter Property="Padding" Value="10,3" />
         <Setter Property="Margin" Value="0,0,6,0" />
         <Setter Property="HorizontalAlignment" Value="Left" />
@@ -688,7 +692,7 @@
     <!-- Segmen pil (pilihan tunggal, mis. format TXT/CSV): RadioButton di dalam WadahSegmen -->
     <Style x:Key="WadahSegmen" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SecondaryBg}" />
-        <Setter Property="CornerRadius" Value="{StaticResource RadiusPil}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusKontrol}" />
         <Setter Property="Padding" Value="4" />
         <Setter Property="HorizontalAlignment" Value="Left" />
     </Style>
@@ -701,7 +705,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
-                    <Border x:Name="b" Background="Transparent" CornerRadius="{StaticResource RadiusPil}"
+                    <Border x:Name="b" Background="Transparent" CornerRadius="8"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
