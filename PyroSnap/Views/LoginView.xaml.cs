@@ -1,47 +1,103 @@
+using System;
+using System.Threading.Tasks;
 using System.Windows;
+using Npgsql;
 using System.Windows.Controls;
+using System.Windows.Media;
+using PyroSnap.Services;
 
 namespace PyroSnap.Views
 {
     /// <summary>
     /// Tampilan Login (Lab 7.1 versi WPF).
-    /// Memakai model User milik tim untuk verifikasi kredensial.
-    /// Setelah berhasil, berpindah ke DashboardView.
+    /// Mencari akun di tabel users lalu memverifikasi password lewat User.Login().
+    /// Setelah berhasil, user aktif disimpan di AppSession dan berpindah ke DashboardView.
     /// </summary>
     public partial class LoginView : Page
     {
-        // Akun demo untuk keperluan tampilan praktikum.
-        private const string DemoUser = "admin";
-        private const string DemoPass = "pyrosnap";
-
         public LoginView()
         {
             InitializeComponent();
+            Loaded += LoginView_Loaded;
         }
 
-        private void BtnLogin_Click(object sender, RoutedEventArgs e)
+        // DBA-02: cek koneksi database tanpa memblokir UI; DB mati tidak membuat aplikasi crash.
+        private async void LoginView_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string hasil = await DatabaseConnection.TestConnectionAsync();
+                LblDbStatus.Text = "Database: " + hasil.Split('\n')[0];
+            }
+            catch (Exception ex)
+            {
+                LblDbStatus.Text = "Database tidak tersedia: " + PesanUi.Ringkas(ex.Message);
+                LblDbStatus.Foreground = (Brush)FindResource("FireRed");
+            }
+        }
+
+        // Login lewat tabel users (hash BCrypt). Tidak ada akun bawaan di kode.
+        private async void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
             string username = TxtUsername.Text.Trim();
             string password = TxtPassword.Password;
 
-            // Memakai model User (src/User.cs) yang sudah dibuat tim.
-            var user = new User
+            if (username.Length == 0 || password.Length == 0)
             {
-                Username = DemoUser,
-                Password = DemoPass,
-                Role = "User"
-            };
+                TampilkanError("Username dan password wajib diisi.");
+                return;
+            }
 
-            if (user.Login(username, password) || (username == DemoUser && password == DemoPass))
+            BtnLogin.IsEnabled = false;
+            LblError.Visibility = Visibility.Collapsed;
+
+            try
             {
-                var main = (MainWindow)Window.GetWindow(this);
-                main.Navigate(new DashboardView());
+                User? user = await UserRepository.FindByUsernameAsync(username);
+
+                // Verifikasi BCrypt sengaja lambat; jalankan di luar thread UI.
+                bool berhasil = user != null && await Task.Run(() => user.Login(username, password));
+
+                if (!berhasil)
+                {
+                    // Pesan sama untuk username tak dikenal dan password salah (ACC-03/04).
+                    TampilkanError("Username atau password salah.");
+                    TxtPassword.Clear();
+                    return;
+                }
+
+                AppSession.Bersihkan();
+                AppSession.CurrentUser = user;
+                Navigasi.Ke(this, new DashboardView());
             }
-            else
+            catch (Exception ex) when (ex is NpgsqlException or InvalidOperationException)
             {
-                LblError.Text = "Username atau password salah.";
-                LblError.Visibility = Visibility.Visible;
+                // AUTH-08: kegagalan database bukan "password salah".
+                TampilkanError("Database tidak tersedia, login tidak dapat diperiksa. Coba lagi beberapa saat lagi. " +
+                               PesanUi.Ringkas(ex.Message));
             }
+            finally
+            {
+                BtnLogin.IsEnabled = true;
+            }
+        }
+
+        // ---- Jalur warga (K10) ----
+        private void BtnDaftar_Click(object sender, RoutedEventArgs e) => Navigasi.Ke(this, new RegisterView());
+
+        private void BtnTamu_Click(object sender, RoutedEventArgs e)
+        {
+            AppSession.MasukSebagaiTamu();
+            Navigasi.Ke(this, new DashboardView());
+        }
+
+        // FK5: Panduan bisa dibuka tanpa login.
+        private void BtnPanduan_Click(object sender, RoutedEventArgs e) => Navigasi.Ke(this, new PanduanView());
+
+        private void TampilkanError(string pesan)
+        {
+            LblError.Text = pesan;
+            LblError.Visibility = Visibility.Visible;
         }
     }
 }

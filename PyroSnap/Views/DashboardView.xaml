@@ -5,7 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       mc:Ignorable="d"
-      d:DesignHeight="640" d:DesignWidth="960"
+      d:DesignHeight="700" d:DesignWidth="1080"
       Title="Dashboard"
       Background="{StaticResource PageBg}">
 
@@ -20,156 +20,261 @@
             <Grid>
                 <StackPanel>
                     <TextBlock Text="🔥 PyroSnap" FontSize="22" FontWeight="Bold" Foreground="White" />
-                    <TextBlock Text="Peta Titik Api / Hotspot (NASA FIRMS)"
+                    <TextBlock Text="Peta titik panas (hotspot) Indonesia — data satelit NASA FIRMS"
                                Foreground="White" Opacity="0.9" FontSize="12" />
                 </StackPanel>
-                <Button Content="Logout" Style="{StaticResource SecondaryButton}"
-                        HorizontalAlignment="Right" VerticalAlignment="Center"
-                        Click="BtnLogout_Click" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <!-- Nama dan peran (atau "Tamu") -->
+                    <TextBlock x:Name="LblUser" Foreground="White" Opacity="0.95" FontSize="12"
+                               VerticalAlignment="Center" Margin="0,0,12,0" />
+                    <Button x:Name="BtnPanduan" Content="Panduan &amp; Kontak Darurat"
+                            Style="{StaticResource SecondaryButton}" FontSize="13"
+                            VerticalAlignment="Center" Margin="0,0,8,0" Click="BtnPanduan_Click" />
+                    <!-- Peringatan operasional (Admin & Operator) -->
+                    <Button x:Name="BtnAlert" Content="🔔 Peringatan" Style="{StaticResource SecondaryButton}"
+                            FontSize="13" VerticalAlignment="Center" Margin="0,0,8,0"
+                            AutomationProperties.Name="Peringatan operasional" Click="BtnAlert_Click" />
+                    <Button x:Name="BtnLogout" Content="Keluar" Style="{StaticResource SecondaryButton}"
+                            FontSize="13" VerticalAlignment="Center" Click="BtnLogout_Click" />
+                </StackPanel>
             </Grid>
         </Border>
 
         <!-- Isi -->
-        <Grid Grid.Row="1" Margin="20">
+        <Grid Grid.Row="1" Margin="16">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="310" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- Panel kiri: Cari + Filter + aksi -->
-            <Border Grid.Column="0" Background="{StaticResource PanelBg}" CornerRadius="10"
-                    Padding="18" Margin="0,0,16,0">
+            <!-- Panel kiri (bisa di-scroll, FE-07 / UX-01) -->
+            <Border Grid.Column="0" Background="{StaticResource PanelBg}" CornerRadius="10" Margin="0,0,16,0">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.12" />
                 </Border.Effect>
-                <StackPanel>
-                    <!-- Cari Lokasi (use case Select/Search Location) -->
-                    <TextBlock Text="Cari Lokasi" FontSize="16" FontWeight="Bold" Margin="0,0,0,8" />
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox x:Name="TxtSearch" Grid.Column="0" Padding="6" FontSize="13"
-                                 BorderBrush="#FFCCCCCC" BorderThickness="1"
-                                 KeyDown="TxtSearch_KeyDown" />
-                        <Button Grid.Column="1" Content="Cari" Style="{StaticResource PrimaryButton}"
-                                Margin="6,0,0,0" Padding="12,6" Click="BtnSearch_Click" />
-                    </Grid>
-                    <TextBlock Text="mis. Riau, Jambi, Kalimantan"
-                               Foreground="{StaticResource MutedText}" FontSize="11" Margin="0,4,0,0" />
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16">
+                    <StackPanel>
+                        <!-- Wilayah saya (Publik/Tamu, PUB-01) -->
+                        <StackPanel x:Name="PanelWilayahSaya" Margin="0,0,0,8">
+                            <TextBlock Text="Wilayah Saya" FontSize="16" FontWeight="Bold" Margin="0,0,0,6" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox x:Name="CmbWilayahSaya" Grid.Column="0" FontSize="13" Padding="6,4"
+                                          AutomationProperties.Name="Pilih wilayah saya" />
+                                <Button x:Name="BtnSimpanWilayah" Grid.Column="1" Content="Simpan"
+                                        Style="{StaticResource PrimaryButton}" FontSize="13" Padding="12,6"
+                                        Margin="6,0,0,0" Click="BtnSimpanWilayah_Click" />
+                            </Grid>
+                            <TextBlock x:Name="LblWilayahSayaInfo" Foreground="{StaticResource MutedText}"
+                                       FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <Separator Margin="0,12,0,4" />
+                        </StackPanel>
 
-                    <Separator Margin="0,16" />
+                        <!-- Cari lokasi (saran saat mengetik, UX-06) -->
+                        <TextBlock Text="Cari Lokasi" FontSize="16" FontWeight="Bold" Margin="0,4,0,6" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="CmbLokasi" Grid.Column="0" IsEditable="True" IsTextSearchEnabled="True"
+                                      FontSize="13" Padding="6,4" KeyDown="CmbLokasi_KeyDown"
+                                      AutomationProperties.Name="Cari lokasi" />
+                            <Button Grid.Column="1" Content="Cari" Style="{StaticResource PrimaryButton}"
+                                    FontSize="13" Margin="6,0,0,0" Padding="12,6" Click="BtnSearch_Click" />
+                        </Grid>
+                        <TextBlock Text="Ketik atau pilih area, mis. Riau, Jambi, Kalimantan Tengah"
+                                   Foreground="{StaticResource MutedText}" FontSize="12" TextWrapping="Wrap"
+                                   Margin="0,4,0,0" />
 
-                    <TextBlock Text="Filter Hotspot" FontSize="16" FontWeight="Bold" Margin="0,0,0,12" />
+                        <Separator Margin="0,14" />
 
-                    <TextBlock Text="Confidence minimum (%)" Margin="0,0,0,4" />
-                    <Slider x:Name="SldConfidence" Minimum="0" Maximum="100" Value="0"
-                            TickFrequency="10" IsSnapToTickEnabled="True"
-                            ValueChanged="SldConfidence_ValueChanged" />
-                    <TextBlock x:Name="LblConfidence" Text="0 %" Foreground="{StaticResource MutedText}"
-                               HorizontalAlignment="Right" />
+                        <!-- Filter -->
+                        <TextBlock Text="Filter Titik Panas" FontSize="16" FontWeight="Bold" Margin="0,0,0,10" />
 
-                    <TextBlock Text="FRP minimum (MW)" Margin="0,12,0,4" />
-                    <Slider x:Name="SldFrp" Minimum="0" Maximum="100" Value="0"
-                            TickFrequency="5" IsSnapToTickEnabled="True"
-                            ValueChanged="SldFrp_ValueChanged" />
-                    <TextBlock x:Name="LblFrp" Text="0 MW" Foreground="{StaticResource MutedText}"
-                               HorizontalAlignment="Right" />
+                        <TextBlock Text="Keyakinan deteksi minimum"
+                                   ToolTip="Seberapa yakin satelit bahwa titik ini benar sumber panas/api (kelas LAPAN: Rendah &lt; 30, Nominal 30–79, Tinggi ≥ 80)." />
+                        <Slider x:Name="SldConfidence" Minimum="0" Maximum="100" Value="0"
+                                TickFrequency="10" IsSnapToTickEnabled="True"
+                                AutomationProperties.Name="Keyakinan deteksi minimum"
+                                ValueChanged="SldConfidence_ValueChanged" />
+                        <TextBlock x:Name="LblConfidence" Text="0 %" Foreground="{StaticResource MutedText}"
+                                   FontSize="12" HorizontalAlignment="Right" />
 
-                    <Button Content="Terapkan Filter" Style="{StaticResource PrimaryButton}"
-                            Margin="0,18,0,0" Height="38" Click="BtnApplyFilter_Click" />
-                    <Button Content="Reset" Style="{StaticResource SecondaryButton}"
-                            Margin="0,8,0,0" Height="34" Click="BtnReset_Click" />
+                        <TextBlock Text="Intensitas api (FRP) minimum" Margin="0,10,0,0"
+                                   ToolTip="FRP (Fire Radiative Power) = daya pancar panas api dalam megawatt (MW). Makin besar, makin kuat apinya." />
+                        <Slider x:Name="SldFrp" Minimum="0" Maximum="100" Value="0"
+                                TickFrequency="5" IsSnapToTickEnabled="True"
+                                AutomationProperties.Name="Intensitas api minimum"
+                                ValueChanged="SldFrp_ValueChanged" />
+                        <TextBlock x:Name="LblFrp" Text="0 MW" Foreground="{StaticResource MutedText}"
+                                   FontSize="12" HorizontalAlignment="Right" />
 
-                    <Separator Margin="0,18" />
+                        <Button Content="Terapkan Filter" Style="{StaticResource PrimaryButton}"
+                                Margin="0,14,0,0" Height="38" Click="BtnApplyFilter_Click" />
+                        <Button Content="Reset" Style="{StaticResource SecondaryButton}"
+                                Margin="0,8,0,0" Height="34" Click="BtnReset_Click" />
 
-                    <Button Content="Lihat Detail" Style="{StaticResource PrimaryButton}"
-                            Height="38" Margin="0,0,0,8" Click="BtnDetail_Click" />
-                    <Button Content="Export Laporan" Style="{StaticResource SecondaryButton}"
-                            Height="38" Click="BtnExport_Click" />
-                    <Button Content="Muat Ulang Data" Style="{StaticResource SecondaryButton}"
-                            Height="34" Margin="0,8,0,0" Click="BtnReload_Click" />
-                </StackPanel>
+                        <!-- Data historis (Admin & Operator, OPS-03) -->
+                        <StackPanel x:Name="PanelHistoris">
+                            <Separator Margin="0,14" />
+                            <TextBlock Text="Data Historis" FontSize="16" FontWeight="Bold" Margin="0,0,0,8" />
+                            <TextBlock Text="Dari tanggal" FontSize="12" />
+                            <DatePicker x:Name="DpDari" Margin="0,2,0,6" AutomationProperties.Name="Dari tanggal" />
+                            <TextBlock Text="Sampai tanggal" FontSize="12" />
+                            <DatePicker x:Name="DpSampai" Margin="0,2,0,0" AutomationProperties.Name="Sampai tanggal" />
+                            <Button Content="Tampilkan Rentang" Style="{StaticResource PrimaryButton}"
+                                    Margin="0,10,0,0" Height="36" Click="BtnHistoris_Click" />
+                            <Button x:Name="BtnDataTerbaru" Content="Kembali ke Data Terbaru"
+                                    Style="{StaticResource SecondaryButton}" Margin="0,8,0,0" Height="34"
+                                    Click="BtnDataTerbaru_Click" />
+                        </StackPanel>
+
+                        <Separator Margin="0,14" />
+
+                        <Button Content="Lihat Detail" Style="{StaticResource PrimaryButton}"
+                                Height="38" Margin="0,0,0,8" Click="BtnDetail_Click" />
+                        <Button x:Name="BtnExport" Content="Ekspor Laporan" Style="{StaticResource SecondaryButton}"
+                                Height="38" Margin="0,0,0,8" Click="BtnExport_Click" />
+                        <Button x:Name="BtnReload" Content="Perbarui Data dari NASA FIRMS"
+                                Style="{StaticResource SecondaryButton}" Height="34" Click="BtnReload_Click" />
+                    </StackPanel>
+                </ScrollViewer>
             </Border>
 
-            <!-- Panel kanan: "peta" + daftar -->
+            <!-- Panel kanan: status, banner warga, peta, daftar/ringkasan -->
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="2*" />
                     <RowDefinition Height="3*" />
                 </Grid.RowDefinitions>
 
+                <!-- Bilah status di luar area peta (UX-08 / UX-17) -->
+                <Border x:Name="BarStatus" Grid.Row="0" CornerRadius="8" Padding="12,8" Margin="0,0,0,8"
+                        Background="{StaticResource PesanInfoBg}">
+                    <StackPanel>
+                        <TextBlock x:Name="LblStatusUtama" FontSize="13" TextWrapping="Wrap"
+                                   Text="Menyiapkan data..." AutomationProperties.LiveSetting="Polite" />
+                        <TextBlock x:Name="LblStatusDetail" FontSize="12" TextWrapping="Wrap"
+                                   Foreground="{StaticResource MutedText}" Margin="0,2,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Banner peringatan warga (Publik/Tamu, PUB-01) -->
+                <Border x:Name="BarWarga" Grid.Row="1" CornerRadius="8" Padding="12,10" Margin="0,0,0,8"
+                        Visibility="Collapsed">
+                    <TextBlock x:Name="LblWarga" FontSize="13" TextWrapping="Wrap"
+                               AutomationProperties.LiveSetting="Polite" />
+                </Border>
+
                 <!-- Peta -->
-                <Border Grid.Row="0" Background="#FFEAF2F8" CornerRadius="10"
+                <Border Grid.Row="2" Background="{StaticResource MapBg}" CornerRadius="10"
                         Margin="0,0,0,12" ClipToBounds="True">
                     <Grid>
-                        <!-- Peta interaktif (Leaflet + OpenStreetMap via WebView2) -->
+                        <!-- Peta interaktif (Leaflet via WebView2) -->
                         <wv2:WebView2 x:Name="MapWeb" />
 
                         <!-- Fallback: representasi kanvas bila WebView2 tak tersedia -->
                         <Grid x:Name="CanvasMapHost" Visibility="Collapsed">
                             <Canvas x:Name="GridCanvas" IsHitTestVisible="False" />
                             <Canvas x:Name="MapCanvas" SizeChanged="MapCanvas_SizeChanged" />
-                            <TextBlock Text="Peta representasi (offline) — klik titik untuk detail"
-                                       Foreground="{StaticResource MutedText}" FontSize="11"
+                            <TextBlock Text="Peta sederhana (offline) — klik titik untuk memilih, klik lagi untuk detail"
+                                       Foreground="{StaticResource MutedText}" FontSize="12"
                                        Margin="10,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" />
                             <Border VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,10,10"
-                                    Background="#CCFFFFFF" CornerRadius="6" Padding="8,6">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,1">
-                                        <Ellipse Width="10" Height="10" Fill="#C81E1E" VerticalAlignment="Center" />
-                                        <TextBlock Text="Tinggi (≥80%)" FontSize="10" Margin="6,0,0,0" />
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,1">
-                                        <Ellipse Width="10" Height="10" Fill="#E68C00" VerticalAlignment="Center" />
-                                        <TextBlock Text="Sedang (50–79%)" FontSize="10" Margin="6,0,0,0" />
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,1">
-                                        <Ellipse Width="10" Height="10" Fill="#E6C800" VerticalAlignment="Center" />
-                                        <TextBlock Text="Rendah (&lt;50%)" FontSize="10" Margin="6,0,0,0" />
-                                    </StackPanel>
-                                </StackPanel>
+                                    Background="{StaticResource OverlayBg}" CornerRadius="6" Padding="8,6">
+                                <StackPanel x:Name="LegendaKanvas" />
                             </Border>
                         </Grid>
 
-                        <!-- Loading overlay -->
-                        <Border x:Name="LoadingOverlay" Background="#CCFFFFFF" Visibility="Collapsed">
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock x:Name="LblMapStatus" Text="Memuat data hotspot..."
-                                           Foreground="{StaticResource FireRed}" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center" />
-                            </StackPanel>
+                        <!-- Loading overlay (terlihat di mode kanvas; di mode peta status ada di bilah atas) -->
+                        <Border x:Name="LoadingOverlay" Background="{StaticResource OverlayBg}" Visibility="Collapsed">
+                            <TextBlock x:Name="LblMapStatus" Text="Memuat data titik panas..."
+                                       Foreground="{StaticResource FireRed}" FontWeight="SemiBold" FontSize="13"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                     </Grid>
                 </Border>
 
-                <!-- Daftar hotspot -->
-                <Border Grid.Row="1" Background="{StaticResource PanelBg}" CornerRadius="10" Padding="4">
+                <!-- Daftar & ringkasan -->
+                <Border Grid.Row="3" Background="{StaticResource PanelBg}" CornerRadius="10" Padding="4">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="12" ShadowDepth="1" Opacity="0.12" />
                     </Border.Effect>
-                    <DockPanel>
-                        <Grid DockPanel.Dock="Top" Margin="12,10,12,6">
-                            <TextBlock Text="Daftar Hotspot" FontSize="15" FontWeight="Bold" />
-                            <TextBlock x:Name="LblCount" Text="" Foreground="{StaticResource MutedText}"
-                                       HorizontalAlignment="Right" />
-                        </Grid>
-                        <DataGrid x:Name="GridHotspot" AutoGenerateColumns="False" IsReadOnly="True"
-                                  HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                  BorderThickness="0" RowHeaderWidth="0"
-                                  SelectionMode="Single" Margin="4,0,4,4"
-                                  SelectionChanged="GridHotspot_SelectionChanged"
-                                  MouseDoubleClick="GridHotspot_MouseDoubleClick">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Koordinat" Binding="{Binding Koordinat}" Width="*" />
-                                <DataGridTextColumn Header="Confidence" Binding="{Binding ConfidenceText}" Width="Auto" />
-                                <DataGridTextColumn Header="Tingkat" Binding="{Binding Tingkat}" Width="Auto" />
-                                <DataGridTextColumn Header="FRP" Binding="{Binding FrpText}" Width="Auto" />
-                                <DataGridTextColumn Header="Brightness" Binding="{Binding BrightnessText}" Width="Auto" />
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </DockPanel>
+                    <TabControl BorderThickness="0" Background="Transparent">
+                        <TabItem>
+                            <TabItem.Header>
+                                <TextBlock x:Name="LblTabDaftar" Text="Daftar Titik Panas" FontSize="13" />
+                            </TabItem.Header>
+                            <DockPanel>
+                                <TextBlock x:Name="LblCount" DockPanel.Dock="Top" Foreground="{StaticResource MutedText}"
+                                           FontSize="12" Margin="8,6,8,4" />
+                                <DataGrid x:Name="GridHotspot" AutoGenerateColumns="False" IsReadOnly="True"
+                                          HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                                          BorderThickness="0" RowHeaderWidth="0" FontSize="13"
+                                          SelectionMode="Single" Margin="4,0,4,4"
+                                          AutomationProperties.Name="Daftar titik panas"
+                                          SelectionChanged="GridHotspot_SelectionChanged"
+                                          MouseDoubleClick="GridHotspot_MouseDoubleClick"
+                                          PreviewKeyDown="GridHotspot_PreviewKeyDown">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Binding="{Binding WaktuText}" SortMemberPath="Waktu" Width="Auto">
+                                            <DataGridTextColumn.Header>
+                                                <TextBlock Text="Waktu (lokal)" ToolTip="Waktu satelit mendeteksi titik ini, dalam waktu lokal komputer." />
+                                            </DataGridTextColumn.Header>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Wilayah" Binding="{Binding Wilayah}" Width="Auto" />
+                                        <DataGridTextColumn Header="Koordinat" Binding="{Binding Koordinat}" Width="*" />
+                                        <DataGridTextColumn Binding="{Binding ConfidenceText}" SortMemberPath="Confidence" Width="Auto">
+                                            <DataGridTextColumn.Header>
+                                                <TextBlock Text="Keyakinan" ToolTip="Keyakinan deteksi satelit (0–100%)." />
+                                            </DataGridTextColumn.Header>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Header="Tingkat" Binding="{Binding Tingkat}" SortMemberPath="Confidence" Width="Auto" />
+                                        <DataGridTextColumn Binding="{Binding FrpText}" SortMemberPath="Frp" Width="Auto">
+                                            <DataGridTextColumn.Header>
+                                                <TextBlock Text="Intensitas (FRP)" ToolTip="Daya pancar panas api dalam megawatt (MW)." />
+                                            </DataGridTextColumn.Header>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Binding="{Binding BrightnessText}" SortMemberPath="Brightness" Width="Auto">
+                                            <DataGridTextColumn.Header>
+                                                <TextBlock Text="Kecerahan" ToolTip="Suhu kecerahan piksel yang diukur satelit (Kelvin)." />
+                                            </DataGridTextColumn.Header>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DockPanel>
+                        </TabItem>
+                        <TabItem>
+                            <TabItem.Header>
+                                <TextBlock Text="Ringkasan per Wilayah" FontSize="13" />
+                            </TabItem.Header>
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Foreground="{StaticResource MutedText}" FontSize="12"
+                                           TextWrapping="Wrap" Margin="8,6,8,4"
+                                           Text="Jumlah titik panas per area pantau dari data yang sedang ditampilkan. Area berupa perkiraan (±3° dari pusat area), bukan batas administratif." />
+                                <DataGrid x:Name="GridRingkasan" AutoGenerateColumns="False" IsReadOnly="True"
+                                          HeadersVisibility="Column" GridLinesVisibility="Horizontal"
+                                          BorderThickness="0" RowHeaderWidth="0" FontSize="13" Margin="4,0,4,4"
+                                          AutomationProperties.Name="Ringkasan risiko per wilayah">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Wilayah" Binding="{Binding Wilayah}" Width="*" />
+                                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="Auto" />
+                                        <DataGridTextColumn Header="Jumlah titik" Binding="{Binding Jumlah}" Width="Auto" />
+                                        <DataGridTextColumn Header="Tinggi" Binding="{Binding Tinggi}" Width="Auto" />
+                                        <DataGridTextColumn Header="Nominal" Binding="{Binding Nominal}" Width="Auto" />
+                                        <DataGridTextColumn Header="Rendah" Binding="{Binding Rendah}" Width="Auto" />
+                                        <DataGridTextColumn Header="FRP maks" Binding="{Binding FrpMaksText}" SortMemberPath="FrpMaks" Width="Auto" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </DockPanel>
+                        </TabItem>
+                    </TabControl>
                 </Border>
             </Grid>
         </Grid>

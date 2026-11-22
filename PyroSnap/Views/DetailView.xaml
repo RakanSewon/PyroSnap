@@ -4,8 +4,8 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
-      d:DesignHeight="640" d:DesignWidth="960"
-      Title="Detail Hotspot"
+      d:DesignHeight="700" d:DesignWidth="1080"
+      Title="Detail Titik Panas"
       Background="{StaticResource PageBg}">
 
     <Grid>
@@ -15,51 +15,119 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Style="{StaticResource PageHeader}">
-            <TextBlock Text="Detail Hotspot" FontSize="20" FontWeight="Bold" Foreground="White" />
+            <Grid>
+                <TextBlock Text="Detail Titik Panas" FontSize="20" FontWeight="Bold" Foreground="White"
+                           VerticalAlignment="Center" />
+                <Button Content="Kembali" Style="{StaticResource SecondaryButton}" FontSize="13"
+                        HorizontalAlignment="Right" IsCancel="True" Click="BtnBack_Click" />
+            </Grid>
         </Border>
 
-        <Border Grid.Row="1" Width="460" VerticalAlignment="Center" HorizontalAlignment="Center"
-                Background="{StaticResource PanelBg}" CornerRadius="12" Padding="28">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.15" />
-            </Border.Effect>
-            <StackPanel>
-                <TextBlock x:Name="LblTingkat" Text="Tingkat: -" FontSize="18" FontWeight="Bold"
-                           Margin="0,0,0,16" />
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Width="620" Margin="0,20,0,20">
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="160" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="36" />
-                        <RowDefinition Height="36" />
-                        <RowDefinition Height="36" />
-                        <RowDefinition Height="36" />
-                        <RowDefinition Height="36" />
-                    </Grid.RowDefinitions>
+                <!-- Ringkasan & data titik -->
+                <Border Background="{StaticResource PanelBg}" CornerRadius="12" Padding="24">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.15" />
+                    </Border.Effect>
+                    <StackPanel>
+                        <!-- UX-04: keyakinan deteksi, bukan "tingkat keparahan" -->
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse x:Name="DotTingkat" Width="16" Height="16" VerticalAlignment="Center" />
+                            <TextBlock x:Name="LblTingkat" Text="Keyakinan deteksi: -" FontSize="18" FontWeight="Bold"
+                                       Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock x:Name="LblTingkatPenjelasan" Foreground="{StaticResource MutedText}" FontSize="12"
+                                   TextWrapping="Wrap" Margin="26,4,0,16" />
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Koordinat" FontWeight="SemiBold" />
-                    <TextBlock Grid.Row="0" Grid.Column="1" x:Name="LblKoordinat" Text="-" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Confidence" FontWeight="SemiBold" />
-                    <TextBlock Grid.Row="1" Grid.Column="1" x:Name="LblConfidence" Text="-" />
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Wilayah" FontWeight="SemiBold" Margin="0,4" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="LblWilayah" Text="-" Margin="0,4" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Brightness" FontWeight="SemiBold" />
-                    <TextBlock Grid.Row="2" Grid.Column="1" x:Name="LblBrightness" Text="-" />
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Koordinat" FontWeight="SemiBold" Margin="0,4" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="LblKoordinat" Text="-" Margin="0,4" />
 
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="FRP" FontWeight="SemiBold" />
-                    <TextBlock Grid.Row="3" Grid.Column="1" x:Name="LblFrp" Text="-" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Waktu deteksi" FontWeight="SemiBold" Margin="0,4" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="LblWaktu" Text="-" Margin="0,4" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Waktu Akuisisi" FontWeight="SemiBold" />
-                    <TextBlock Grid.Row="4" Grid.Column="1" x:Name="LblWaktu" Text="-" />
-                </Grid>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Keyakinan deteksi" FontWeight="SemiBold" Margin="0,4"
+                                       ToolTip="Seberapa yakin satelit bahwa titik ini benar sumber panas/api." />
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="LblConfidence" Text="-" Margin="0,4" />
 
-                <Button Content="Kembali" Style="{StaticResource PrimaryButton}"
-                        Margin="0,24,0,0" Height="40" HorizontalAlignment="Left" Width="140"
-                        Click="BtnBack_Click" />
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Intensitas api (FRP)" FontWeight="SemiBold" Margin="0,4"
+                                       ToolTip="Fire Radiative Power: daya pancar panas api dalam megawatt (MW)." />
+                            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="LblFrp" Text="-" Margin="0,4" TextWrapping="Wrap" />
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Kecerahan" FontWeight="SemiBold" Margin="0,4"
+                                       ToolTip="Suhu kecerahan piksel yang diukur satelit (Kelvin)." />
+                            <TextBlock Grid.Row="5" Grid.Column="1" x:Name="LblBrightness" Text="-" Margin="0,4" />
+                        </Grid>
+
+                        <TextBlock Foreground="{StaticResource MutedText}" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,0"
+                                   Text="Titik panas adalah deteksi satelit dan belum tentu kebakaran. Status hasil cek lapangan ditampilkan di bawah bila sudah ada." />
+
+                        <!-- Navigasi ke titik (Admin & Operator, OPS-02) -->
+                        <StackPanel x:Name="PanelNavigasi" Orientation="Horizontal" Margin="0,16,0,0">
+                            <Button Content="Salin Koordinat" Style="{StaticResource SecondaryButton}" FontSize="13"
+                                    Margin="0,0,8,0" Click="BtnSalinKoordinat_Click" />
+                            <Button Content="Buka Arah di Peta Daring" Style="{StaticResource PrimaryButton}" FontSize="13"
+                                    Click="BtnBukaArah_Click" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Verifikasi lapangan (OPS-01) -->
+                <Border Background="{StaticResource PanelBg}" CornerRadius="12" Padding="24" Margin="0,16,0,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.15" />
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="Verifikasi Lapangan" FontSize="16" FontWeight="Bold" />
+                        <TextBlock x:Name="LblVerifikasiStatus" Text="Memuat status..." TextWrapping="Wrap" Margin="0,6,0,0" />
+                        <ItemsControl x:Name="ListRiwayat" Margin="0,6,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" FontSize="12" Foreground="{StaticResource MutedText}"
+                                               TextWrapping="Wrap" Margin="0,2" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Form isi verifikasi (Admin & Operator) -->
+                        <StackPanel x:Name="PanelFormVerifikasi" Margin="0,14,0,0">
+                            <TextBlock Text="Catat hasil cek lapangan" FontWeight="SemiBold" Margin="0,0,0,6" />
+                            <RadioButton x:Name="RbApiAktif" Content="Api aktif" GroupName="StatusVerifikasi" Margin="0,2" />
+                            <RadioButton x:Name="RbSudahPadam" Content="Sudah padam" GroupName="StatusVerifikasi" Margin="0,2" />
+                            <RadioButton x:Name="RbBukanKebakaran" Content="Bukan kebakaran" GroupName="StatusVerifikasi" Margin="0,2" />
+                            <TextBlock Text="Catatan (opsional, maks. 500 karakter)" FontSize="12" Margin="0,8,0,2" />
+                            <TextBox x:Name="TxtCatatan" Height="64" TextWrapping="Wrap" AcceptsReturn="True" MaxLength="500"
+                                     VerticalScrollBarVisibility="Auto" BorderBrush="{StaticResource InputBorder}"
+                                     AutomationProperties.Name="Catatan verifikasi" />
+                            <Button x:Name="BtnSimpanVerifikasi" Content="Simpan Verifikasi" Style="{StaticResource PrimaryButton}"
+                                    HorizontalAlignment="Left" Margin="0,10,0,0" Click="BtnSimpanVerifikasi_Click" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Bilah pesan (FE-05) -->
+                <Border x:Name="BarPesan" CornerRadius="8" Padding="12,8" Margin="0,12,0,0" Visibility="Collapsed">
+                    <TextBlock x:Name="LblPesan" TextWrapping="Wrap" FontSize="13" AutomationProperties.LiveSetting="Polite" />
+                </Border>
             </StackPanel>
-        </Border>
+        </ScrollViewer>
     </Grid>
 </Page>

@@ -5,13 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PyroSnap"
         mc:Ignorable="d"
-        Title="PyroSnap" Height="640" Width="960"
+        Title="PyroSnap — Pemantauan Titik Panas" Height="700" Width="1080"
+        MinWidth="900" MinHeight="600"
         WindowStartupLocation="CenterScreen"
-        Background="#FFF7F3F0">
+        Background="{StaticResource PageBg}">
     <!--
         MainWindow berperan sebagai host navigasi (shell).
         Setiap "form"/tampilan dimuat ke dalam Frame di bawah ini.
-        Perpindahan antar tampilan dilakukan lewat MainWindow.Navigate(...).
+        Perpindahan antar tampilan dilakukan lewat Views/Navigasi.cs.
+        FE-07: ukuran minimum mencegah panel terpotong.
     -->
     <Frame x:Name="MainFrame"
            NavigationUIVisibility="Hidden"

@@ -1,10 +1,11 @@
 using System;
+using PyroSnap.Services;
 
 namespace PyroSnap.Views
 {
     /// <summary>
-    /// Pembungkus tampilan (presentation) untuk satu Hotspot agar mudah
-    /// ditampilkan di DataGrid. Tidak mengubah model Hotspot milik tim.
+    /// Pembungkus tampilan satu Hotspot untuk DataGrid. Properti teks untuk ditampilkan,
+    /// properti angka/waktu untuk pengurutan (UX-05: urut numerik, bukan teks).
     /// </summary>
     public class HotspotRow
     {
@@ -13,21 +14,22 @@ namespace PyroSnap.Views
         public HotspotRow(Hotspot h)
         {
             Source = h;
+            Wilayah = WilayahPantau.Temukan(h)?.NamaLokasi ?? "Di luar area pantau";
         }
 
+        // Nilai untuk pengurutan (SortMemberPath)
+        public int Confidence => Source.Confidence;
+        public double Frp => Source.Frp;
+        public double Brightness => Source.Brightness;
+        public DateTime Waktu => Source.WaktuAkuisisi;
+
+        // Teks tampilan
+        public string WaktuText => Source.WaktuAkuisisi.ToLocalTime().ToString("dd MMM HH:mm");
         public string Koordinat => $"{Source.Latitude:0.0000}, {Source.Longitude:0.0000}";
         public string ConfidenceText => Source.Confidence + " %";
-        public string FrpText => Source.Frp + " MW";
-        public string BrightnessText => Source.Brightness + " K";
-
-        public string Tingkat
-        {
-            get
-            {
-                if (Source.Confidence >= 80) return "Tinggi";
-                if (Source.Confidence >= 50) return "Sedang";
-                return "Rendah";
-            }
-        }
+        public string FrpText => $"{Source.Frp:0.##} MW";
+        public string BrightnessText => $"{Source.Brightness:0.#} K";
+        public string Tingkat => TingkatHotspot.Nama(TingkatHotspot.Dari(Source.Confidence));
+        public string Wilayah { get; }
     }
 }

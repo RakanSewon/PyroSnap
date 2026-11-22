@@ -13,6 +13,25 @@
             <SolidColorBrush x:Key="PageBg" Color="#FFF7F3F0" />
             <SolidColorBrush x:Key="MutedText" Color="#FF6D6D6D" />
 
+            <!-- FE-06: warna yang sebelumnya ditulis langsung di halaman -->
+            <SolidColorBrush x:Key="InputBorder" Color="#FFCCCCCC" />
+            <SolidColorBrush x:Key="MapBg" Color="#FFEAF2F8" />
+            <SolidColorBrush x:Key="OverlayBg" Color="#CCFFFFFF" />
+
+            <!-- Warna tingkat keyakinan deteksi (kelas LAPAN). Kontras kuning/oranye
+                 masih rendah; diganti saat sistem desain baru (DS-02). -->
+            <SolidColorBrush x:Key="TingkatTinggi" Color="#FFC81E1E" />
+            <SolidColorBrush x:Key="TingkatNominal" Color="#FFE68C00" />
+            <SolidColorBrush x:Key="TingkatRendah" Color="#FFE6C800" />
+
+            <!-- Bilah pesan (FE-05): latar dan teks untuk info / peringatan / error -->
+            <SolidColorBrush x:Key="PesanInfoBg" Color="#FFEEF3F8" />
+            <SolidColorBrush x:Key="PesanInfoFg" Color="#FF2B4A66" />
+            <SolidColorBrush x:Key="PesanPeringatanBg" Color="#FFFFF3E0" />
+            <SolidColorBrush x:Key="PesanPeringatanFg" Color="#FF7A3E00" />
+            <SolidColorBrush x:Key="PesanErrorBg" Color="#FFFDECEA" />
+            <SolidColorBrush x:Key="PesanErrorFg" Color="#FFB71C1C" />
+
             <!-- Tombol utama (aksi penting) -->
             <Style x:Key="PrimaryButton" TargetType="Button">
                 <Setter Property="Background" Value="{StaticResource FireRed}" />
@@ -36,6 +55,10 @@
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
                                     <Setter TargetName="b" Property="Opacity" Value="0.75" />
+                                </Trigger>
+                                <!-- Tombol nonaktif terlihat jelas (mis. saat memuat) -->
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="b" Property="Opacity" Value="0.45" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -62,6 +85,9 @@
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="b" Property="Background" Value="#FFE0D8D2" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="b" Property="Opacity" Value="0.45" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>

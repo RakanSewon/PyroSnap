@@ -13,6 +13,15 @@ namespace PyroSnap
         public MainWindow()
         {
             InitializeComponent();
+
+            // Hapus riwayat navigasi Frame setiap pindah halaman: halaman lama
+            // (termasuk dashboard setelah logout) tidak bisa dibuka lagi lewat
+            // tombol Back/Alt+←, dan instance-nya tidak menumpuk di memori.
+            MainFrame.Navigated += (_, _) =>
+            {
+                while (MainFrame.CanGoBack) MainFrame.RemoveBackEntry();
+            };
+
             // Tampilan pertama: Login.
             Navigate(new LoginView());
         }
