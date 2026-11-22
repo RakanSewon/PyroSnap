@@ -27,6 +27,7 @@ Berkas di `database/` (dijalankan berurutan, masing-masing **sekali**, sebagai p
 | `005_source_unique.sql` | SCH-06 nama sumber unik |
 | `006_alert_unique.sql` | SCH-08 alert unik per (hotspot, penerima) |
 | `007_seed_data_source.sql` | Seed sumber "NASA FIRMS (VIIRS_NOAA20_NRT)", idempoten |
+| `010_fungsi_akun.sql` | Login dan daftar lewat fungsi database (`masuk_akun`, `daftar_publik`); **wajib** untuk versi aplikasi terbaru |
 | `008_peran_publik.sql` | Analis → Admin; peran Admin/Operator/Publik (K9/K10) |
 | `009_hotspot_verifikasi.sql` | Tabel verifikasi lapangan + hak user aplikasi (OPS-01) |
 | `migrate.sh` | Menjalankan berkas bernomor mulai nomor tertentu, berhenti di error pertama |

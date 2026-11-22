@@ -13,6 +13,8 @@ namespace PyroSnap.Services
         public const int PasswordMin = 8;
         public const int PasswordMaks = 72;   // batas input BCrypt (byte)
         private static readonly Regex PolaUsername = new("^[A-Za-z0-9_.]{3,30}$");
+        private const string PesanBelumMigrasi =
+            "Database belum diperbarui. Jalankan migrasi database/010_fungsi_akun.sql.";
 
         /// <summary>
         /// Validasi data daftar mandiri; null bila valid, selain itu pesan untuk pengguna.
@@ -34,7 +36,7 @@ namespace PyroSnap.Services
         /// Daftar mandiri warga (ROLE-04, K10): akun baru selalu berperan Publik.
         /// Melempar <see cref="ArgumentException"/> bila data tidak valid dan
         /// <see cref="InvalidOperationException"/> bila username sudah dipakai atau database
-        /// belum dimigrasi (008).
+        /// belum dimigrasi (010).
         /// </summary>
         public static async Task<User> DaftarPublikAsync(string username, string password, string konfirmasi)
         {
@@ -49,56 +51,67 @@ namespace PyroSnap.Services
             string? salah = ValidasiDaftar(username, password, konfirmasi);
             if (salah != null) throw new ArgumentException(salah);
 
-            // BCrypt sengaja lambat; jangan di thread UI.
-            string hash = await Task.Run(() => BCrypt.Net.BCrypt.HashPassword(password, 11));
-
-            await using var cmd = new NpgsqlCommand(
-                "INSERT INTO users (username, password_hash, role) VALUES (@username, @hash, 'Publik') " +
-                "RETURNING user_id", conn);
+            // Hash dibuat di database; user aplikasi tidak punya akses ke kolom password_hash.
+            await using var cmd = new NpgsqlCommand("SELECT daftar_publik(@username, @password)", conn);
             cmd.Parameters.AddWithValue("username", username);
-            cmd.Parameters.AddWithValue("hash", hash);
+            cmd.Parameters.AddWithValue("password", password);
 
             try
             {
                 int id = (int)(await cmd.ExecuteScalarAsync())!;
-                return new User
+                var user = new User
                 {
                     UserId = id.ToString(CultureInfo.InvariantCulture),
                     Username = username,
-                    PasswordHash = hash,
                     Role = "Publik"
                 };
+                user.TandaiLoginTerverifikasi();
+                return user;
             }
             catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.UniqueViolation)
             {
                 throw new InvalidOperationException("Username sudah dipakai. Pilih username lain.");
             }
-            catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.CheckViolation)
+            catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.InvalidParameterValue)
             {
-                throw new InvalidOperationException(
-                    "Database belum mendukung akun Publik. Jalankan migrasi database/008_peran_publik.sql.");
+                throw new ArgumentException(e.MessageText);
+            }
+            catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.UndefinedFunction)
+            {
+                throw new InvalidOperationException(PesanBelumMigrasi);
             }
         }
 
-        /// <summary>Cari akun berdasarkan username; null bila tidak ada.</summary>
-        public static async Task<User?> FindByUsernameAsync(string username)
+        /// <summary>
+        /// Verifikasi login di database (fungsi masuk_akun). Null bila username atau password salah;
+        /// keduanya sengaja tidak dibedakan (ACC-03/04).
+        /// </summary>
+        public static async Task<User?> MasukAsync(string username, string password)
         {
             await using var conn = await DatabaseConnection.OpenAsync();
             await using var cmd = new NpgsqlCommand(
-                "SELECT user_id, username, password_hash, role FROM users WHERE username = @username",
-                conn);
+                "SELECT user_id, username, role FROM masuk_akun(@username, @password)", conn);
             cmd.Parameters.AddWithValue("username", username);
+            cmd.Parameters.AddWithValue("password", password);
 
-            await using var reader = await cmd.ExecuteReaderAsync();
-            if (!await reader.ReadAsync()) return null;
-
-            return new User
+            try
             {
-                UserId = reader.GetInt32(0).ToString(CultureInfo.InvariantCulture),
-                Username = reader.GetString(1),
-                PasswordHash = reader.GetString(2),
-                Role = reader.GetString(3)
-            };
+                await using var reader = await cmd.ExecuteReaderAsync();
+                if (!await reader.ReadAsync()) return null;
+
+                var user = new User
+                {
+                    UserId = reader.GetInt32(0).ToString(CultureInfo.InvariantCulture),
+                    Username = reader.GetString(1),
+                    Role = reader.GetString(2)
+                };
+                user.TandaiLoginTerverifikasi();
+                return user;
+            }
+            catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.UndefinedFunction)
+            {
+                throw new InvalidOperationException(PesanBelumMigrasi);
+            }
         }
     }
 }

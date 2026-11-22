@@ -88,6 +88,8 @@ Pilihan bentuk kemasan (diputuskan tim):
 | B. Installer | Inno Setup atau MSIX | Lebih rapi untuk pengguna awam; lebih banyak pekerjaan |
 
 Pekerjaan:
+> **Database online (2026-11-23):** Supabase sudah disiapkan agar tester cukup memasang `.exe`; kredensial dan risikonya di `docs/database/supabase.md`. Paket hanya boleh memuat koneksi `pyrosnap_app`, tidak pernah `SUPABASE_ADMIN_DB`.
+
 - [ ] **MVP-19** — Pilih opsi kemasan (usulan: A dulu, B bila waktu cukup).
 - [ ] **MVP-20** — Buat `.exe` terbit (Release, win-x64) dan uji di komputer Windows **bersih** (tanpa SDK, tanpa Visual Studio).
 - [ ] **MVP-21** — Buat `.env.example` (tanpa nilai rahasia) dan cara pembuatan `.env` yang mudah (mis. skrip yang menanyakan nilai, atau berkas contoh yang tinggal diisi).

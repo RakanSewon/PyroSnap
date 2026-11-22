@@ -35,6 +35,12 @@ public class User
         return sudahLogin;
     }
 
+    /// <summary>Password sudah diverifikasi database (fungsi masuk_akun / daftar_publik).</summary>
+    internal void TandaiLoginTerverifikasi()
+    {
+        sudahLogin = true;
+    }
+
     public void Logout()
     {
         sudahLogin = false;

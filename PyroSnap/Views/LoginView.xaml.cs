@@ -9,7 +9,7 @@ namespace PyroSnap.Views
 {
     /// <summary>
     /// Tampilan Login (Lab 7.1 versi WPF).
-    /// Mencari akun di tabel users lalu memverifikasi password lewat User.Login().
+    /// Memverifikasi username dan password lewat fungsi database masuk_akun.
     /// Setelah berhasil, user aktif disimpan di AppSession dan berpindah ke DashboardView.
     /// </summary>
     public partial class LoginView : Page
@@ -53,12 +53,10 @@ namespace PyroSnap.Views
 
             try
             {
-                User? user = await UserRepository.FindByUsernameAsync(username);
+                // Password diverifikasi di database; hash tidak pernah dikirim ke aplikasi.
+                User? user = await UserRepository.MasukAsync(username, password);
 
-                // Verifikasi BCrypt sengaja lambat; jalankan di luar thread UI.
-                bool berhasil = user != null && await Task.Run(() => user.Login(username, password));
-
-                if (!berhasil)
+                if (user == null)
                 {
                     // Pesan sama untuk username tak dikenal dan password salah (ACC-03/04).
                     TampilkanError("Username atau password salah.");
