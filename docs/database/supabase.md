@@ -18,6 +18,8 @@ Aplikasi hanya membaca `PYROSNAP_DB`. Agar memakai Supabase, isi `PYROSNAP_DB` d
 2. `database/supabase/akses-aplikasi.sql`: mencabut akses `anon`/`authenticated` (sebelumnya otomatis mendapat 126 hak pada tabel kita) dan memberi hak minimum ke `pyrosnap_app`.
 3. Akun uji dari `database/seed-local.sql`: `admin_uji`, `operator_uji`, `publik_uji`.
 4. Data API dimatikan saat proyek dibuat. **Jangan diaktifkan**; aplikasi tidak memakainya.
+5. Password ketiga akun uji diganti 2026-11-23 (nilai hanya ada di `database/seed-local.sql` yang di-gitignore). Database lokal lain yang pernah di-seed tetap memakai password lamanya.
+6. Titik panas awal diisi dari NASA FIRMS 2026-11-23 lewat alur sinkron aplikasi. Key FIRMS **tidak** ikut paket `.exe`, jadi pembaruan data dilakukan dari komputer tim yang punya key.
 
 ## 3. Hak `pyrosnap_app`
 
