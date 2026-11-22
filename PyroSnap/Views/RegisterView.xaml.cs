@@ -39,14 +39,6 @@ namespace PyroSnap.Views
             {
                 User user = await UserRepository.DaftarPublikAsync(username, password, konfirmasi);
 
-                // Tandai sesi login (verifikasi BCrypt di luar thread UI).
-                bool masuk = await Task.Run(() => user.Login(username, password));
-                if (!masuk)
-                {
-                    PesanUi.Tampilkan(BarPesan, LblPesan, "Akun dibuat. Silakan masuk dari halaman Masuk.", JenisPesan.Info);
-                    return;
-                }
-
                 AppSession.Bersihkan();
                 AppSession.CurrentUser = user;
                 Navigasi.Ke(this, new DashboardView());

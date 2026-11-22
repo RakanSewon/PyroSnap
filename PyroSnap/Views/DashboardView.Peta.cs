@@ -30,6 +30,15 @@ namespace PyroSnap.Views
             {
                 // DS-08: latar WebView sama dengan latar peta tema (tanpa kilatan putih di tema gelap).
                 MapWeb.DefaultBackgroundColor = WarnaGambar(Tema.Warna("MapBg"));
+
+                // Data browser peta disimpan di AppData, bukan di samping .exe: folder aplikasi
+                // bisa saja tidak boleh ditulisi (mis. Program Files atau folder hasil unduhan).
+                MapWeb.CreationProperties = new Microsoft.Web.WebView2.Wpf.CoreWebView2CreationProperties
+                {
+                    UserDataFolder = System.IO.Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "PyroSnap", "WebView2")
+                };
                 await MapWeb.EnsureCoreWebView2Async(null);
                 MapWeb.CoreWebView2.WebMessageReceived += Web_MessageReceived;
 

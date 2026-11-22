@@ -6,6 +6,9 @@ obj/
 # Kredensial lokal
 .env
 
+# Paket aplikasi untuk tester (berisi koneksi database; jangan di-commit)
+dist/
+
 # Seed lokal berisi hash akun uji (jangan di-commit)
 database/seed-local.sql
 
