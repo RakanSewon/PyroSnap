@@ -90,8 +90,8 @@ Pilihan bentuk kemasan (diputuskan tim):
 Pekerjaan:
 > **Database online (2026-11-23):** Supabase sudah disiapkan agar tester cukup memasang `.exe`; kredensial dan risikonya di `docs/database/supabase.md`. Paket hanya boleh memuat koneksi `pyrosnap_app`, tidak pernah `SUPABASE_ADMIN_DB`.
 
-- [ ] **MVP-19** — Pilih opsi kemasan (usulan: A dulu, B bila waktu cukup).
-- [ ] **MVP-20** — Buat `.exe` terbit (Release, win-x64) dan uji di komputer Windows **bersih** (tanpa SDK, tanpa Visual Studio).
+- [x] **MVP-19** — Opsi A: `dotnet publish` win-x64 self-contained, dikemas ZIP + `BACA-DULU.txt`; database online Supabase.
+- [ ] **MVP-20** — `.exe` Release win-x64 sudah dibuat dan lulus tes awal di Windows tim (2026-11-23). **Sisa:** uji di komputer Windows **bersih** (tanpa SDK, tanpa Visual Studio), karena komputer tim sudah memasang .NET SDK.
 - [ ] **MVP-21** — Buat `.env.example` (tanpa nilai rahasia) dan cara pembuatan `.env` yang mudah (mis. skrip yang menanyakan nilai, atau berkas contoh yang tinggal diisi).
 - [ ] **MVP-22** — Skrip database untuk Windows: pembuatan database + semua migrasi (`000`–`009`) + seed sumber data, tanpa bash; opsional satu berkas SQL gabungan.
 - [ ] **MVP-23** — Cara membuat akun Admin pertama yang sederhana (skrip, tanpa menulis password di berkas yang di-commit).
