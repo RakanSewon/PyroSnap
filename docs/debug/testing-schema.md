@@ -105,6 +105,7 @@ Skenario akun ada di `docs/database/acount-testing.md` (ACC-xx).
 | WEB-02…08 | 2026-11-23 | Claude | Linux, program uji sementara (RestSharp 112.1.0, culture id-ID) + internet | Lulus (25/25) | Angka URL bertitik; kategori AQI tiap batas; arah angin & asap; JSON lengkap/sebagian/null/error/bukan JSON/Unable to geocode; host mati, HTTP 400, timeout 10 detik; panggilan asli Open-Meteo (udara, cuaca) dan Nominatim; cache 0 ms; jeda Nominatim ≥ 1,1 detik. Tampilan di Windows belum (worksheet bagian F) |
 | Uji menyeluruh pra-Windows | 2026-11-23 | Claude | Linux: PostgreSQL lokal (`pg_temp`), isi DLL, tinjauan kode, build | 11 bug ditemukan & diperbaiki (BUG-20…30) | Migrasi 001–009 + seed 6/6 (BUG-20 terbukti lalu lulus); 12 BAML termasuk 3 tema ada di DLL; pemeriksa resource + 68 kontras lulus; peta 3 mode 9/9; build 0 error. Tampilan & WebView2 belum dicek di Windows — lihat `bug-fix.md` |
 | Supabase (repository asli) | 2026-11-23 | Claude | Linux → Supabase sebagai `pyrosnap_app` | Lulus (41/41) | Login 3 peran, daftar, sinkron, historis, peringatan, verifikasi, wilayah, laporan; 14 aksi terlarang ditolak (42501); `anon` ditolak membaca `users`; data uji dibersihkan. Belum dari aplikasi Windows |
+| Paket `.exe` (tes awal) | 2026-11-23 | Rian | Windows, ZIP self-contained + Supabase | Lulus (5/5, dilaporkan tester) | Database terhubung; login Admin dengan peta, KPI 691, dan lonceng 4; Kondisi sekitar di Detail; tema gelap; Tamu tanpa Ekspor/Peringatan. Belum: komputer bersih dan worksheet Black Box lengkap |
 
 ## 9. Checklist target
 

@@ -44,6 +44,7 @@
 2. **Pekerjaan MVP** (`docs/MVP.md`): finalisasi, implementasi web API pihak ketiga (`docs/backend/web-api.md`, WEB-00…11), panduan, pengemasan, menjalankan worksheet Black Box (`docs/debug/blackbox-testing.md`), pengumpulan.
 
 ### C. Keputusan yang masih menunggu tim
+- [x] **Paket `.exe`** — ZIP self-contained lulus tes awal 5/5 di Windows (2026-11-23). Sisa: coba di komputer bersih, Black Box lengkap, panduan pemakaian, pengumpulan.
 - [x] **Database online** — Supabase aktif 2026-11-23 (migrasi 001–010, user terbatas, akses publik dicabut, uji 41/41). Sisa: coba dari aplikasi Windows dengan `PYROSNAP_DB` = `SUPABASE_APP_DB`. Lihat `docs/database/supabase.md`.
 - [x] **Lingkup Web API** — diputuskan 2026-11-23: mengonsumsi REST API pihak ketiga (bukan membangun server): kualitas udara + cuaca/angin (Open-Meteo) + nama wilayah (Nominatim/OSM), pustaka RestSharp. **Dikodekan 2026-11-23** dengan RestSharp 112.1.0: kartu "Kondisi sekitar" di Detail dan kotak kualitas udara warga; uji otomatis 25/25 lulus (termasuk panggilan asli). Sisa: uji bagian F di Windows (WEB-09), panduan (WEB-10), kategori ISPU (belum diverifikasi; sementara US AQI), simpan nama wilayah ke DB atau tidak (WEB-11).
 - [ ] **K1** — nasib `PyroSnap/src/MapViewer.cs` (kode konsol yang tak terpakai): hapus atau hubungkan.
